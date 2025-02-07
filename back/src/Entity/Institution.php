@@ -2,13 +2,11 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Metadata\ApiResource;
 use App\Repository\InstitutionRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: InstitutionRepository::class)]
-#[ApiResource()]
 class Institution extends User
 {
     #[ORM\Column(type: Types::ARRAY)]
