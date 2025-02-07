@@ -1,74 +1,147 @@
-import { Image, StyleSheet, Platform } from 'react-native';
+import React, { useEffect, useState } from "react";
+import { ActivityIndicator, Alert, FlatList, RefreshControl, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+interface SportFacility {
+    id: string;
+    data: Record<string, any>;
+    lastUpdate: string;
+}
 
-export default function HomeScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12'
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
-  );
+export default function SportFacilitiesScreen() {
+    const [facilities, setFacilities] = useState<SportFacility[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [isRefreshing, setIsRefreshing] = useState(false);
+
+    const fetchFacilities = async () => {
+        try {
+            const response = await fetch("http://localhost:8000/api/public_sport_facilities");
+
+            if (!response.ok) {
+                throw new Error("Erreur lors de la récupération des données");
+            }
+            const data = await response.json();
+
+            setFacilities(data.member);
+        } catch (error: unknown) {
+            const errorMessage = error instanceof Error ? error.message : "Une erreur est survenue";
+            Alert.alert("Erreur", errorMessage);
+        } finally {
+            setIsLoading(false);
+            setIsRefreshing(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchFacilities();
+    }, []);
+
+    const onRefresh = () => {
+        setIsRefreshing(true);
+        fetchFacilities();
+    };
+
+    const formatDate = (dateString: string) => {
+        const date = new Date(dateString);
+        return date.toLocaleDateString("fr-FR", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+        });
+    };
+
+    const renderFacilityCard = ({ item }: { item: SportFacility }) => (
+        <TouchableOpacity style={styles.card}>
+            <View style={styles.cardContent}>
+                <Text style={styles.cardTitle}>{item.data.inst_nom}</Text>
+                <Text style={styles.cardDate}>Dernière mise à jour : {formatDate(item.lastUpdate)}</Text>
+            </View>
+        </TouchableOpacity>
+    );
+
+    if (isLoading) {
+        return (
+            <View style={styles.centered}>
+                <ActivityIndicator size="large" color="#007AFF" />
+            </View>
+        );
+    }
+
+    return (
+        <View style={styles.container}>
+            <Text style={styles.title}>Installations Sportives</Text>
+            <FlatList
+                data={facilities}
+                renderItem={renderFacilityCard}
+                keyExtractor={(item) => item.id}
+                contentContainerStyle={styles.listContainer}
+                refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />}
+                ListEmptyComponent={
+                    <View style={styles.emptyContainer}>
+                        <Text style={styles.emptyText}>Aucune installation disponible</Text>
+                    </View>
+                }
+            />
+        </View>
+    );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
+    container: {
+        flex: 1,
+        backgroundColor: "#f5f5f5",
+        padding: 16,
+    },
+    centered: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    title: {
+        fontSize: 24,
+        fontWeight: "bold",
+        marginBottom: 16,
+        color: "#333",
+    },
+    listContainer: {
+        paddingBottom: 16,
+    },
+    card: {
+        backgroundColor: "white",
+        borderRadius: 12,
+        marginBottom: 12,
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 3,
+    },
+    cardContent: {
+        padding: 16,
+    },
+    cardTitle: {
+        fontSize: 18,
+        fontWeight: "600",
+        marginBottom: 8,
+        color: "#333",
+    },
+    cardDate: {
+        fontSize: 14,
+        color: "#666",
+    },
+    emptyContainer: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        paddingVertical: 32,
+    },
+    emptyText: {
+        fontSize: 16,
+        color: "#666",
+        textAlign: "center",
+    },
 });
