@@ -30,6 +30,6 @@ class AccessTokenHandler implements AccessTokenHandlerInterface
         }
         */
 
-        return new UserBadge($tokenEntity->getUserMail());
+        return new UserBadge($tokenEntity->getUserEmail());
     }
 }

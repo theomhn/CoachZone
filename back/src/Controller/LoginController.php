@@ -11,11 +11,13 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use App\Entity\User;
+use App\Repository\AccessTokenRepository;
+use Symfony\Component\HttpFoundation\Request;
 
 class LoginController extends AbstractController
 {
     #[Route('/api/login', name: 'app_login', methods: ['POST'])]
-    public function index(#[CurrentUser] ?User $user, EntityManagerInterface $entityManager): Response
+    public function login(#[CurrentUser] ?User $user, EntityManagerInterface $entityManager): Response
     {
         if (null === $user) {
             return $this->json([
@@ -49,5 +51,21 @@ class LoginController extends AbstractController
         }
 
         return $this->json($userData);
+    }
+
+    #[Route('/api/logout', name: 'app_logout', methods: ['POST'])]
+    public function logout(Request $request, AccessTokenRepository $tokenRepository, EntityManagerInterface $entityManager): Response
+    {
+        $authHeader = $request->headers->get('Authorization');
+        $token = str_replace('Bearer ', '', $authHeader);
+
+        $accessToken = $tokenRepository->findOneByToken($token);
+
+        if ($accessToken) {
+            $entityManager->remove($accessToken);
+            $entityManager->flush();
+        }
+
+        return $this->json(['message' => 'Logged out successfully']);
     }
 }
