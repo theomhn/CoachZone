@@ -1,0 +1,75 @@
+resources:
+    App\ApiResource\Auth:
+        operations:
+            login:
+                class: ApiPlatform\Metadata\Post
+                uriTemplate: "/login"
+                controller: App\Controller\LoginController::class
+                openapi:
+                    summary: "Login user"
+                    requestBody:
+                        content:
+                            application/json:
+                                schema:
+                                    type: object
+                                    properties:
+                                        email: { type: string, format: email }
+                                        password: { type: string }
+                    responses:
+                        "200":
+                            description: "User authenticated successfully"
+                            content:
+                                application/json:
+                                    schema:
+                                        type: object
+                                        properties:
+                                            id: { type: integer }
+                                            email: { type: string }
+                                            token: { type: string }
+                                            type: { type: string, enum: [coach, institution] }
+                                            firstName: { type: string }
+                                            lastName: { type: string }
+                                            work: { type: string }
+                                            name: { type: string }
+                        "401":
+                            description: "Invalid credentials"
+
+            logout:
+                class: ApiPlatform\Metadata\Post
+                uriTemplate: "/logout"
+                controller: 'App\Controller\LoginController::class::logout'
+                openapi:
+                    summary: "Logout user"
+                    security:
+                        - bearerAuth: []
+                    responses:
+                        "200":
+                            description: "Logged out successfully"
+                        "401":
+                            description: "Invalid or missing token"
+
+            register:
+                class: ApiPlatform\Metadata\Post
+                uriTemplate: "/register"
+                controller: App\Controller\RegistrationController::class
+                openapi:
+                    summary: "Register new user"
+                    requestBody:
+                        content:
+                            application/json:
+                                schema:
+                                    type: object
+                                    required: [type, email, password]
+                                    properties:
+                                        type: { type: string, enum: [coach, institution] }
+                                        email: { type: string, format: email }
+                                        password: { type: string }
+                                        firstName: { type: string, description: "Required for coach" }
+                                        lastName: { type: string, description: "Required for coach" }
+                                        work: { type: string, description: "Required for coach" }
+                                        name: { type: string, description: "Required for institution" }
+                    responses:
+                        "200":
+                            description: "User registered successfully"
+                        "400":
+                            description: "Invalid input"
