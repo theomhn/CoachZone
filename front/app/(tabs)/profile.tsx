@@ -34,10 +34,32 @@ export default function ProfileScreen() {
 
     const handleLogout = async () => {
         try {
-            await AsyncStorage.multiRemove(["userToken", "userData"]);
-            router.replace("/login");
+            // Récupérer le token utilisateur
+            const userToken = await AsyncStorage.getItem("userToken");
+
+            // Effectuer la requête de déconnexion
+            const response = await fetch("http://127.0.0.1:8000/api/logout", {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${userToken}`,
+                    "Content-Type": "application/json",
+                },
+            });
+
+            // Vérifier si la déconnexion a réussi
+            if (response.ok) {
+                // Supprimer les données utilisateur
+                await AsyncStorage.multiRemove(["userToken", "userData"]);
+                // Rediriger vers l'écran de connexion
+                router.replace("/login");
+            } else {
+                // Gérer l'échec de la déconnexion
+                const errorData = await response.json();
+                Alert.alert("Erreur", errorData.message || "Erreur lors de la déconnexion");
+            }
         } catch (error) {
-            Alert.alert("Erreur", "Erreur lors de la déconnexion");
+            console.error("Erreur de déconnexion :", error);
+            Alert.alert("Erreur", "Impossible de se déconnecter");
         }
     };
 
