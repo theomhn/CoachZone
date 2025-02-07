@@ -2,11 +2,11 @@
 
 namespace App\Service;
 
-use App\Entity\PublicSportFacility;
+use App\Entity\Place;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
-class SportFacilitySyncService
+class PlaceSyncService
 {
     private const LIMIT_PER_PAGE = 100;
 
@@ -15,7 +15,7 @@ class SportFacilitySyncService
         private readonly EntityManagerInterface $entityManager
     ) {}
 
-    public function synchronizeFacilities(): void
+    public function synchronizePlaces(): void
     {
         $offset = 0;
         $totalProcessed = 0;
@@ -39,14 +39,13 @@ class SportFacilitySyncService
             $totalCount = $jsonData['total_count'];
             $results = $jsonData['results'];
 
-            foreach ($results as $facilityData) {
-                // Traiter les champs JSON dans les données
-                foreach ($facilityData as $key => $value) {
+            foreach ($results as $placeData) {
+                foreach ($placeData as $key => $value) {
                     if (is_string($value)) {
                         try {
                             $decoded = json_decode($value, true);
                             if (json_last_error() === JSON_ERROR_NONE) {
-                                $facilityData[$key] = $decoded;
+                                $placeData[$key] = $decoded;
                             }
                         } catch (\Exception $err) {
                             // Ignorer les erreurs de parsing
@@ -54,19 +53,18 @@ class SportFacilitySyncService
                     }
                 }
 
-                // Récupérer ou créer l'entité
-                $facility = $this->entityManager->getRepository(PublicSportFacility::class)
-                    ->find($facilityData['equip_numero']);
+                $place = $this->entityManager->getRepository(Place::class)
+                    ->find($placeData['equip_numero']);
 
-                if (!$facility) {
-                    $facility = new PublicSportFacility();
-                    $facility->setId($facilityData['equip_numero']);
+                if (!$place) {
+                    $place = new Place();
+                    $place->setId($placeData['equip_numero']);
                 }
 
-                $facility->setData($facilityData);
-                $facility->setLastUpdate(new \DateTimeImmutable());
+                $place->setData($placeData);
+                $place->setLastUpdate(new \DateTimeImmutable());
 
-                $this->entityManager->persist($facility);
+                $this->entityManager->persist($place);
                 $totalProcessed++;
             }
 
@@ -74,6 +72,6 @@ class SportFacilitySyncService
             $offset += self::LIMIT_PER_PAGE;
         } while ($offset < $totalCount);
 
-        echo "Processed $totalProcessed facilities out of $totalCount total\n";
+        echo "Processed $totalProcessed places out of $totalCount total\n";
     }
 }
