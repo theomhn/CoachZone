@@ -3,7 +3,6 @@ api_platform:
     version: 1.0.0
     formats:
         json: ["application/json"]
-        jsonld: []
     defaults:
         stateless: true
         formats: ["json"]
