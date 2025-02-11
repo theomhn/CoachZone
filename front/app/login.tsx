@@ -1,5 +1,5 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
+import * as SecureStore from "expo-secure-store";
 import React, { useState } from "react";
 import { Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 
@@ -33,12 +33,9 @@ export default function LoginScreen() {
                 throw new Error(data.message || "Une erreur est survenue");
             }
 
-            console.log(data);
+            await SecureStore.setItemAsync("userToken", data);
 
-            await AsyncStorage.setItem("userToken", data.token);
-            await AsyncStorage.setItem("userData", JSON.stringify(data));
-
-            router.replace("/(tabs)");
+            router.replace("/");
         } catch (error: unknown) {
             const errorMessage = error instanceof Error ? error.message : "Une erreur est survenue";
             Alert.alert("Erreur", errorMessage);

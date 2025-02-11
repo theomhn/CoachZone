@@ -1,43 +1,25 @@
 import { Ionicons } from "@expo/vector-icons";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
+import * as SecureStore from "expo-secure-store";
 import React, { useEffect, useState } from "react";
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
-interface User {
-    email: string;
-    id: number;
-    type: "coach" | "institution";
-    firstName?: string;
-    lastName?: string;
-    work?: string;
-    name?: string;
-}
-
 export default function ProfileScreen() {
-    const [user, setUser] = useState<User | null>(null);
+    const [user, setUser] = useState(global.user);
 
     useEffect(() => {
-        loadUserData();
-    }, []);
 
-    const loadUserData = async () => {
-        try {
-            const userJson = await AsyncStorage.getItem("userData");
-            if (userJson) {
-                setUser(JSON.parse(userJson));
-            }
-        } catch (error) {
+        if (global.user) {
+            setUser(global.user);
+        } else {
             Alert.alert("Erreur", "Impossible de charger les données utilisateur");
         }
-    };
+    }, []);
 
     const handleLogout = async () => {
         try {
-            // Récupérer le token utilisateur
-            const userToken = await AsyncStorage.getItem("userToken");
+            const userToken = await SecureStore.getItemAsync("userToken");
 
-            // Effectuer la requête de déconnexion
             const response = await fetch("http://127.0.0.1:8000/api/logout", {
                 method: "POST",
                 headers: {
@@ -46,20 +28,23 @@ export default function ProfileScreen() {
                 },
             });
 
-            // Vérifier si la déconnexion a réussi
-            if (response.ok) {
-                // Supprimer les données utilisateur
-                await AsyncStorage.multiRemove(["userToken", "userData"]);
-                // Rediriger vers l'écran de connexion
+            if (response.ok || response.status === 204) {
+                global.user = null;
+                await SecureStore.deleteItemAsync("userToken");
                 router.replace("/login");
             } else {
-                // Gérer l'échec de la déconnexion
-                const errorData = await response.json();
-                Alert.alert("Erreur", errorData.message || "Erreur lors de la déconnexion");
+                try {
+                    const errorData = await response.json();
+                    Alert.alert("Erreur", errorData.message || "Erreur lors de la déconnexion");
+                } catch {
+                    Alert.alert("Erreur", "Erreur lors de la déconnexion");
+                }
             }
         } catch (error) {
             console.error("Erreur de déconnexion :", error);
-            Alert.alert("Erreur", "Impossible de se déconnecter");
+            global.user = null;
+            await SecureStore.deleteItemAsync("userToken");
+            router.replace("/login");
         }
     };
 

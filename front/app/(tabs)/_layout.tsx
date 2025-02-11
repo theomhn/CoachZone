@@ -1,5 +1,5 @@
 import { Tabs } from "expo-router";
-import React from "react";
+import React, { useEffect } from "react";
 
 import { HapticTab } from "@/components/HapticTab";
 import { IconSymbol } from "@/components/ui/IconSymbol";
@@ -7,8 +7,45 @@ import TabBarBackground from "@/components/ui/TabBarBackground";
 import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
 
+import { router } from "expo-router";
+import * as SecureStore from "expo-secure-store";
+
 export default function TabLayout() {
     const colorScheme = useColorScheme();
+
+    useEffect(() => {
+        checkAuth();
+    });
+
+    const checkAuth = async () => {
+        try {
+            const token = await SecureStore.getItemAsync("userToken");
+
+            if (!token) {
+                router.replace("/login");
+            } else {
+                // Récupération des données utilisateur
+                const response = await fetch("http://127.0.0.1:8000/api/users/me", {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                    },
+                });
+
+                if (response.ok) {
+                    const userData = await response.json();
+                    global.user = userData;
+                } else {
+                    // Si la requête échoue
+                    await SecureStore.deleteItemAsync("userToken");
+                    router.replace("/login");
+                }
+            }
+        } catch (error) {
+            await Promise.all([SecureStore.deleteItemAsync("userToken"), SecureStore.deleteItemAsync("userData")]);
+            router.replace("/login");
+        }
+    };
 
     return (
         <Tabs
