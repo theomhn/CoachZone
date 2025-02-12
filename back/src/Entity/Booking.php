@@ -2,11 +2,35 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Doctrine\Orm\Filter\DateFilter;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Metadata\ApiFilter;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
 use App\Repository\BookingRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: BookingRepository::class)]
+#[ApiResource(
+    operations: [
+        new Post(
+            security: "is_granted('ROLE_USER') and object.getCoach() == user"
+        ),
+        new Get(requirements: ['id' => '\d+']),
+        new GetCollection()
+    ]
+)]
+#[ApiFilter(SearchFilter::class, properties: [
+    'coach' => 'exact',
+    'place' => 'exact',
+])]
+#[ApiFilter(DateFilter::class, properties: [
+    'dateStart',
+    'dateEnd'
+])]
 class Booking
 {
     #[ORM\Id]
