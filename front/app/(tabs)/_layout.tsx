@@ -9,6 +9,7 @@ import { useColorScheme } from "@/hooks/useColorScheme";
 
 import { router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function TabLayout() {
     const colorScheme = useColorScheme();
@@ -66,14 +67,23 @@ export default function TabLayout() {
             <Tabs.Screen
                 name="index"
                 options={{
-                    title: "Home",
+                    title: "Accueil",
                     tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+                }}
+            />
+            <Tabs.Screen
+                name="map"
+                options={{
+                    title: "Carte",
+                    tabBarIcon: ({ color }) => (
+                        <IconSymbol name="map" size={28} color={color} />
+                    ),
                 }}
             />
             <Tabs.Screen
                 name="profile"
                 options={{
-                    title: "Profile",
+                    title: "Profil",
                     tabBarIcon: ({ color }) => <IconSymbol size={28} name="person.fill" color={color} />,
                 }}
             />

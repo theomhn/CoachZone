@@ -1,3 +1,5 @@
+import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, Alert, FlatList, RefreshControl, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
@@ -14,6 +16,10 @@ interface Places {
         equip_sanit: boolean;
         equip_surf: number;
         equip_nature: string;
+        coordonnees: {
+            lat: number;
+            lon: number;
+        };
     };
     lastUpdate: string;
 }
@@ -61,6 +67,10 @@ export default function PlacesScreen() {
         });
     };
 
+    const navigateToMap = () => {
+        router.replace("/(tabs)/map");
+    };
+
     const renderPlaceCard = ({ item }: { item: Places }) => (
         <TouchableOpacity style={styles.card}>
             <View style={styles.cardContent}>
@@ -98,7 +108,13 @@ export default function PlacesScreen() {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>Installations Sportives</Text>
+            <View style={styles.header}>
+                <Text style={styles.title}>Installations Sportives</Text>
+                <TouchableOpacity style={styles.mapButton} onPress={navigateToMap}>
+                    <Ionicons name="map-outline" size={24} color="#007AFF" />
+                    <Text style={styles.mapButtonText}>Voir sur la carte</Text>
+                </TouchableOpacity>
+            </View>
             <FlatList
                 data={places}
                 renderItem={renderPlaceCard}
@@ -126,11 +142,29 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center",
     },
+    header: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        marginBottom: 16,
+    },
     title: {
         fontSize: 24,
         fontWeight: "bold",
-        marginBottom: 16,
         color: "#333",
+    },
+    mapButton: {
+        flexDirection: "row",
+        alignItems: "center",
+        backgroundColor: "#e1f5fe",
+        paddingHorizontal: 12,
+        paddingVertical: 8,
+        borderRadius: 20,
+    },
+    mapButtonText: {
+        color: "#007AFF",
+        marginLeft: 6,
+        fontWeight: "500",
     },
     listContainer: {
         paddingBottom: 16,
