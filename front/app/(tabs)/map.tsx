@@ -1,43 +1,21 @@
+import Badge from "@/components/Badge";
+import { Place } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import * as Location from "expo-location";
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, Dimensions, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import MapView, { Marker, PROVIDER_DEFAULT } from "react-native-maps";
 
-interface Place {
-    id: string;
-    data: {
-        inst_nom: string;
-        inst_adresse: string;
-        inst_cp: number;
-        lib_bdv: string;
-        equip_nom: string;
-        equip_aps_nom: string[];
-        equip_douche: boolean;
-        equip_sanit: boolean;
-        equip_surf: number;
-        equip_nature: string;
-        coordonnees: {
-            lat: number;
-            lon: number;
-        };
-    };
-    lastUpdate: string;
-}
-
 export default function MapScreen() {
     const [places, setPlaces] = useState<Place[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [selectedPlace, setSelectedPlace] = useState<Place | null>(null);
-    const [userLocation, setUserLocation] = useState<{
-        latitude: number;
-        longitude: number;
-    } | null>(null);
+    const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
     const [region, setRegion] = useState({
         latitude: 43.62505, // Montpellier par défaut
         longitude: 3.862038,
-        latitudeDelta: 0.1,
-        longitudeDelta: 0.05,
+        latitudeDelta: 0.0922,
+        longitudeDelta: 0.0421,
     });
 
     // Récupération des lieux
@@ -50,7 +28,7 @@ export default function MapScreen() {
         try {
             const response = await fetch("http://127.0.0.1:8000/api/places");
             if (!response.ok) {
-                throw new Error("Erreur lors de la récupération des equipements sportifs");
+                throw new Error("Erreur lors de la récupération des données");
             }
             const data = await response.json();
 
@@ -64,8 +42,8 @@ export default function MapScreen() {
                 setRegion({
                     latitude: placesWithCoords[0].data.coordonnees.lat,
                     longitude: placesWithCoords[0].data.coordonnees.lon,
-                    latitudeDelta: 0.1,
-                    longitudeDelta: 0.05,
+                    latitudeDelta: 0.0922,
+                    longitudeDelta: 0.0421,
                 });
             }
         } catch (error) {
@@ -91,8 +69,8 @@ export default function MapScreen() {
             setRegion({
                 latitude,
                 longitude,
-                latitudeDelta: 0.01,
-                longitudeDelta: 0.005,
+                latitudeDelta: 0.0922,
+                longitudeDelta: 0.0421,
             });
         } catch (error) {
             console.error("Erreur de localisation :", error);
@@ -166,16 +144,8 @@ export default function MapScreen() {
                     </Text>
 
                     <View style={styles.placeFeatures}>
-                        {selectedPlace.data.equip_douche && (
-                            <View style={styles.featureBadge}>
-                                <Text style={styles.featureText}>Douches</Text>
-                            </View>
-                        )}
-                        {selectedPlace.data.equip_sanit && (
-                            <View style={styles.featureBadge}>
-                                <Text style={styles.featureText}>Sanitaires</Text>
-                            </View>
-                        )}
+                        {selectedPlace.data.equip_douche && <Badge text="Douches" />}
+                        {selectedPlace.data.equip_sanit && <Badge text="Sanitaires" />}
                     </View>
 
                     <TouchableOpacity style={styles.closeButton} onPress={() => setSelectedPlace(null)}>
@@ -247,17 +217,6 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         flexWrap: "wrap",
         gap: 8,
-    },
-    featureBadge: {
-        backgroundColor: "#e1f5fe",
-        paddingHorizontal: 8,
-        paddingVertical: 4,
-        borderRadius: 4,
-    },
-    featureText: {
-        color: "#0288d1",
-        fontSize: 12,
-        fontWeight: "500",
     },
     closeButton: {
         position: "absolute",
