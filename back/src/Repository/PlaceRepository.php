@@ -16,28 +16,25 @@ class PlaceRepository extends ServiceEntityRepository
         parent::__construct($registry, Place::class);
     }
 
-    //    /**
-    //     * @return Place[] Returns an array of Place objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('p')
-    //            ->andWhere('p.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('p.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    /**
+     * Récupère tous les inst_numero et inst_name distincts
+     * 
+     * @return array Un tableau associatif avec inst_numero comme clé et inst_name comme valeur
+     */
+    public function findDistinctInstitutions(): array
+    {
+        $result = $this->createQueryBuilder('p')
+            ->select('p.inst_numero, p.inst_name')
+            ->distinct(true)
+            ->getQuery()
+            ->getResult();
 
-    //    public function findOneBySomeField($value): ?Place
-    //    {
-    //        return $this->createQueryBuilder('p')
-    //            ->andWhere('p.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+        // Reformate le résultat en tableau associatif
+        $institutions = [];
+        foreach ($result as $row) {
+            $institutions[$row['inst_numero']] = $row['inst_name'];
+        }
+
+        return $institutions;
+    }
 }
