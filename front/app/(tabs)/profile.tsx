@@ -8,7 +8,6 @@ export default function ProfileScreen() {
     const [user, setUser] = useState(global.user);
 
     useEffect(() => {
-
         if (global.user) {
             setUser(global.user);
         } else {
@@ -78,8 +77,11 @@ export default function ProfileScreen() {
                         </>
                     ) : (
                         <>
-                            <Text style={styles.label}>Nom de l'établissement</Text>
-                            <Text style={styles.value}>{user.name}</Text>
+                            <Text style={styles.label}>Code établissement</Text>
+                            <Text style={styles.value}>{user.inst_numero}</Text>
+
+                            <Text style={styles.label}>Nom de votre établissement</Text>
+                            <Text style={styles.value}>{user.inst_name}</Text>
                         </>
                     )}
                 </View>

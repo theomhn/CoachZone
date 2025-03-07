@@ -26,7 +26,7 @@ export default function MapScreen() {
 
     const fetchPlaces = async () => {
         try {
-            const response = await fetch("http://127.0.0.1:8000/api/places");
+            const response = await fetch("http://127.0.0.1:8000/api/opendata/places");
             if (!response.ok) {
                 throw new Error("Erreur lors de la récupération des données");
             }
@@ -173,7 +173,7 @@ const styles = StyleSheet.create({
     },
     locationButton: {
         position: "absolute",
-        top: 20,
+        bottom: 20,
         right: 20,
         backgroundColor: "#fff",
         borderRadius: 30,

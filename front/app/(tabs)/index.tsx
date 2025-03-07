@@ -12,7 +12,7 @@ export default function PlacesScreen() {
 
     const fetchPlaces = async () => {
         try {
-            const response = await fetch("http://127.0.0.1:8000/api/places");
+            const response = await fetch("http://127.0.0.1:8000/api/opendata/places");
 
             if (!response.ok) {
                 throw new Error("Erreur lors de la récupération des données");

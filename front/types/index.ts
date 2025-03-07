@@ -23,7 +23,7 @@ export interface Place {
 }
 
 /**
- * Type pour les données d'utilisateur (à compléter selon votre modèle)
+ * Type pour les données d'utilisateur
  */
 export interface User {
     id: string;
@@ -33,6 +33,16 @@ export interface User {
     lastName?: string;
     work?: string;
     name?: string;
+    inst_numero?: string;
+    inst_name?: string;
+}
+
+/**
+ * Type pour les Institution
+ */
+export interface Institution {
+    id: string;
+    name: string;
 }
 
 /**

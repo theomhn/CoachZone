@@ -3,39 +3,36 @@
 namespace App\Entity;
 
 use App\Repository\InstitutionRepository;
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: InstitutionRepository::class)]
 class Institution extends User
 {
-    #[ORM\Column(type: Types::ARRAY)]
-    private array $ownedPlace = [];
+    #[ORM\Column(length: 255, unique: true)]
+    private ?string $inst_numero = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $name = null;
+    private ?string $inst_name = null;
 
-    public function getOwnedPlace(): array
+    public function getInstNumero(): ?string
     {
-        return $this->ownedPlace;
+        return $this->inst_numero;
     }
 
-    public function setOwnedPlace(array $ownedPlace): static
+    public function setInstNumero(string $inst_numero): static
     {
-        $this->ownedPlace = $ownedPlace;
-
+        $this->inst_numero = $inst_numero;
         return $this;
     }
 
-    public function getName(): ?string
+    public function getInstName(): ?string
     {
-        return $this->name;
+        return $this->inst_name;
     }
 
-    public function setName(string $name): static
+    public function setInstName(string $inst_name): static
     {
-        $this->name = $name;
-
+        $this->inst_name = $inst_name;
         return $this;
     }
 }

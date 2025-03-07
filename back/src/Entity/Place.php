@@ -10,12 +10,18 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: PlaceRepository::class)]
-#[ApiResource()]
+#[ApiResource(routePrefix: '/opendata')]
 class Place
 {
     #[ORM\Id]
     #[ORM\Column(length: 255)]
     private ?string $id = null;  // Utilisation de equip_numero comme ID
+
+    #[ORM\Column(length: 255)]
+    private ?string $inst_numero = null;
+
+    #[ORM\Column(length: 255)]
+    private ?string $inst_name = null;
 
     #[ORM\Column(type: Types::JSON)]
     private array $data = [];
@@ -42,6 +48,29 @@ class Place
     public function setId(string $id): static
     {
         $this->id = $id;
+        return $this;
+    }
+
+    public function getInstitutionName(): ?string
+    {
+        return $this->inst_name;
+    }
+
+    public function setInstitutionName(string $inst_name): static
+    {
+        $this->inst_name = $inst_name;
+
+        return $this;
+    }
+
+    public function getInstitutionNumero(): string
+    {
+        return $this->inst_numero;
+    }
+
+    public function setInstitutionNumero(?string $inst_numero): static
+    {
+        $this->inst_numero = $inst_numero;
         return $this;
     }
 
@@ -81,7 +110,6 @@ class Place
             $this->bookings->add($booking);
             $booking->setPlace($this);
         }
-
         return $this;
     }
 
@@ -92,7 +120,6 @@ class Place
                 $booking->setPlace(null);
             }
         }
-
         return $this;
     }
 }

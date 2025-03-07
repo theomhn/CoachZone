@@ -61,6 +61,8 @@ class PlaceSyncService
                     $place->setId($placeData['equip_numero']);
                 }
 
+                $place->setInstitutionNumero($placeData['inst_numero']);
+                $place->setInstitutionName($placeData['inst_nom']);
                 $place->setData($placeData);
                 $place->setLastUpdate(new \DateTimeImmutable());
 

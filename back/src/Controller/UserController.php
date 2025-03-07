@@ -31,7 +31,8 @@ class UserController extends AbstractController
             $userData['work'] = $user->getWork();
             $userData['type'] = 'coach';
         } elseif ($user instanceof \App\Entity\Institution) {
-            $userData['name'] = $user->getName();
+            $userData['inst_numero'] = $user->getInstNumero();
+            $userData['inst_name'] = $user->getInstName();
             $userData['type'] = 'institution';
         }
 
