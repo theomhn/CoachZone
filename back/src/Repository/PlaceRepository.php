@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\Institution;
 use App\Entity\Place;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -36,5 +37,19 @@ class PlaceRepository extends ServiceEntityRepository
         }
 
         return $institutions;
+    }
+
+    /**
+     * Récupère les places qui ont une institution associée
+     *
+     * @return array Retourne un tableau de Places qui ont une institution associée
+     */
+    public function findAllWithInstitution(): array
+    {
+        return $this->createQueryBuilder('p')
+            ->select('p.id, p.inst_numero, p.inst_name, p.data, p.lastUpdate')
+            ->innerJoin(Institution::class, 'i', 'WITH', 'p.inst_numero = i.inst_numero')
+            ->getQuery()
+            ->getResult();
     }
 }
