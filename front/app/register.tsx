@@ -1,3 +1,4 @@
+import { API_BASE_URL } from "@/config";
 import { Institution } from "@/types";
 import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
@@ -58,7 +59,7 @@ export default function RegisterScreen() {
     const fetchInstitutions = async () => {
         setIsLoadingInstitutions(true);
         try {
-            const response = await fetch("http://127.0.0.1:8000/api/opendata/institutions");
+            const response = await fetch(`${API_BASE_URL}/opendata/institutions`);
             if (!response.ok) {
                 throw new Error("Erreur lors de la récupération des institutions");
             }
@@ -121,7 +122,7 @@ export default function RegisterScreen() {
 
         setIsLoading(true);
         try {
-            const response = await fetch("http://127.0.0.1:8000/api/register", {
+            const response = await fetch(`${API_BASE_URL}/register`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

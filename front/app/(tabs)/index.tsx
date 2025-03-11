@@ -1,4 +1,5 @@
 import PlaceCard from "@/components/PlaceCard";
+import { API_BASE_URL } from "@/config";
 import { Place } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -12,7 +13,7 @@ export default function PlacesScreen() {
 
     const fetchPlaces = async () => {
         try {
-            const response = await fetch("http://127.0.0.1:8000/api/opendata/places");
+            const response = await fetch(`${API_BASE_URL}/opendata/places`);
 
             if (!response.ok) {
                 throw new Error("Erreur lors de la récupération des données");

@@ -7,9 +7,9 @@ import TabBarBackground from "@/components/ui/TabBarBackground";
 import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
 
+import { API_BASE_URL } from "@/config";
 import { router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
-import { Ionicons } from "@expo/vector-icons";
 
 export default function TabLayout() {
     const colorScheme = useColorScheme();
@@ -26,7 +26,7 @@ export default function TabLayout() {
                 router.replace("/login");
             } else {
                 // Récupération des données utilisateur
-                const response = await fetch("http://127.0.0.1:8000/api/users/me", {
+                const response = await fetch(`${API_BASE_URL}/users/me`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                         "Content-Type": "application/json",

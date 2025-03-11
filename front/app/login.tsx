@@ -1,3 +1,4 @@
+import { API_BASE_URL } from "@/config";
 import { router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import React, { useState } from "react";
@@ -16,7 +17,7 @@ export default function LoginScreen() {
 
         setIsLoading(true);
         try {
-            const response = await fetch("http://127.0.0.1:8000/api/login", {
+            const response = await fetch(`${API_BASE_URL}/login`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

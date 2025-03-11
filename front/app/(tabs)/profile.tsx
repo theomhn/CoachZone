@@ -1,3 +1,4 @@
+import { API_BASE_URL } from "@/config";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
@@ -19,7 +20,7 @@ export default function ProfileScreen() {
         try {
             const userToken = await SecureStore.getItemAsync("userToken");
 
-            const response = await fetch("http://127.0.0.1:8000/api/logout", {
+            const response = await fetch(`${API_BASE_URL}/logout`, {
                 method: "POST",
                 headers: {
                     Authorization: `Bearer ${userToken}`,
