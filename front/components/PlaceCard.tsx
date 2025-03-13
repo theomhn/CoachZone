@@ -1,4 +1,5 @@
 import { Place } from "@/types";
+import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Badge from "./Badge";
@@ -6,9 +7,13 @@ import Badge from "./Badge";
 interface PlaceCardProps {
     item: Place;
     onPress?: () => void;
+    onClose?: () => void;
+    variant?: "card" | "popup"; // "card" pour l'affichage en liste, "popup" pour la carte
+    showDate?: boolean; // Afficher la date de mise à jour
+    showActivities?: boolean; // Afficher les activités
 }
 
-const PlaceCard: React.FC<PlaceCardProps> = ({ item, onPress }) => {
+const PlaceCard: React.FC<PlaceCardProps> = ({ item, onPress, onClose, variant = "card", showDate = true, showActivities = true }) => {
     const formatDate = (dateString: string) => {
         const date = new Date(dateString);
         return date.toLocaleDateString("fr-FR", {
@@ -20,31 +25,81 @@ const PlaceCard: React.FC<PlaceCardProps> = ({ item, onPress }) => {
         });
     };
 
+    const isPopup = variant === "popup";
+
     return (
-        <TouchableOpacity style={styles.card} onPress={onPress}>
-            <View style={styles.cardContent}>
-                <Text style={styles.cardTitle}>{item.data.inst_nom}</Text>
-                <Text style={styles.cardSubtitle}>{item.data.equip_nom}</Text>
-                <Text style={styles.cardAddress}>
-                    {item.data.inst_adresse}, {item.data.inst_cp} {item.data.lib_bdv}
-                </Text>
-                <Text style={styles.cardActivities}>{item.data.equip_aps_nom.join(", ")}</Text>
-                <Text style={styles.cardSurface}>Surface : {item.data.equip_surf} m²</Text>
-                <View style={styles.cardFooter}>
-                    {item.data.equip_douche && <Badge text="Douches" />}
-                    {item.data.equip_sanit && <Badge text="Sanitaires" />}
+        <TouchableOpacity style={[styles.container, isPopup ? styles.popupContainer : styles.cardContainer]} onPress={onPress} activeOpacity={onPress ? 0.7 : 1}>
+            <View style={styles.content}>
+                {/* Bouton de fermeture (uniquement pour popup) */}
+                {isPopup && onClose && (
+                    <TouchableOpacity style={styles.closeButton} onPress={onClose}>
+                        <Ionicons name="close" size={20} color="#fff" />
+                    </TouchableOpacity>
+                )}
+
+                {/* Titre de l'établissement */}
+                <Text style={styles.title}>{item.data.inst_nom}</Text>
+
+                {/* Nom de l'équipement */}
+                <View style={styles.infoRow}>
+                    <Ionicons name="business-outline" size={18} color="#555" style={styles.infoIcon} />
+                    <Text style={styles.infoValue}>{item.data.equip_nom}</Text>
                 </View>
-                <Text style={styles.cardDate}>Dernière mise à jour : {formatDate(item.lastUpdate)}</Text>
+
+                {/* Adresse */}
+                <View style={styles.infoRow}>
+                    <Ionicons name="location-outline" size={18} color="#555" style={styles.infoIcon} />
+                    <Text style={styles.infoValue}>
+                        {item.data.inst_adresse}, {item.data.inst_cp} {item.data.lib_bdv}
+                    </Text>
+                </View>
+
+                {/* Activités (optionnel) */}
+                {showActivities && item.data.equip_aps_nom && item.data.equip_aps_nom.length > 0 && (
+                    <View style={styles.infoRow}>
+                        <Ionicons name="fitness-outline" size={18} color="#555" style={styles.infoIcon} />
+                        <Text style={[styles.infoValue, styles.activitiesText]}>{item.data.equip_aps_nom.join(", ")}</Text>
+                    </View>
+                )}
+
+                {/* Surface */}
+                {item.data.equip_surf > 0 && (
+                    <View style={styles.infoRow}>
+                        <Ionicons name="resize-outline" size={18} color="#555" style={styles.infoIcon} />
+                        <Text style={styles.infoValue}>Surface : {item.data.equip_surf} m²</Text>
+                    </View>
+                )}
+
+                {/* Équipements */}
+                {(item.data.equip_douche || item.data.equip_sanit) && (
+                    <View style={styles.facilitiesContainer}>
+                        <View style={styles.infoRow}>
+                            <Ionicons name="water-outline" size={18} color="#555" style={styles.infoIcon} />
+                            <Text style={styles.facilitiesTitle}>Équipements :</Text>
+                        </View>
+                        <View style={styles.badgeContainer}>
+                            {item.data.equip_douche && <Badge text="Douches" />}
+                            {item.data.equip_sanit && <Badge text="Sanitaires" />}
+                        </View>
+                    </View>
+                )}
+
+                {/* Date de mise à jour (optionnel) */}
+                {showDate && (
+                    <View style={styles.infoRow}>
+                        <Ionicons name="time-outline" size={16} color="#999" style={styles.infoIcon} />
+                        <Text style={styles.dateText}>Dernière mise à jour : {formatDate(item.lastUpdate)}</Text>
+                    </View>
+                )}
             </View>
         </TouchableOpacity>
     );
 };
 
 const styles = StyleSheet.create({
-    card: {
+    container: {
         backgroundColor: "white",
         borderRadius: 12,
-        marginBottom: 12,
         shadowColor: "#000",
         shadowOffset: {
             width: 0,
@@ -54,46 +109,76 @@ const styles = StyleSheet.create({
         shadowRadius: 4,
         elevation: 3,
     },
-    cardContent: {
-        padding: 16,
-    },
-    cardTitle: {
-        fontSize: 18,
-        fontWeight: "600",
-        marginBottom: 4,
-        color: "#333",
-    },
-    cardSubtitle: {
-        fontSize: 16,
-        color: "#666",
-        marginBottom: 8,
-    },
-    cardAddress: {
-        fontSize: 14,
-        color: "#666",
-        marginBottom: 8,
-    },
-    cardActivities: {
-        fontSize: 14,
-        color: "#666",
-        marginBottom: 8,
-        fontStyle: "italic",
-    },
-    cardSurface: {
-        fontSize: 14,
-        color: "#666",
+    cardContainer: {
         marginBottom: 12,
     },
-    cardFooter: {
+    popupContainer: {
+        position: "absolute",
+        bottom: 20,
+        left: 20,
+        right: 20,
+        borderRadius: 15,
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+    },
+    content: {
+        padding: 16,
+    },
+    title: {
+        fontSize: 18,
+        fontWeight: "bold",
+        marginBottom: 12,
+        color: "#333",
+    },
+    infoRow: {
+        flexDirection: "row",
+        alignItems: "flex-start",
+        marginBottom: 8,
+    },
+    infoIcon: {
+        marginRight: 8,
+        marginTop: 2,
+    },
+    infoValue: {
+        fontSize: 14,
+        color: "#666",
+        flex: 1,
+    },
+    activitiesText: {
+        fontStyle: "italic",
+    },
+    facilitiesContainer: {
+        marginTop: 4,
+        marginBottom: 4,
+    },
+    facilitiesTitle: {
+        fontSize: 14,
+        marginTop: 3,
+        color: "#555",
+    },
+    badgeContainer: {
         flexDirection: "row",
         flexWrap: "wrap",
         gap: 8,
-        marginBottom: 8,
+        marginTop: 0,
+        marginLeft: 26,
     },
-    cardDate: {
+    dateText: {
         fontSize: 12,
+        marginTop: 2,
         color: "#999",
-        marginTop: 4,
+    },
+    closeButton: {
+        position: "absolute",
+        top: 12,
+        right: 12,
+        backgroundColor: "#ff3b30",
+        borderRadius: 15,
+        width: 30,
+        height: 30,
+        justifyContent: "center",
+        alignItems: "center",
+        zIndex: 1,
     },
 });
 

@@ -1,10 +1,10 @@
-import Badge from "@/components/Badge";
+import PlaceCard from "@/components/PlaceCard";
 import { API_BASE_URL } from "@/config";
 import { Place } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import * as Location from "expo-location";
 import React, { useEffect, useState } from "react";
-import { ActivityIndicator, Dimensions, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Dimensions, StyleSheet, TouchableOpacity, View } from "react-native";
 import MapView, { Marker, PROVIDER_DEFAULT } from "react-native-maps";
 
 export default function MapScreen() {
@@ -102,7 +102,7 @@ export default function MapScreen() {
 
     return (
         <View style={styles.container}>
-            <MapView provider={PROVIDER_DEFAULT} style={styles.map} region={region} onRegionChangeComplete={setRegion}>
+            <MapView provider={PROVIDER_DEFAULT} showsPointsOfInterest={false} style={styles.map} region={region} onRegionChangeComplete={setRegion}>
                 {places.map((place) => (
                     <Marker
                         key={place.id}
@@ -135,25 +135,8 @@ export default function MapScreen() {
                 </TouchableOpacity>
             )}
 
-            {/* Affichage des informations sur le lieu sélectionné */}
-            {selectedPlace && (
-                <View style={styles.placeInfo}>
-                    <Text style={styles.placeTitle}>{selectedPlace.data.inst_nom}</Text>
-                    <Text style={styles.placeSubtitle}>{selectedPlace.data.equip_nom}</Text>
-                    <Text style={styles.placeAddress}>
-                        {selectedPlace.data.inst_adresse}, {selectedPlace.data.inst_cp} {selectedPlace.data.lib_bdv}
-                    </Text>
-
-                    <View style={styles.placeFeatures}>
-                        {selectedPlace.data.equip_douche && <Badge text="Douches" />}
-                        {selectedPlace.data.equip_sanit && <Badge text="Sanitaires" />}
-                    </View>
-
-                    <TouchableOpacity style={styles.closeButton} onPress={() => setSelectedPlace(null)}>
-                        <Ionicons name="close" size={20} color="#fff" />
-                    </TouchableOpacity>
-                </View>
-            )}
+            {/* Utilisation du PlaceCard partagé en mode popup */}
+            {selectedPlace && <PlaceCard item={selectedPlace} variant="popup" showDate={false} showActivities={false} onClose={() => setSelectedPlace(null)} />}
         </View>
     );
 }
@@ -184,50 +167,5 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.25,
         shadowRadius: 3.84,
-    },
-    placeInfo: {
-        position: "absolute",
-        bottom: 20,
-        left: 20,
-        right: 20,
-        backgroundColor: "#fff",
-        borderRadius: 10,
-        padding: 15,
-        elevation: 5,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-    },
-    placeTitle: {
-        fontSize: 18,
-        fontWeight: "bold",
-        marginBottom: 5,
-    },
-    placeSubtitle: {
-        fontSize: 16,
-        color: "#555",
-        marginBottom: 5,
-    },
-    placeAddress: {
-        fontSize: 14,
-        color: "#777",
-        marginBottom: 10,
-    },
-    placeFeatures: {
-        flexDirection: "row",
-        flexWrap: "wrap",
-        gap: 8,
-    },
-    closeButton: {
-        position: "absolute",
-        top: 15,
-        right: 15,
-        backgroundColor: "#ff3b30",
-        borderRadius: 15,
-        width: 30,
-        height: 30,
-        justifyContent: "center",
-        alignItems: "center",
     },
 });

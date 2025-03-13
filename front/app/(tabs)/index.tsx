@@ -42,7 +42,12 @@ export default function PlacesScreen() {
         router.replace("/(tabs)/map");
     };
 
-    const renderPlaceCard = ({ item }: { item: Place }) => <PlaceCard item={item} />;
+    const handlePlacePress = (place: Place) => {
+        // @TODO Navigation vers la page de détail d'un lieu (à implémenter)
+        console.log("Place sélectionnée:", place.id);
+    };
+
+    const renderPlaceCard = ({ item }: { item: Place }) => <PlaceCard item={item} variant="card" showDate={true} showActivities={true} onPress={() => handlePlacePress(item)} />;
 
     if (isLoading) {
         return (
@@ -58,7 +63,7 @@ export default function PlacesScreen() {
                 <Text style={styles.title}>Installations Sportives</Text>
                 <TouchableOpacity style={styles.mapButton} onPress={navigateToMap}>
                     <Ionicons name="map-outline" size={24} color="#007AFF" />
-                    <Text style={styles.mapButtonText}>Voir sur la carte</Text>
+                    <Text style={styles.mapButtonText}>Voir carte</Text>
                 </TouchableOpacity>
             </View>
             <FlatList
