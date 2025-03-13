@@ -44,7 +44,8 @@
                 {
                     "locationAlwaysAndWhenInUsePermission": "Autoriser l'application CoachZone à accéder à votre position pour afficher les installations sportives proches de vous."
                 }
-            ]
+            ],
+            "expo-font"
         ],
         "experiments": {
             "typedRoutes": true
