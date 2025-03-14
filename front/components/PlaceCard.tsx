@@ -1,4 +1,5 @@
 import { Place } from "@/types";
+import { formatDate } from "@/utils/date";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
@@ -16,17 +17,6 @@ interface PlaceCardProps {
 }
 
 const PlaceCard: React.FC<PlaceCardProps> = ({ item, onPress, onClose, onViewDetails, variant = "card", showDate = true, showActivities = true, showDetailsButton = true }) => {
-    const formatDate = (dateString: string) => {
-        const date = new Date(dateString);
-        return date.toLocaleDateString("fr-FR", {
-            day: "2-digit",
-            month: "2-digit",
-            year: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
-        });
-    };
-
     const isPopup = variant === "popup";
 
     return (

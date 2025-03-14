@@ -1,6 +1,7 @@
 import Badge from "@/components/Badge";
 import { API_BASE_URL } from "@/config";
 import { Place } from "@/types";
+import { formatDate } from "@/utils/date";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
@@ -17,7 +18,7 @@ export default function PlaceDetailsScreen() {
     // Définir le titre de la page quand place est chargé
     useEffect(() => {
         if (place) {
-            // Titre statique
+            // Titre dynamique
             navigation.setOptions({
                 title: place.data.inst_nom,
             });
@@ -64,17 +65,6 @@ export default function PlaceDetailsScreen() {
         } finally {
             setIsLoading(false);
         }
-    };
-
-    const formatDate = (dateString: string) => {
-        const date = new Date(dateString);
-        return date.toLocaleDateString("fr-FR", {
-            day: "2-digit",
-            month: "2-digit",
-            year: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
-        });
     };
 
     if (isLoading) {
