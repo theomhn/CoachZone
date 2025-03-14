@@ -3,6 +3,7 @@ import { API_BASE_URL } from "@/config";
 import { Place } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import * as Location from "expo-location";
+import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, Dimensions, StyleSheet, TouchableOpacity, View } from "react-native";
 import MapView, { Marker, PROVIDER_DEFAULT } from "react-native-maps";
@@ -92,6 +93,16 @@ export default function MapScreen() {
         }
     };
 
+    const navigateToPlaceDetails = (placeId: string) => {
+        router.replace({
+            pathname: "/place-details",
+            params: {
+                id: placeId,
+                source: "map", // Indiquer que l'on vient de la carte
+            },
+        });
+    };
+
     if (isLoading) {
         return (
             <View style={styles.centered}>
@@ -102,7 +113,16 @@ export default function MapScreen() {
 
     return (
         <View style={styles.container}>
-            <MapView provider={PROVIDER_DEFAULT} showsPointsOfInterest={false} style={styles.map} region={region} onRegionChangeComplete={setRegion}>
+            <MapView
+                provider={PROVIDER_DEFAULT}
+                showsPointsOfInterest={false}
+                showsTraffic={false}
+                showsBuildings={false}
+                showsIndoors={false}
+                style={styles.map}
+                region={region}
+                onRegionChangeComplete={setRegion}
+            >
                 {places.map((place) => (
                     <Marker
                         key={place.id}
@@ -136,7 +156,17 @@ export default function MapScreen() {
             )}
 
             {/* Utilisation du PlaceCard partagé en mode popup */}
-            {selectedPlace && <PlaceCard item={selectedPlace} variant="popup" showDate={false} showActivities={false} onClose={() => setSelectedPlace(null)} />}
+            {selectedPlace && (
+                <PlaceCard
+                    item={selectedPlace}
+                    variant="popup"
+                    showDate={false}
+                    showActivities={false}
+                    showDetailsButton={true}
+                    onClose={() => setSelectedPlace(null)}
+                    onViewDetails={() => navigateToPlaceDetails(selectedPlace.id)}
+                />
+            )}
         </View>
     );
 }

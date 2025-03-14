@@ -42,12 +42,19 @@ export default function PlacesScreen() {
         router.replace("/(tabs)/map");
     };
 
-    const handlePlacePress = (place: Place) => {
-        // @TODO Navigation vers la page de détail d'un lieu (à implémenter)
-        console.log("Place sélectionnée:", place.id);
+    const navigateToPlaceDetails = (placeId: string) => {
+        router.replace({
+            pathname: "/place-details",
+            params: {
+                id: placeId,
+                source: "list", // Indiquer que l'on vient de la liste
+            },
+        });
     };
 
-    const renderPlaceCard = ({ item }: { item: Place }) => <PlaceCard item={item} variant="card" showDate={true} showActivities={true} onPress={() => handlePlacePress(item)} />;
+    const renderPlaceCard = ({ item }: { item: Place }) => (
+        <PlaceCard item={item} variant="card" showDate={true} showActivities={true} showDetailsButton={true} onViewDetails={() => navigateToPlaceDetails(item.id)} />
+    );
 
     if (isLoading) {
         return (
@@ -59,13 +66,6 @@ export default function PlacesScreen() {
 
     return (
         <View style={styles.container}>
-            <View style={styles.header}>
-                <Text style={styles.title}>Installations Sportives</Text>
-                <TouchableOpacity style={styles.mapButton} onPress={navigateToMap}>
-                    <Ionicons name="map-outline" size={24} color="#007AFF" />
-                    <Text style={styles.mapButtonText}>Voir carte</Text>
-                </TouchableOpacity>
-            </View>
             <FlatList
                 data={places}
                 renderItem={renderPlaceCard}
@@ -78,6 +78,12 @@ export default function PlacesScreen() {
                     </View>
                 }
             />
+
+            {/* Bouton Voir la carte en position absolute */}
+            <TouchableOpacity style={styles.floatingMapButton} onPress={navigateToMap}>
+                <Ionicons name="map-outline" size={24} color="#007AFF" />
+                <Text style={styles.mapButtonText}>Voir la carte</Text>
+            </TouchableOpacity>
         </View>
     );
 }
@@ -93,32 +99,8 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center",
     },
-    header: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-        marginBottom: 16,
-    },
-    title: {
-        fontSize: 24,
-        fontWeight: "bold",
-        color: "#333",
-    },
-    mapButton: {
-        flexDirection: "row",
-        alignItems: "center",
-        backgroundColor: "#e1f5fe",
-        paddingHorizontal: 12,
-        paddingVertical: 8,
-        borderRadius: 20,
-    },
-    mapButtonText: {
-        color: "#007AFF",
-        marginLeft: 6,
-        fontWeight: "500",
-    },
     listContainer: {
-        paddingBottom: 16,
+        paddingBottom: 80, // Espace en bas pour le bouton flottant
     },
     emptyContainer: {
         flex: 1,
@@ -130,5 +112,27 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: "#666",
         textAlign: "center",
+    },
+    floatingMapButton: {
+        position: "absolute",
+        bottom: 25,
+        alignSelf: "center",
+        flexDirection: "row",
+        alignItems: "center",
+        backgroundColor: "#e1f5fe",
+        paddingHorizontal: 20,
+        paddingVertical: 12,
+        borderRadius: 30,
+        elevation: 5,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+    },
+    mapButtonText: {
+        color: "#007AFF",
+        marginLeft: 8,
+        fontWeight: "600",
+        fontSize: 16,
     },
 });

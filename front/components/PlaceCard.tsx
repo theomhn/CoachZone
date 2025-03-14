@@ -8,12 +8,14 @@ interface PlaceCardProps {
     item: Place;
     onPress?: () => void;
     onClose?: () => void;
+    onViewDetails?: () => void; // Nouvelle fonction pour afficher les détails
     variant?: "card" | "popup"; // "card" pour l'affichage en liste, "popup" pour la carte
     showDate?: boolean; // Afficher la date de mise à jour
     showActivities?: boolean; // Afficher les activités
+    showDetailsButton?: boolean; // Afficher le bouton "Voir plus"
 }
 
-const PlaceCard: React.FC<PlaceCardProps> = ({ item, onPress, onClose, variant = "card", showDate = true, showActivities = true }) => {
+const PlaceCard: React.FC<PlaceCardProps> = ({ item, onPress, onClose, onViewDetails, variant = "card", showDate = true, showActivities = true, showDetailsButton = true }) => {
     const formatDate = (dateString: string) => {
         const date = new Date(dateString);
         return date.toLocaleDateString("fr-FR", {
@@ -90,6 +92,14 @@ const PlaceCard: React.FC<PlaceCardProps> = ({ item, onPress, onClose, variant =
                         <Ionicons name="time-outline" size={16} color="#999" style={styles.infoIcon} />
                         <Text style={styles.dateText}>Dernière mise à jour : {formatDate(item.lastUpdate)}</Text>
                     </View>
+                )}
+
+                {/* Bouton "Voir plus" (optionnel) */}
+                {showDetailsButton && onViewDetails && (
+                    <TouchableOpacity style={styles.detailsButton} onPress={onViewDetails} activeOpacity={0.7}>
+                        <Text style={styles.detailsButtonText}>Voir plus de détails</Text>
+                        <Ionicons name="chevron-forward" size={18} color="#fff" />
+                    </TouchableOpacity>
                 )}
             </View>
         </TouchableOpacity>
@@ -179,6 +189,22 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center",
         zIndex: 1,
+    },
+    detailsButton: {
+        backgroundColor: "#007AFF",
+        borderRadius: 8,
+        paddingVertical: 8,
+        paddingHorizontal: 12,
+        marginTop: 8,
+        flexDirection: "row",
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    detailsButtonText: {
+        color: "#fff",
+        fontSize: 14,
+        fontWeight: "600",
+        marginRight: 4,
     },
 });
 
