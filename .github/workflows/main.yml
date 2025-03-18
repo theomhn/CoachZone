@@ -1,0 +1,35 @@
+on:
+    push:
+        branches:
+            - main
+name: 🚀 Deploy coachZone api on production
+jobs:
+    web-deploy:
+        name: 🎉 Deploy
+        runs-on: ubuntu-latest
+        steps:
+            - name: 🚚 Get latest code
+              uses: actions/checkout@v4
+
+            - name: 📂 Sync files
+              uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+              with:
+                  server: ${{ secrets.SERVER }}
+                  username: ${{ secrets.USERNAME }}
+                  password: ${{ secrets.PASSWORD }}
+                  protocol: ftps
+                  local-dir: ./back/
+                  server-dir: /public_html/coachZone/
+                  exclude: |
+                      .DS_Store
+                      .env
+                      .env.test
+                      .env.local
+                      **/.git*
+                      **/.git*/**
+                      **/node_modules/**
+                      **/var/cache/**
+                      **/var/log/**
+                      .gitignore
+                      .prettierignore
+                      .prettierrc
