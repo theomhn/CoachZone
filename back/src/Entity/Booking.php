@@ -17,7 +17,8 @@ use Doctrine\ORM\Mapping as ORM;
 #[ApiResource(
     operations: [
         new Post(
-            security: "is_granted('ROLE_USER') and object.getCoach() == user"
+            security: "is_granted('ROLE_USER')",
+            securityPostDenormalize: "object.getCoach() == user"
         ),
         new Get(requirements: ['id' => '\d+']),
         new GetCollection()

@@ -4,7 +4,7 @@ api_platform:
     formats:
         json: ["application/json"]
     defaults:
-        stateless: true
+        stateless: false
         formats: ["json"]
         cache_headers:
             vary: ["Content-Type", "Authorization", "Origin"]
