@@ -36,6 +36,21 @@ export default function PlaceDetailsScreen() {
         }
     };
 
+    // Fonction pour naviguer vers l'écran de réservation
+    const navigateToBooking = () => {
+        if (place) {
+            router.push({
+                pathname: "/booking",
+                params: {
+                    placeId: place.id,
+                    placeName: place.data.inst_nom,
+                },
+            });
+        } else {
+            Alert.alert("Erreur", "Impossible de réserver : informations de l'installation manquantes");
+        }
+    };
+
     useEffect(() => {
         fetchPlaceDetails();
     }, [id]);
@@ -197,6 +212,16 @@ export default function PlaceDetailsScreen() {
                         </View>
                     )}
 
+                    {/* Bouton de réservation */}
+                    {global.user && (
+                        <View style={styles.bookingSection}>
+                            <TouchableOpacity style={styles.bookingButton} onPress={navigateToBooking}>
+                                <Ionicons name="calendar-outline" size={20} color="#fff" style={styles.bookingIcon} />
+                                <Text style={styles.bookingButtonText}>Réserver cette installation</Text>
+                            </TouchableOpacity>
+                        </View>
+                    )}
+
                     {/* Information de mise à jour */}
                     <View style={styles.updateInfo}>
                         <Ionicons name="time-outline" size={16} color="#999" />
@@ -321,6 +346,32 @@ const styles = StyleSheet.create({
     activityText: {
         fontSize: 14,
         color: "#333",
+    },
+    bookingSection: {
+        marginTop: 16,
+        marginBottom: 16,
+    },
+    bookingButton: {
+        backgroundColor: "#28a745",
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: 12,
+        borderRadius: 8,
+        elevation: 2,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.2,
+        shadowRadius: 1.5,
+    },
+    bookingButtonText: {
+        color: "#fff",
+        fontSize: 16,
+        fontWeight: "600",
+        marginLeft: 8,
+    },
+    bookingIcon: {
+        marginRight: 4,
     },
     updateInfo: {
         flexDirection: "row",
