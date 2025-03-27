@@ -25,17 +25,6 @@ export default function PlaceDetailsScreen() {
         }
     }, [place, navigation]);
 
-    // Fonction pour retourner à l'écran précédent
-    const handleBack = () => {
-        if (source === "map") {
-            // Retour à la carte
-            router.replace("/(tabs)/map");
-        } else {
-            // Par défaut, retour à la liste
-            router.replace("/(tabs)");
-        }
-    };
-
     // Fonction pour naviguer vers l'écran de réservation
     const navigateToBooking = () => {
         if (place) {
@@ -104,17 +93,6 @@ export default function PlaceDetailsScreen() {
     return (
         <View style={styles.container}>
             <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
-                {/* En-tête */}
-                <View style={styles.header}>
-                    <TouchableOpacity
-                        style={styles.backButton}
-                        onPress={handleBack} // Utiliser la nouvelle fonction
-                    >
-                        <Ionicons name="arrow-back" size={24} color="#007AFF" />
-                    </TouchableOpacity>
-                    <Text style={styles.headerTitle}>Retour</Text>
-                </View>
-
                 {/* Carte (si coordonnées disponibles) */}
                 {hasValidCoordinates && (
                     <View style={styles.mapContainer}>

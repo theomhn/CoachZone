@@ -94,7 +94,7 @@ export default function MapScreen() {
     };
 
     const navigateToPlaceDetails = (placeId: string) => {
-        router.replace({
+        router.push({
             pathname: "/place-details",
             params: {
                 id: placeId,

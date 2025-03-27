@@ -166,14 +166,6 @@ export default function BookingScreen() {
     return (
         <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.container} keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 20}>
             <ScrollView style={styles.scrollView}>
-                {/* En-tête */}
-                <View style={styles.header}>
-                    <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-                        <Ionicons name="arrow-back" size={24} color="#007AFF" />
-                    </TouchableOpacity>
-                    <Text style={styles.headerTitle}>Nouvelle réservation</Text>
-                </View>
-
                 {/* Informations sur l'installation */}
                 <View style={styles.placeInfo}>
                     <Ionicons name="business-outline" size={24} color="#555" />
