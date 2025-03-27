@@ -2,17 +2,61 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\GetCollection;
+use App\DataProvider\InstitutionCollectionDataProvider;
 use App\Repository\InstitutionRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: InstitutionRepository::class)]
+#[ApiResource(
+    operations: [
+        new GetCollection(
+            provider: InstitutionCollectionDataProvider::class,
+            normalizationContext: ['groups' => ['institution:read']]
+        )
+    ]
+)]
 class Institution extends User
 {
     #[ORM\Column(length: 255, unique: true)]
+    #[Groups(['institution:read'])]
     private ?string $inst_numero = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['institution:read'])]
     private ?string $inst_name = null;
+
+    /**
+     * Adresse complète de l'institution (combinaison de inst_adresse, inst_cp, inst_com_nom)
+     */
+    #[Groups(['institution:read'])]
+    public ?string $adresse = null;
+
+    /**
+     * Liste des activités sportives (equip_aps_nom) dans cette institution
+     */
+    #[Groups(['institution:read'])]
+    public array $activites = [];
+
+    /**
+     * Surface totale des équipements de l'institution (en m²)
+     */
+    #[Groups(['institution:read'])]
+    public float $surface_totale = 0;
+
+    /**
+     * Informations sur les équipements disponibles (douches, sanitaires)
+     */
+    #[Groups(['institution:read'])]
+    public array $equipements = [];
+
+    /**
+     * Coordonnées géographiques de l'institution
+     */
+    #[Groups(['institution:read'])]
+    public ?array $coordonnees = null;
 
     public function getInstNumero(): ?string
     {
