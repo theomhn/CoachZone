@@ -10,7 +10,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: PlaceRepository::class)]
-#[ApiResource(routePrefix: '/opendata')]
+#[ApiResource(routePrefix: '/opendata', order: ['inst_name', 'inst_numero', 'id'])]
 class Place
 {
     #[ORM\Id]
