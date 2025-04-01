@@ -2,7 +2,11 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\GetCollection;
+use App\DataProvider\PlaceCollectionProvider;
 use App\Repository\PlaceRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -10,7 +14,18 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: PlaceRepository::class)]
-#[ApiResource(routePrefix: '/opendata', order: ['inst_name', 'inst_numero', 'id'])]
+#[ApiResource(
+    operations: [
+        new GetCollection(
+            provider: PlaceCollectionProvider::class
+        )
+    ],
+    order: ['inst_name', 'inst_numero', 'id']
+)]
+#[ApiFilter(SearchFilter::class, properties: [
+    'id' => 'exact',
+    'inst_numero' => 'exact',
+])]
 class Place
 {
     #[ORM\Id]
