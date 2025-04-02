@@ -1,5 +1,5 @@
 import { API_BASE_URL } from "@/config";
-import { Institution } from "@/types";
+import { InstitutionRegister } from "@/types";
 import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
@@ -30,10 +30,10 @@ export default function RegisterScreen() {
     const [work, setWork] = useState("");
 
     // Pour les institutions
-    const [institutions, setInstitutions] = useState<Institution[]>([]);
-    const [filteredInstitutions, setFilteredInstitutions] = useState<Institution[]>([]);
+    const [institutions, setInstitutions] = useState<InstitutionRegister[]>([]);
+    const [filteredInstitutions, setFilteredInstitutions] = useState<InstitutionRegister[]>([]);
     const [searchText, setSearchText] = useState("");
-    const [selectedInstitution, setSelectedInstitution] = useState<Institution | null>(null);
+    const [selectedInstitution, setSelectedInstitution] = useState<InstitutionRegister | null>(null);
     const [showModal, setShowModal] = useState(false);
     const [isLoadingInstitutions, setIsLoadingInstitutions] = useState(false);
 
@@ -80,7 +80,7 @@ export default function RegisterScreen() {
         }
     };
 
-    const handleSelectInstitution = (institution: Institution) => {
+    const handleSelectInstitution = (institution: InstitutionRegister) => {
         setSelectedInstitution(institution);
         setSearchText(institution.name);
         setShowModal(false);

@@ -1,25 +1,20 @@
 /**
- * Interface représentant une installation sportive
+ * Interface représentant une institution sportive
  */
-export interface Place {
-    id: string;
-    data: {
-        inst_nom: string;
-        inst_adresse: string;
-        inst_cp: number;
-        lib_bdv: string;
-        equip_nom: string;
-        equip_aps_nom: string[];
-        equip_douche: boolean;
-        equip_sanit: boolean;
-        equip_surf: number;
-        equip_nature: string;
-        coordonnees: {
-            lat: number;
-            lon: number;
-        };
+export interface Institution {
+    inst_numero: string;
+    inst_name: string;
+    adresse: string;
+    activites: string[];
+    surface_totale: number;
+    equipements: {
+        douches: boolean;
+        sanitaires: boolean;
     };
-    lastUpdate: string;
+    coordonnees: {
+        lat: number;
+        lon: number;
+    };
 }
 
 /**
@@ -38,9 +33,9 @@ export interface User {
 }
 
 /**
- * Type pour les Institution
+ * Type pour les Institution pour la page d'inscription
  */
-export interface Institution {
+export interface InstitutionRegister {
     id: string;
     name: string;
 }

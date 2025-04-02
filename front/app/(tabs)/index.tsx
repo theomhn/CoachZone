@@ -1,25 +1,25 @@
-import PlaceCard from "@/components/PlaceCard";
+import InstitutionCard from "@/components/InstitutionCard";
 import { API_BASE_URL } from "@/config";
-import { Place } from "@/types";
+import { Institution } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, Alert, FlatList, RefreshControl, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
-export default function PlacesScreen() {
-    const [places, setPlaces] = useState<Place[]>([]);
+export default function InstitutionsScreen() {
+    const [institutions, setInstitutions] = useState<Institution[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isRefreshing, setIsRefreshing] = useState(false);
 
-    const fetchPlaces = async () => {
+    const fetchInstitutions = async () => {
         try {
-            const response = await fetch(`${API_BASE_URL}/opendata/places`);
+            const response = await fetch(`${API_BASE_URL}/institutions`);
 
             if (!response.ok) {
                 throw new Error("Erreur lors de la récupération des données");
             }
             const data = await response.json();
-            setPlaces(data);
+            setInstitutions(data);
         } catch (error: unknown) {
             const errorMessage = error instanceof Error ? error.message : "Une erreur est survenue";
             Alert.alert("Erreur", errorMessage);
@@ -30,30 +30,30 @@ export default function PlacesScreen() {
     };
 
     useEffect(() => {
-        fetchPlaces();
+        fetchInstitutions();
     }, []);
 
     const onRefresh = () => {
         setIsRefreshing(true);
-        fetchPlaces();
+        fetchInstitutions();
     };
 
     const navigateToMap = () => {
         router.replace("/(tabs)/map");
     };
 
-    const navigateToPlaceDetails = (placeId: string) => {
+    const navigateToInstitutionDetails = (institutionId: string) => {
         router.push({
-            pathname: "/place-details",
+            pathname: "/institution-details",
             params: {
-                id: placeId,
+                id: institutionId,
                 source: "list", // Indiquer que l'on vient de la liste
             },
         });
     };
 
-    const renderPlaceCard = ({ item }: { item: Place }) => (
-        <PlaceCard item={item} variant="card" showDate={true} showActivities={true} showDetailsButton={true} onViewDetails={() => navigateToPlaceDetails(item.id)} />
+    const renderInstitutionCard = ({ item }: { item: Institution }) => (
+        <InstitutionCard item={item} variant="card" showActivities={true} showDetailsButton={true} onViewDetails={() => navigateToInstitutionDetails(item.inst_numero)} />
     );
 
     if (isLoading) {
@@ -67,9 +67,9 @@ export default function PlacesScreen() {
     return (
         <View style={styles.container}>
             <FlatList
-                data={places}
-                renderItem={renderPlaceCard}
-                keyExtractor={(item) => item.id}
+                data={institutions}
+                renderItem={renderInstitutionCard}
+                keyExtractor={(item) => item.inst_numero}
                 contentContainerStyle={styles.listContainer}
                 refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />}
                 ListEmptyComponent={

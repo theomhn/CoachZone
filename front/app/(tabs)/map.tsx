@@ -1,17 +1,17 @@
-import PlaceCard from "@/components/PlaceCard";
+import InstitutionCard from "@/components/InstitutionCard";
 import { API_BASE_URL } from "@/config";
-import { Place } from "@/types";
+import { Institution } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import * as Location from "expo-location";
 import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { ActivityIndicator, Dimensions, StyleSheet, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Alert, Dimensions, StyleSheet, TouchableOpacity, View } from "react-native";
 import MapView, { Marker, PROVIDER_DEFAULT } from "react-native-maps";
 
 export default function MapScreen() {
-    const [places, setPlaces] = useState<Place[]>([]);
+    const [institutions, setInstitutions] = useState<Institution[]>([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [selectedPlace, setSelectedPlace] = useState<Place | null>(null);
+    const [selectedInstitution, setSelectedInstitution] = useState<Institution | null>(null);
     const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
     const [region, setRegion] = useState({
         latitude: 43.62505, // Montpellier par défaut
@@ -22,34 +22,31 @@ export default function MapScreen() {
 
     // Récupération des lieux
     useEffect(() => {
-        fetchPlaces();
+        fetchInstitutions();
         getUserLocation();
     }, []);
 
-    const fetchPlaces = async () => {
+    const fetchInstitutions = async () => {
         try {
-            const response = await fetch(`${API_BASE_URL}/opendata/places`);
+            const response = await fetch(`${API_BASE_URL}/institutions`);
             if (!response.ok) {
                 throw new Error("Erreur lors de la récupération des données");
             }
             const data = await response.json();
+            setInstitutions(data);
 
-            // Filtrer les lieux qui ont des coordonnées valides
-            const placesWithCoords = data.filter((place: Place) => place.data.coordonnees && place.data.coordonnees.lat && place.data.coordonnees.lon);
-
-            setPlaces(placesWithCoords);
-
-            // Si des lieux sont disponibles, centrer la carte sur le premier
-            if (placesWithCoords.length > 0) {
+            // Si des institutions sont disponibles, centrer la carte sur la première
+            if (data.length > 0 && data[0].coordonnees) {
                 setRegion({
-                    latitude: placesWithCoords[0].data.coordonnees.lat,
-                    longitude: placesWithCoords[0].data.coordonnees.lon,
+                    latitude: data[0].coordonnees.lat,
+                    longitude: data[0].coordonnees.lon,
                     latitudeDelta: 0.0922,
                     longitudeDelta: 0.0421,
                 });
             }
         } catch (error) {
             console.error("Erreur :", error);
+            Alert.alert("Erreur", "Impossible de récupérer les données des institutions");
         } finally {
             setIsLoading(false);
         }
@@ -79,8 +76,8 @@ export default function MapScreen() {
         }
     };
 
-    const handleMarkerPress = (place: Place) => {
-        setSelectedPlace(place);
+    const handleMarkerPress = (institution: Institution) => {
+        setSelectedInstitution(institution);
     };
 
     const centerOnUserLocation = () => {
@@ -93,11 +90,11 @@ export default function MapScreen() {
         }
     };
 
-    const navigateToPlaceDetails = (placeId: string) => {
+    const navigateToInstitutionDetails = (institutionId: string) => {
         router.push({
-            pathname: "/place-details",
+            pathname: "/institution-details",
             params: {
-                id: placeId,
+                id: institutionId,
                 source: "map", // Indiquer que l'on vient de la carte
             },
         });
@@ -111,6 +108,9 @@ export default function MapScreen() {
         );
     }
 
+    // Filtrer les institutions sans coordonnées
+    const institutionsWithCoordinates = institutions.filter((inst) => inst.coordonnees && inst.coordonnees.lat && inst.coordonnees.lon);
+
     return (
         <View style={styles.container}>
             <MapView
@@ -123,16 +123,15 @@ export default function MapScreen() {
                 region={region}
                 onRegionChangeComplete={setRegion}
             >
-                {places.map((place) => (
+                {institutionsWithCoordinates.map((institution) => (
                     <Marker
-                        key={place.id}
+                        key={institution.inst_numero}
                         coordinate={{
-                            latitude: place.data.coordonnees.lat,
-                            longitude: place.data.coordonnees.lon,
+                            latitude: institution.coordonnees.lat,
+                            longitude: institution.coordonnees.lon,
                         }}
-                        title={place.data.inst_nom}
-                        description={place.data.equip_nom}
-                        onPress={() => handleMarkerPress(place)}
+                        title={institution.inst_name}
+                        onPress={() => handleMarkerPress(institution)}
                     />
                 ))}
 
@@ -155,16 +154,15 @@ export default function MapScreen() {
                 </TouchableOpacity>
             )}
 
-            {/* Utilisation du PlaceCard partagé en mode popup */}
-            {selectedPlace && (
-                <PlaceCard
-                    item={selectedPlace}
+            {/* Utilisation du InstitutionCard partagé en mode popup */}
+            {selectedInstitution && (
+                <InstitutionCard
+                    item={selectedInstitution}
                     variant="popup"
-                    showDate={false}
                     showActivities={false}
                     showDetailsButton={true}
-                    onClose={() => setSelectedPlace(null)}
-                    onViewDetails={() => navigateToPlaceDetails(selectedPlace.id)}
+                    onClose={() => setSelectedInstitution(null)}
+                    onViewDetails={() => navigateToInstitutionDetails(selectedInstitution.inst_numero)}
                 />
             )}
         </View>

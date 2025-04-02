@@ -1,22 +1,20 @@
-import { Place } from "@/types";
-import { formatDate } from "@/utils/date";
+import { Institution } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Badge from "./Badge";
 
-interface PlaceCardProps {
-    item: Place;
+interface InstitutionCardProps {
+    item: Institution;
     onPress?: () => void;
     onClose?: () => void;
-    onViewDetails?: () => void; // Nouvelle fonction pour afficher les détails
-    variant?: "card" | "popup"; // "card" pour l'affichage en liste, "popup" pour la carte
-    showDate?: boolean; // Afficher la date de mise à jour
-    showActivities?: boolean; // Afficher les activités
-    showDetailsButton?: boolean; // Afficher le bouton "Voir plus"
+    onViewDetails?: () => void;
+    variant?: "card" | "popup";
+    showActivities?: boolean;
+    showDetailsButton?: boolean;
 }
 
-const PlaceCard: React.FC<PlaceCardProps> = ({ item, onPress, onClose, onViewDetails, variant = "card", showDate = true, showActivities = true, showDetailsButton = true }) => {
+const InstitutionCard: React.FC<InstitutionCardProps> = ({ item, onPress, onClose, onViewDetails, variant = "card", showActivities = true, showDetailsButton = true }) => {
     const isPopup = variant === "popup";
 
     return (
@@ -29,58 +27,42 @@ const PlaceCard: React.FC<PlaceCardProps> = ({ item, onPress, onClose, onViewDet
                     </TouchableOpacity>
                 )}
 
-                {/* Titre de l'établissement */}
-                <Text style={styles.title}>{item.data.inst_nom}</Text>
-
-                {/* Nom de l'équipement */}
-                <View style={styles.infoRow}>
-                    <Ionicons name="business-outline" size={18} color="#555" style={styles.infoIcon} />
-                    <Text style={styles.infoValue}>{item.data.equip_nom}</Text>
-                </View>
+                {/* Nom de l'institution */}
+                <Text style={styles.title}>{item.inst_name}</Text>
 
                 {/* Adresse */}
                 <View style={styles.infoRow}>
                     <Ionicons name="location-outline" size={18} color="#555" style={styles.infoIcon} />
-                    <Text style={styles.infoValue}>
-                        {item.data.inst_adresse}, {item.data.inst_cp} {item.data.lib_bdv}
-                    </Text>
+                    <Text style={styles.infoValue}>{item.adresse}</Text>
                 </View>
 
                 {/* Activités (optionnel) */}
-                {showActivities && item.data.equip_aps_nom && item.data.equip_aps_nom.length > 0 && (
+                {showActivities && item.activites && item.activites.length > 0 && (
                     <View style={styles.infoRow}>
                         <Ionicons name="fitness-outline" size={18} color="#555" style={styles.infoIcon} />
-                        <Text style={[styles.infoValue, styles.activitiesText]}>{item.data.equip_aps_nom.join(", ")}</Text>
+                        <Text style={[styles.infoValue, styles.activitiesText]}>{item.activites.join(", ")}</Text>
                     </View>
                 )}
 
                 {/* Surface */}
-                {item.data.equip_surf > 0 && (
+                {item.surface_totale > 0 && (
                     <View style={styles.infoRow}>
                         <Ionicons name="resize-outline" size={18} color="#555" style={styles.infoIcon} />
-                        <Text style={styles.infoValue}>Surface : {item.data.equip_surf} m²</Text>
+                        <Text style={styles.infoValue}>Surface : {item.surface_totale} m²</Text>
                     </View>
                 )}
 
                 {/* Équipements */}
-                {(item.data.equip_douche || item.data.equip_sanit) && (
+                {(item.equipements?.douches || item.equipements?.sanitaires) && (
                     <View style={styles.facilitiesContainer}>
                         <View style={styles.infoRow}>
                             <Ionicons name="water-outline" size={18} color="#555" style={styles.infoIcon} />
                             <Text style={styles.facilitiesTitle}>Équipements :</Text>
                         </View>
                         <View style={styles.badgeContainer}>
-                            {item.data.equip_douche && <Badge text="Douches" />}
-                            {item.data.equip_sanit && <Badge text="Sanitaires" />}
+                            {item.equipements?.douches && <Badge text="Douches" />}
+                            {item.equipements?.sanitaires && <Badge text="Sanitaires" />}
                         </View>
-                    </View>
-                )}
-
-                {/* Date de mise à jour (optionnel) */}
-                {showDate && (
-                    <View style={styles.infoRow}>
-                        <Ionicons name="time-outline" size={16} color="#999" style={styles.infoIcon} />
-                        <Text style={styles.dateText}>Dernière mise à jour : {formatDate(item.lastUpdate)}</Text>
                     </View>
                 )}
 
@@ -163,11 +145,6 @@ const styles = StyleSheet.create({
         marginTop: 0,
         marginLeft: 26,
     },
-    dateText: {
-        fontSize: 12,
-        marginTop: 2,
-        color: "#999",
-    },
     closeButton: {
         position: "absolute",
         top: 12,
@@ -198,4 +175,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default PlaceCard;
+export default InstitutionCard;
