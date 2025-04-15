@@ -36,12 +36,13 @@ class RegistrationController extends AbstractController
             );
             $user->setPassword($hashedPassword);
 
-            // Ajouter les champs spécifiques selon le type
             if ($user instanceof Coach) {
+                $user->setRoles(['ROLE_COACH']);
                 $user->setFirstName($data['firstName']);
                 $user->setLastName($data['lastName']);
                 $user->setWork($data['work']);
             } elseif ($user instanceof Institution) {
+                $user->setRoles(['ROLE_INSTITUTION']);
                 $user->setInstName($data['inst_name']);
                 $user->setInstNumero($data['inst_numero']);
             }
