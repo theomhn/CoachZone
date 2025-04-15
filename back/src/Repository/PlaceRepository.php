@@ -44,12 +44,11 @@ class PlaceRepository extends ServiceEntityRepository
      * Si un numéro d'institution est fourni, filtre les résultats pour cette institution
      *
      * @param string|null $instNumero Le numéro d'institution (facultatif)
-     * @return array Retourne un tableau de Places qui ont une institution associée
+     * @return array Retourne un tableau d'entités Place qui ont une institution associée
      */
     public function findPlacesWithInstitution(?string $instNumero = null): array
     {
         $qb = $this->createQueryBuilder('p')
-            ->select('p.id, p.inst_numero, p.inst_name, p.data, p.lastUpdate')
             ->innerJoin(Institution::class, 'i', 'WITH', 'p.inst_numero = i.inst_numero');
 
         if ($instNumero !== null) {
