@@ -6,18 +6,26 @@ use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
 use App\DataProvider\PlaceCollectionProvider;
 use App\Repository\PlaceRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: PlaceRepository::class)]
 #[ApiResource(
     operations: [
         new GetCollection(
-            provider: PlaceCollectionProvider::class
+            provider: PlaceCollectionProvider::class,
+            normalizationContext: ['groups' => ['place:read']]
+        ),
+        new Patch(
+            denormalizationContext: ['groups' => ['price:write']],
+            normalizationContext: ['groups' => ['place:read']],
+            security: "is_granted('ROLE_INSTITUTION') and object.getInstitutionNumero() == user.getInstNumero()"
         )
     ],
     order: ['inst_name', 'inst_numero', 'id']
@@ -30,18 +38,27 @@ class Place
 {
     #[ORM\Id]
     #[ORM\Column(length: 255)]
+    #[Groups(['place:read'])]
     private ?string $id = null;  // Utilisation de equip_numero comme ID
 
     #[ORM\Column(length: 255)]
+    #[Groups(['place:read'])]
     private ?string $inst_numero = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['place:read'])]
     private ?string $inst_name = null;
 
     #[ORM\Column(type: Types::JSON)]
+    #[Groups(['place:read'])]
     private array $data = [];
 
+    #[ORM\Column(type: Types::FLOAT, nullable: true)]
+    #[Groups(['place:read', 'price:write'])]
+    private ?float $price = null;
+
     #[ORM\Column]
+    #[Groups(['place:read'])]
     private ?\DateTimeImmutable $lastUpdate = null;
 
     /**
@@ -97,6 +114,17 @@ class Place
     public function setData(array $data): static
     {
         $this->data = $data;
+        return $this;
+    }
+
+    public function getPrice(): ?float
+    {
+        return $this->price;
+    }
+
+    public function setPrice(?float $price): static
+    {
+        $this->price = $price;
         return $this;
     }
 
