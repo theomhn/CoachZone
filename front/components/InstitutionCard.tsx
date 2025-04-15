@@ -1,18 +1,8 @@
-import { Institution } from "@/types";
+import { Institution, InstitutionCardProps } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Badge from "./Badge";
-
-interface InstitutionCardProps {
-    item: Institution;
-    onPress?: () => void;
-    onClose?: () => void;
-    onViewDetails?: () => void;
-    variant?: "card" | "popup";
-    showActivities?: boolean;
-    showDetailsButton?: boolean;
-}
 
 const InstitutionCard: React.FC<InstitutionCardProps> = ({ item, onPress, onClose, onViewDetails, variant = "card", showActivities = true, showDetailsButton = true }) => {
     const isPopup = variant === "popup";

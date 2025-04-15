@@ -84,3 +84,26 @@ export interface Booking {
     coachFullName: string;
     placeEquipmentName: string;
 }
+
+/**
+ * Type pour les cartes d'institutions
+ */
+
+export interface InstitutionCardProps {
+    item: Institution;
+    onPress?: () => void;
+    onClose?: () => void;
+    onViewDetails?: () => void;
+    variant?: "card" | "popup";
+    showActivities?: boolean;
+    showDetailsButton?: boolean;
+}
+
+/**
+ * Type pour les Badge
+ */
+export interface BadgeProps {
+    text: string;
+    color?: string;
+    backgroundColor?: string;
+}
