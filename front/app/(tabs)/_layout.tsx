@@ -72,13 +72,6 @@ export default function TabLayout() {
                 }}
             />
             <Tabs.Screen
-                name="map"
-                options={{
-                    title: "Carte",
-                    tabBarIcon: ({ color }) => <IconSymbol name="map" size={28} color={color} />,
-                }}
-            />
-            <Tabs.Screen
                 name="my-bookings"
                 options={{
                     title: "Mes réservations",

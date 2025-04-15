@@ -27,6 +27,7 @@ export default function RootLayout() {
             <Stack screenOptions={{ headerBackButtonDisplayMode: "minimal" }}>
                 <Stack.Screen name="login" options={{ headerShown: false }} />
                 <Stack.Screen name="register" options={{ headerShown: false }} />
+                <Stack.Screen name="map" options={{ title: "Carte" }} />
                 <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
                 <Stack.Screen name="+not-found" />
             </Stack>

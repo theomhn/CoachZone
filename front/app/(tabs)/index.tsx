@@ -39,7 +39,7 @@ export default function InstitutionsScreen() {
     };
 
     const navigateToMap = () => {
-        router.replace("/(tabs)/map");
+        router.push("/map");
     };
 
     const navigateToInstitutionDetails = (institutionId: string) => {
