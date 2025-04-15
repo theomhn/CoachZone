@@ -1,31 +1,11 @@
 import Badge from "@/components/Badge";
 import { API_BASE_URL } from "@/config";
-import { Institution } from "@/types";
+import { Institution, Place } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import MapView, { Marker, PROVIDER_DEFAULT } from "react-native-maps";
-
-// Interface pour les places (équipements spécifiques)
-interface Place {
-    id: string;
-    inst_numero: string;
-    inst_name: string;
-    data: {
-        aca_nom: string;
-        dep_nom: string;
-        equip_x: number;
-        equip_y: number;
-        equip_nom: string; // Nom de l'équipement
-        equip_aps_nom: string[]; // Activités sportives
-        equip_surf: number; // Surface de l'équipement
-        inst_cp: number;
-        lib_bdv: string;
-        reg_nom: string;
-    };
-    lastUpdate: string;
-}
 
 export default function InstitutionDetailsScreen() {
     const { id, source } = useLocalSearchParams<{ id: string; source: string }>();

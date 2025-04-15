@@ -49,6 +49,29 @@ export interface ApiError {
 }
 
 /**
+ * Interface pour les places (équipements spécifiques)
+ */
+export interface Place {
+    id: string;
+    inst_numero: string;
+    inst_name: string;
+    data: {
+        aca_nom: string;
+        dep_nom: string;
+        equip_x: number;
+        equip_y: number;
+        equip_nom: string; // Nom de l'équipement
+        equip_aps_nom: string[]; // Activités sportives
+        equip_surf: number; // Surface de l'équipement
+        inst_cp: number;
+        lib_bdv: string;
+        reg_nom: string;
+    };
+    price?: number | null;
+    lastUpdate: string;
+}
+
+/**
  * Type pour les réservations
  */
 export interface Booking {
@@ -56,7 +79,7 @@ export interface Booking {
     dateStart: string;
     dateEnd: string;
     price: number;
-    place: string; 
+    place: string;
     coach: string;
     coachFullName: string;
     placeEquipmentName: string;
