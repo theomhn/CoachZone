@@ -2,10 +2,9 @@ import { API_BASE_URL } from "@/config";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import * as SecureStore from "expo-secure-store";
-import React, { useState } from "react";
-import { ActivityIndicator, Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import React, { useEffect, useMemo, useState } from "react";
+import { ActivityIndicator, Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Calendar, DateData } from "react-native-calendars";
-import DateTimePickerModal from "react-native-modal-datetime-picker";
 
 export default function BookingScreen() {
     const { placeId, placeName } = useLocalSearchParams<{ placeId: string; placeName: string }>();
@@ -13,66 +12,93 @@ export default function BookingScreen() {
 
     // États pour stocker les données du formulaire
     const [selectedDate, setSelectedDate] = useState("");
-    const [startTime, setStartTime] = useState(new Date());
-    const [endTime, setEndTime] = useState(new Date());
-    const [price, setPrice] = useState("50"); // Prix par défaut
+    const [selectedTimeSlots, setSelectedTimeSlots] = useState<string[]>([]);
+    const [price, setPrice] = useState(0); // Prix calculé automatiquement
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [showAllTimeSlots, setShowAllTimeSlots] = useState(false);
 
-    // États pour les pickers de temps
-    const [isStartTimePickerVisible, setStartTimePickerVisibility] = useState(false);
-    const [isEndTimePickerVisible, setEndTimePickerVisibility] = useState(false);
+    // Coût d'un créneau horaire en euros
+    const PRICE_PER_SLOT = 35;
 
-    // Format les heures pour l'affichage
-    const formatTime = (date: Date): string => {
-        const hours = String(date.getHours()).padStart(2, "0");
-        const minutes = String(date.getMinutes()).padStart(2, "0");
-        return `${hours}:${minutes}`;
-    };
+    // Mise à jour du prix lorsque les créneaux changent
+    useEffect(() => {
+        setPrice(selectedTimeSlots.length * PRICE_PER_SLOT);
+    }, [selectedTimeSlots]);
 
-    // Fonction pour combiner la date et l'heure en ISO string
-    const combineDateAndTime = (dateString: string, timeObject: Date): string | null => {
-        if (!dateString) return null;
-
-        const date = new Date(dateString);
-        date.setHours(timeObject.getHours());
-        date.setMinutes(timeObject.getMinutes());
-        date.setSeconds(0);
-
-        return date.toISOString();
-    };
+    // Création des créneaux horaires
+    const timeSlots = useMemo(() => {
+        const slots = [];
+        for (let hour = 8; hour <= 22; hour++) {
+            slots.push(`${hour.toString().padStart(2, "0")}:00`);
+        }
+        return slots;
+    }, []);
 
     // Gestion de la sélection de date sur le calendrier
     const handleDayPress = (day: DateData): void => {
         setSelectedDate(day.dateString);
+        // Réinitialiser les créneaux horaires lors du changement de date
+        setSelectedTimeSlots([]);
     };
 
-    // Fonctions pour les sélecteurs de temps
-    const showStartTimePicker = () => setStartTimePickerVisibility(true);
-    const hideStartTimePicker = () => setStartTimePickerVisibility(false);
-    const showEndTimePicker = () => setEndTimePickerVisibility(true);
-    const hideEndTimePicker = () => setEndTimePickerVisibility(false);
+    // Gestion de la sélection des créneaux horaires
+    const handleTimeSlotPress = (timeSlot: string): void => {
+        // Vérifier si le créneau est déjà sélectionné
+        if (selectedTimeSlots.includes(timeSlot)) {
+            // Trier les créneaux pour trouver la position de celui qui est cliqué
+            const sortedSlots = [...selectedTimeSlots].sort((a, b) => {
+                return parseInt(a.split(":")[0]) - parseInt(b.split(":")[0]);
+            });
 
-    const handleStartTimeConfirm = (time: Date): void => {
-        setStartTime(time);
-        hideStartTimePicker();
+            const clickedIndex = sortedSlots.indexOf(timeSlot);
 
-        // Si l'heure de fin est avant l'heure de début, ajuster l'heure de fin
-        if (time >= endTime) {
-            const newEndTime = new Date(time);
-            newEndTime.setHours(time.getHours() + 1);
-            setEndTime(newEndTime);
+            // Si c'est le premier créneau ou un créneau du milieu
+            if (clickedIndex >= 0) {
+                // Garder tous les créneaux avant celui-ci et supprimer celui-ci et tous ceux qui suivent
+                const newSelection = sortedSlots.slice(0, clickedIndex);
+                setSelectedTimeSlots(newSelection);
+            }
+        } else {
+            // Essayer d'ajouter le nouveau créneau
+            const hourToAdd = parseInt(timeSlot.split(":")[0]);
+
+            // Si aucun créneau n'est sélectionné, l'ajouter simplement
+            if (selectedTimeSlots.length === 0) {
+                setSelectedTimeSlots([timeSlot]);
+                return;
+            }
+
+            // Trouver les heures min et max actuellement sélectionnées
+            const hours = selectedTimeSlots.map((slot) => parseInt(slot.split(":")[0]));
+            const minHour = Math.min(...hours);
+            const maxHour = Math.max(...hours);
+
+            // Le nouveau créneau doit être adjacent à la sélection actuelle
+            if (hourToAdd === minHour - 1 || hourToAdd === maxHour + 1) {
+                setSelectedTimeSlots([...selectedTimeSlots, timeSlot]);
+            } else {
+                Alert.alert("Erreur", "Vous devez sélectionner des créneaux consécutifs");
+            }
         }
     };
 
-    const handleEndTimeConfirm = (time: Date): void => {
-        // Vérifier que l'heure de fin est après l'heure de début
-        if (time <= startTime) {
-            Alert.alert("Erreur", "L'heure de fin doit être après l'heure de début");
-            return;
-        }
+    // Convertir les créneaux en objets Date pour l'API
+    const getTimeFromSlot = (dateString: string, timeSlot: string): Date | null => {
+        if (!dateString) return null;
 
-        setEndTime(time);
-        hideEndTimePicker();
+        const [hours, minutes] = timeSlot.split(":").map(Number);
+        const date = new Date(dateString);
+        date.setHours(hours, minutes, 0, 0);
+
+        return date;
+    };
+
+    // Fonction pour combiner la date et l'heure en ISO string
+    const combineDateAndTime = (dateString: string, timeSlot: string): string | null => {
+        if (!dateString) return null;
+
+        const dateTime = getTimeFromSlot(dateString, timeSlot);
+        return dateTime ? dateTime.toISOString() : null;
     };
 
     // Soumission du formulaire
@@ -83,14 +109,26 @@ export default function BookingScreen() {
             return;
         }
 
-        if (!price || isNaN(Number(price)) || Number(price) <= 0) {
-            Alert.alert("Erreur", "Veuillez entrer un prix valide");
+        if (selectedTimeSlots.length === 0) {
+            Alert.alert("Erreur", "Veuillez sélectionner au moins un créneau horaire");
             return;
         }
 
+        // Trier les créneaux et obtenir le premier et le dernier
+        const sortedTimeSlots = [...selectedTimeSlots].sort((a, b) => {
+            return parseInt(a.split(":")[0]) - parseInt(b.split(":")[0]);
+        });
+
+        const firstTimeSlot = sortedTimeSlots[0];
+        const lastTimeSlot = sortedTimeSlots[sortedTimeSlots.length - 1];
+
+        // Pour l'heure de fin, ajouter une heure au dernier créneau
+        const lastHour = parseInt(lastTimeSlot.split(":")[0]);
+        const endTimeSlot = `${(lastHour + 1).toString().padStart(2, "0")}:00`;
+
         // Créer les dates ISO pour l'API
-        const dateStart = combineDateAndTime(selectedDate, startTime);
-        const dateEnd = combineDateAndTime(selectedDate, endTime);
+        const dateStart = combineDateAndTime(selectedDate, firstTimeSlot);
+        const dateEnd = combineDateAndTime(selectedDate, endTimeSlot);
 
         if (!dateStart || !dateEnd) {
             Alert.alert("Erreur", "Dates invalides");
@@ -110,7 +148,7 @@ export default function BookingScreen() {
             dateStart,
             dateEnd,
             price: Number(price),
-            place: "/api/opendata/places/" + placeId,
+            place: "/api/places/" + placeId,
             coach: "/api/users/" + coachId,
         };
 
@@ -163,6 +201,9 @@ export default function BookingScreen() {
     const today = new Date();
     const minDate = today.toISOString().split("T")[0];
 
+    // Limiter le nombre de créneaux affichés si showAllTimeSlots est false
+    const displayedTimeSlots = showAllTimeSlots ? timeSlots : timeSlots.slice(0, 6);
+
     return (
         <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.container} keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 20}>
             <ScrollView style={styles.scrollView}>
@@ -194,55 +235,54 @@ export default function BookingScreen() {
                 <View style={styles.section}>
                     <Text style={styles.sectionTitle}>Sélectionnez les horaires</Text>
 
-                    <View style={styles.timeContainer}>
-                        <View style={styles.timeInputContainer}>
-                            <Text style={styles.timeLabel}>Heure de début</Text>
-                            <TouchableOpacity style={styles.timeInput} onPress={showStartTimePicker}>
-                                <Text style={styles.timeText}>{formatTime(startTime)}</Text>
-                                <Ionicons name="time-outline" size={20} color="#007AFF" />
-                            </TouchableOpacity>
-                        </View>
+                    {selectedDate ? (
+                        <>
+                            <Text style={styles.instructionText}>
+                                {selectedTimeSlots.length === 0
+                                    ? "Sélectionnez un ou plusieurs créneaux horaires consécutifs"
+                                    : `${selectedTimeSlots.length} créneau(x) sélectionné(s)`}
+                            </Text>
 
-                        <View style={styles.timeInputContainer}>
-                            <Text style={styles.timeLabel}>Heure de fin</Text>
-                            <TouchableOpacity style={styles.timeInput} onPress={showEndTimePicker}>
-                                <Text style={styles.timeText}>{formatTime(endTime)}</Text>
-                                <Ionicons name="time-outline" size={20} color="#007AFF" />
-                            </TouchableOpacity>
-                        </View>
-                    </View>
+                            <View style={styles.timeSlotsContainer}>
+                                {displayedTimeSlots.map((timeSlot) => {
+                                    // Déterminer si ce créneau est sélectionné
+                                    const isSelected = selectedTimeSlots.includes(timeSlot);
 
-                    {/* DateTimePickers modaux */}
-                    <DateTimePickerModal
-                        isVisible={isStartTimePickerVisible}
-                        mode="time"
-                        onConfirm={handleStartTimeConfirm}
-                        onCancel={hideStartTimePicker}
-                        date={startTime}
-                        minuteInterval={30}
-                    />
+                                    return (
+                                        <TouchableOpacity
+                                            key={timeSlot}
+                                            style={[styles.timeSlot, isSelected && styles.selectedTimeSlot]}
+                                            onPress={() => handleTimeSlotPress(timeSlot)}
+                                        >
+                                            <Text style={[styles.timeSlotText, isSelected && styles.selectedTimeSlotText]}>{timeSlot}</Text>
+                                        </TouchableOpacity>
+                                    );
+                                })}
+                            </View>
 
-                    <DateTimePickerModal
-                        isVisible={isEndTimePickerVisible}
-                        mode="time"
-                        onConfirm={handleEndTimeConfirm}
-                        onCancel={hideEndTimePicker}
-                        date={endTime}
-                        minuteInterval={30}
-                    />
+                            {timeSlots.length > 6 && (
+                                <TouchableOpacity style={styles.showMoreButton} onPress={() => setShowAllTimeSlots(!showAllTimeSlots)}>
+                                    <Text style={styles.showMoreButtonText}>{showAllTimeSlots ? "Voir moins" : "Voir plus"}</Text>
+                                </TouchableOpacity>
+                            )}
+                        </>
+                    ) : (
+                        <Text style={styles.noDateSelectedText}>Veuillez d'abord sélectionner une date</Text>
+                    )}
                 </View>
 
                 {/* Prix */}
                 <View style={styles.section}>
                     <Text style={styles.sectionTitle}>Prix</Text>
                     <View style={styles.priceContainer}>
-                        <TextInput style={styles.priceInput} value={price} onChangeText={setPrice} keyboardType="numeric" placeholder="Prix en €" />
-                        <Text style={styles.priceCurrency}>€</Text>
+                        <Text style={styles.priceText}>Prix calculé automatiquement :</Text>
+                        <Text style={styles.priceValue}>{price} €</Text>
                     </View>
+                    <Text style={styles.priceInfo}>Tarif : {PRICE_PER_SLOT} € par créneau horaire</Text>
                 </View>
 
                 {/* Résumé de la réservation */}
-                {selectedDate && (
+                {selectedDate && selectedTimeSlots.length > 0 && (
                     <View style={styles.summaryContainer}>
                         <Text style={styles.summaryTitle}>Résumé de votre réservation</Text>
                         <View style={styles.summaryItem}>
@@ -257,10 +297,24 @@ export default function BookingScreen() {
                             </Text>
                         </View>
                         <View style={styles.summaryItem}>
-                            <Text style={styles.summaryLabel}>Horaire:</Text>
+                            <Text style={styles.summaryLabel}>Horaires:</Text>
                             <Text style={styles.summaryValue}>
-                                {formatTime(startTime)} - {formatTime(endTime)}
+                                {(() => {
+                                    if (selectedTimeSlots.length === 0) return "";
+                                    const sortedSlots = [...selectedTimeSlots].sort((a, b) => {
+                                        return parseInt(a.split(":")[0]) - parseInt(b.split(":")[0]);
+                                    });
+                                    const firstSlot = sortedSlots[0];
+                                    const lastSlot = sortedSlots[sortedSlots.length - 1];
+                                    const lastHour = parseInt(lastSlot.split(":")[0]) + 1;
+                                    const endTime = `${lastHour.toString().padStart(2, "0")}:00`;
+                                    return `${firstSlot} - ${endTime}`;
+                                })()}
                             </Text>
+                        </View>
+                        <View style={styles.summaryItem}>
+                            <Text style={styles.summaryLabel}>Durée:</Text>
+                            <Text style={styles.summaryValue}>{selectedTimeSlots.length} heure(s)</Text>
                         </View>
                         <View style={styles.summaryItem}>
                             <Text style={styles.summaryLabel}>Installation:</Text>
@@ -268,16 +322,18 @@ export default function BookingScreen() {
                         </View>
                         <View style={styles.summaryItem}>
                             <Text style={styles.summaryLabel}>Prix:</Text>
-                            <Text style={styles.summaryValue}>{price} €</Text>
+                            <Text style={styles.summaryValue}>
+                                {price} € ({selectedTimeSlots.length} × {PRICE_PER_SLOT} €)
+                            </Text>
                         </View>
                     </View>
                 )}
 
                 {/* Bouton de soumission */}
                 <TouchableOpacity
-                    style={[styles.submitButton, (!selectedDate || isSubmitting) && styles.disabledButton]}
+                    style={[styles.submitButton, (!selectedDate || selectedTimeSlots.length === 0 || isSubmitting) && styles.disabledButton]}
                     onPress={handleSubmit}
-                    disabled={!selectedDate || isSubmitting}
+                    disabled={!selectedDate || selectedTimeSlots.length === 0 || isSubmitting}
                 >
                     {isSubmitting ? <ActivityIndicator color="#fff" size="small" /> : <Text style={styles.submitButtonText}>Confirmer la réservation</Text>}
                 </TouchableOpacity>
@@ -326,6 +382,7 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: "600",
         marginLeft: 10,
+        marginRight: 10,
         color: "#333",
     },
     section: {
@@ -346,52 +403,81 @@ const styles = StyleSheet.create({
         marginBottom: 16,
         color: "#333",
     },
-    timeContainer: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-    },
-    timeInputContainer: {
-        width: "47%",
-    },
-    timeLabel: {
+    instructionText: {
         fontSize: 14,
         color: "#555",
-        marginBottom: 8,
+        marginBottom: 16,
+        fontStyle: "italic",
     },
-    timeInput: {
+    noDateSelectedText: {
+        fontSize: 14,
+        color: "#888",
+        fontStyle: "italic",
+        textAlign: "center",
+        padding: 20,
+    },
+    timeSlotsContainer: {
         flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-        height: 50,
-        paddingHorizontal: 12,
+        flexWrap: "wrap",
+        justifyContent: "flex-start",
+        gap: 10,
+    },
+    timeSlot: {
+        paddingVertical: 10,
+        paddingHorizontal: 14,
+        borderRadius: 8,
+        backgroundColor: "#f0f0f0",
         borderWidth: 1,
         borderColor: "#ddd",
-        borderRadius: 8,
-        backgroundColor: "#f9f9f9",
+        minWidth: "30%",
+        alignItems: "center",
+        marginBottom: 10,
     },
-    timeText: {
-        fontSize: 16,
+    timeSlotText: {
+        fontSize: 14,
         color: "#333",
+    },
+    selectedTimeSlot: {
+        backgroundColor: "#007AFF",
+        borderColor: "#007AFF",
+    },
+    selectedTimeSlotText: {
+        color: "#fff",
+        fontWeight: "600",
+    },
+    showMoreButton: {
+        alignSelf: "center",
+        marginTop: 16,
+        paddingVertical: 8,
+        paddingHorizontal: 16,
+        backgroundColor: "#f0f0f0",
+        borderRadius: 20,
+    },
+    showMoreButtonText: {
+        fontSize: 14,
+        color: "#007AFF",
+        fontWeight: "500",
     },
     priceContainer: {
         flexDirection: "row",
         alignItems: "center",
+        justifyContent: "space-between",
+        paddingVertical: 10,
     },
-    priceInput: {
-        flex: 1,
-        height: 50,
-        borderWidth: 1,
-        borderColor: "#ddd",
-        borderRadius: 8,
-        paddingHorizontal: 12,
-        fontSize: 16,
-        backgroundColor: "#f9f9f9",
+    priceText: {
+        fontSize: 14,
+        color: "#555",
     },
-    priceCurrency: {
+    priceValue: {
         fontSize: 18,
         fontWeight: "bold",
-        marginLeft: 10,
-        color: "#333",
+        color: "#28a745",
+    },
+    priceInfo: {
+        fontSize: 12,
+        color: "#777",
+        fontStyle: "italic",
+        marginTop: 10,
     },
     summaryContainer: {
         backgroundColor: "#fff",
