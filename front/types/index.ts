@@ -47,3 +47,17 @@ export interface ApiError {
     message: string;
     code?: number;
 }
+
+/**
+ * Type pour les réservations
+ */
+export interface Booking {
+    id: number;
+    dateStart: string;
+    dateEnd: string;
+    price: number;
+    place: string; 
+    coach: string;
+    coachFullName: string;
+    placeEquipmentName: string;
+}

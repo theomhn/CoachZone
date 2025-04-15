@@ -79,6 +79,13 @@ export default function TabLayout() {
                 }}
             />
             <Tabs.Screen
+                name="my-bookings"
+                options={{
+                    title: "Mes réservations",
+                    tabBarIcon: ({ color }) => <IconSymbol name="calendar" size={28} color={color} />,
+                }}
+            />
+            <Tabs.Screen
                 name="profile"
                 options={{
                     title: "Profil",
