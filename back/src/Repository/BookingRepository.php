@@ -70,4 +70,32 @@ class BookingRepository extends ServiceEntityRepository
 
         return $qb->getQuery()->getResult();
     }
+
+    /**
+     * Trouve les réservations qui chevauchent la période donnée pour un coach
+     */
+    public function findOverlappingBookings(int $coachId, \DateTimeInterface $dateStart, \DateTimeInterface $dateEnd, ?int $excludeId = null): array
+    {
+        $qb = $this->createQueryBuilder('b')
+            ->where('b.coach = :coachId')
+            ->andWhere(
+                // Vérifie si la nouvelle réservation chevauche une réservation existante
+                // Cas 1: La nouvelle réservation commence pendant une réservation existante
+                '(:dateStart >= b.dateStart AND :dateStart < b.dateEnd) OR ' .
+                    // Cas 2: La nouvelle réservation se termine pendant une réservation existante
+                    '(:dateEnd > b.dateStart AND :dateEnd <= b.dateEnd) OR ' .
+                    // Cas 3: La nouvelle réservation contient entièrement une réservation existante
+                    '(:dateStart <= b.dateStart AND :dateEnd >= b.dateEnd)'
+            )
+            ->setParameter('coachId', $coachId)
+            ->setParameter('dateStart', $dateStart)
+            ->setParameter('dateEnd', $dateEnd);
+
+        if ($excludeId) {
+            $qb->andWhere('b.id != :excludeId')
+                ->setParameter('excludeId', $excludeId);
+        }
+
+        return $qb->getQuery()->getResult();
+    }
 }

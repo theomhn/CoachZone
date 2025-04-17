@@ -8,6 +8,7 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use App\Controller\BookingController;
 use App\Repository\BookingRepository;
+use App\Validator\Constraint\BookingConstraint;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -16,8 +17,10 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ApiResource(
     operations: [
         new Post(
-            security: "is_granted('ROLE_USER')",
-            securityPostDenormalize: "object.getCoach() == user"
+            security: "is_granted('ROLE_COACH')",
+            securityMessage: "Seuls les coachs peuvent créer des réservations.",
+            securityPostDenormalize: "object.getCoach() == user",
+            securityPostDenormalizeMessage: "Vous ne pouvez créer des réservations que pour vous-même."
         ),
         new Get(
             requirements: ['id' => '\d+'],
@@ -31,6 +34,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
     normalizationContext: ['groups' => ['booking:read']],
     denormalizationContext: ['groups' => ['booking:write']]
 )]
+#[BookingConstraint]
 class Booking
 {
     #[ORM\Id]
