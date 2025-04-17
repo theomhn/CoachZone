@@ -7,8 +7,15 @@ import { ActivityIndicator, Alert, KeyboardAvoidingView, Platform, ScrollView, S
 import { Calendar, DateData } from "react-native-calendars";
 
 export default function BookingScreen() {
-    const { placeId, placeName } = useLocalSearchParams<{ placeId: string; placeName: string }>();
+    const { placeId, placeName, placePrice } = useLocalSearchParams<{
+        placeId: string;
+        placeName: string;
+        placePrice: string;
+    }>();
     const router = useRouter();
+
+    // Convertir le prix reçu en paramètre en nombre
+    const pricePerSlot = placePrice ? parseFloat(placePrice) : 0;
 
     // États pour stocker les données du formulaire
     const [selectedDate, setSelectedDate] = useState("");
@@ -17,13 +24,10 @@ export default function BookingScreen() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [showAllTimeSlots, setShowAllTimeSlots] = useState(false);
 
-    // Coût d'un créneau horaire en euros
-    const PRICE_PER_SLOT = 35;
-
     // Mise à jour du prix lorsque les créneaux changent
     useEffect(() => {
-        setPrice(selectedTimeSlots.length * PRICE_PER_SLOT);
-    }, [selectedTimeSlots]);
+        setPrice(selectedTimeSlots.length * pricePerSlot);
+    }, [selectedTimeSlots, pricePerSlot]);
 
     // Création des créneaux horaires
     const timeSlots = useMemo(() => {
@@ -278,7 +282,7 @@ export default function BookingScreen() {
                         <Text style={styles.priceText}>Prix calculé automatiquement :</Text>
                         <Text style={styles.priceValue}>{price} €</Text>
                     </View>
-                    <Text style={styles.priceInfo}>Tarif : {PRICE_PER_SLOT} € par créneau horaire</Text>
+                    <Text style={styles.priceInfo}>Tarif : {pricePerSlot} € par créneau horaire</Text>
                 </View>
 
                 {/* Résumé de la réservation */}
@@ -323,7 +327,7 @@ export default function BookingScreen() {
                         <View style={styles.summaryItem}>
                             <Text style={styles.summaryLabel}>Prix:</Text>
                             <Text style={styles.summaryValue}>
-                                {price} € ({selectedTimeSlots.length} × {PRICE_PER_SLOT} €)
+                                {price} € ({selectedTimeSlots.length} × {pricePerSlot} €)
                             </Text>
                         </View>
                     </View>

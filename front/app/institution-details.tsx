@@ -35,6 +35,7 @@ export default function InstitutionDetailsScreen() {
                 params: {
                     placeId: selectedPlace.id,
                     placeName: `${institution.inst_name} - ${selectedPlace.data.equip_nom || selectedPlace.data.lib_bdv}`,
+                    placePrice: selectedPlace.price ? selectedPlace.price.toString() : "0", // Passer le prix directement
                 },
             });
         } else {
@@ -91,11 +92,14 @@ export default function InstitutionDetailsScreen() {
             }
 
             const data = await response.json();
-            setPlaces(data);
+
+            // Filtrer pour ne garder que les places avec un prix défini (non NULL)
+            const placesWithPrice = data.filter((place: Place) => place.price !== undefined && place.price !== null);
+            setPlaces(placesWithPrice);
 
             // Sélectionner la première place par défaut s'il y en a
-            if (data.length > 0) {
-                setSelectedPlace(data[0]);
+            if (placesWithPrice.length > 0) {
+                setSelectedPlace(placesWithPrice[0]);
             }
         } catch (error) {
             console.error("Erreur :", error);
@@ -238,6 +242,16 @@ export default function InstitutionDetailsScreen() {
                                             <Ionicons name="resize-outline" size={16} color={selectedPlace?.id === place.id ? "#007AFF" : "#555"} style={styles.placeInfoIcon} />
                                             <Text style={[styles.placeInfoText, selectedPlace?.id === place.id && styles.selectedPlaceCardText]}>
                                                 Surface: {place.data.equip_surf} m²
+                                            </Text>
+                                        </View>
+                                    )}
+
+                                    {/* Prix de l'équipement */}
+                                    {place.price !== undefined && (
+                                        <View style={styles.placeInfoRow}>
+                                            <Ionicons name="pricetag-outline" size={16} color={selectedPlace?.id === place.id ? "#007AFF" : "#555"} style={styles.placeInfoIcon} />
+                                            <Text style={[styles.placeInfoText, selectedPlace?.id === place.id && styles.selectedPlaceCardText]}>
+                                                Prix: {place.price} € / créneau
                                             </Text>
                                         </View>
                                     )}
@@ -481,6 +495,7 @@ const styles = StyleSheet.create({
     bookingButtonContent: {
         flexDirection: "row",
         alignItems: "center",
+        justifyContent: "center",
     },
     bookingButtonText: {
         color: "#fff",
