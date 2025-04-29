@@ -35,28 +35,22 @@ class Institution extends User
     public ?string $adresse = null;
 
     /**
+     * Coordonnées géographiques de l'institution
+     */
+    #[Groups(['institution:read'])]
+    public ?array $coordonnees = null;
+
+    /**
      * Liste des activités sportives (equip_aps_nom) dans cette institution
      */
     #[Groups(['institution:read'])]
     public array $activites = [];
 
     /**
-     * Surface totale des équipements de l'institution (en m²)
-     */
-    #[Groups(['institution:read'])]
-    public float $surface_totale = 0;
-
-    /**
      * Informations sur les équipements disponibles (douches, sanitaires)
      */
     #[Groups(['institution:read'])]
     public array $equipements = [];
-
-    /**
-     * Coordonnées géographiques de l'institution
-     */
-    #[Groups(['institution:read'])]
-    public ?array $coordonnees = null;
 
     public function getInstNumero(): ?string
     {

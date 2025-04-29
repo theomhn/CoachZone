@@ -33,9 +33,6 @@ class InstitutionCollectionDataProvider implements ProviderInterface
             // Initialise le tableau des activités
             $activites = [];
 
-            // Initialise la surface totale
-            $surfaceTotale = 0;
-
             // Initialise le tableau des équipements
             $equipements = [
                 'douches' => false,
@@ -50,32 +47,22 @@ class InstitutionCollectionDataProvider implements ProviderInterface
 
                 // Traitement des activités (anciennement équipements)
                 if (isset($placeData['equip_aps_nom'])) {
-                    // Si equip_aps_nom est déjà un tableau, on traite chaque élément
-                    if (is_array($placeData['equip_aps_nom'])) {
-                        foreach ($placeData['equip_aps_nom'] as $activity) {
-                            // Si c'est un string, on l'ajoute directement s'il n'existe pas déjà
-                            if (is_string($activity) && !in_array($activity, $activites)) {
-                                $activites[] = $activity;
-                            }
-                            // Si c'est un tableau, on ajoute chaque élément du tableau
-                            elseif (is_array($activity)) {
-                                foreach ($activity as $subActivity) {
-                                    if (is_string($subActivity) && !in_array($subActivity, $activites)) {
-                                        $activites[] = $subActivity;
-                                    }
+                    // Traitement des activités en tant que tableau associatif (code => nom)
+                    if (isset($placeData['equip_aps_nom']) && isset($placeData['equip_aps_code'])) {
+                        // Si les deux propriétés sont des tableaux
+                        if (is_array($placeData['equip_aps_nom']) && is_array($placeData['equip_aps_code'])) {
+                            // On parcourt les tableaux et on associe les codes aux noms
+                            foreach ($placeData['equip_aps_code'] as $index => $code) {
+                                if (isset($placeData['equip_aps_nom'][$index]) && !isset($activites[$code])) {
+                                    $activites[$code] = $placeData['equip_aps_nom'][$index];
                                 }
                             }
                         }
+                        // Traitement pour un seul élément (pas un tableau)
+                        elseif (is_string($placeData['equip_aps_code']) && is_string($placeData['equip_aps_nom']) && !isset($activites[$placeData['equip_aps_code']])) {
+                            $activites[$placeData['equip_aps_code']] = $placeData['equip_aps_nom'];
+                        }
                     }
-                    // Si equip_aps_nom est une chaîne, on l'ajoute directement
-                    elseif (is_string($placeData['equip_aps_nom']) && !in_array($placeData['equip_aps_nom'], $activites)) {
-                        $activites[] = $placeData['equip_aps_nom'];
-                    }
-                }
-
-                // Calcul de la surface totale
-                if (isset($placeData['equip_surf']) && is_numeric($placeData['equip_surf'])) {
-                    $surfaceTotale += (float) $placeData['equip_surf'];
                 }
 
                 // Vérification des douches
@@ -104,9 +91,6 @@ class InstitutionCollectionDataProvider implements ProviderInterface
 
             // Ajoute le tableau des activités à l'institution
             $institution->activites = $activites;
-
-            // Ajoute la surface totale à l'institution
-            $institution->surface_totale = $surfaceTotale;
 
             // Ajoute le tableau des équipements à l'institution
             $institution->equipements = $equipements;
