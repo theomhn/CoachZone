@@ -7,6 +7,9 @@ import Badge from "./Badge";
 const InstitutionCard: React.FC<InstitutionCardProps> = ({ item, onPress, onClose, onViewDetails, variant = "card", showActivities = true, showDetailsButton = true }) => {
     const isPopup = variant === "popup";
 
+    // Convertir l'objet activités en tableau de valeurs
+    const activitesArray = item.activites ? Object.values(item.activites) : [];
+
     return (
         <TouchableOpacity style={[styles.container, isPopup ? styles.popupContainer : styles.cardContainer]} onPress={onPress} activeOpacity={onPress ? 0.7 : 1}>
             <View style={styles.content}>
@@ -27,18 +30,10 @@ const InstitutionCard: React.FC<InstitutionCardProps> = ({ item, onPress, onClos
                 </View>
 
                 {/* Activités (optionnel) */}
-                {showActivities && item.activites && item.activites.length > 0 && (
+                {showActivities && activitesArray.length > 0 && (
                     <View style={styles.infoRow}>
                         <Ionicons name="fitness-outline" size={18} color="#555" style={styles.infoIcon} />
-                        <Text style={[styles.infoValue, styles.activitiesText]}>{item.activites.join(", ")}</Text>
-                    </View>
-                )}
-
-                {/* Surface */}
-                {item.surface_totale > 0 && (
-                    <View style={styles.infoRow}>
-                        <Ionicons name="resize-outline" size={18} color="#555" style={styles.infoIcon} />
-                        <Text style={styles.infoValue}>Surface : {item.surface_totale} m²</Text>
+                        <Text style={[styles.infoValue, styles.activitiesText]}>{activitesArray.join(", ")}</Text>
                     </View>
                 )}
 

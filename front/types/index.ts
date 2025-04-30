@@ -5,8 +5,9 @@ export interface Institution {
     inst_numero: string;
     inst_name: string;
     adresse: string;
-    activites: string[];
-    surface_totale: number;
+    activites: {
+        [key: string]: string;
+    };
     equipements: {
         douches: boolean;
         sanitaires: boolean;

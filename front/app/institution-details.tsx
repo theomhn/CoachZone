@@ -121,6 +121,9 @@ export default function InstitutionDetailsScreen() {
         );
     }
 
+    // Convertir l'objet activités en tableau de valeurs
+    const activitesArray = institution.activites ? Object.values(institution.activites) : [];
+
     // Vérifier si l'établissement a des coordonnées valides pour la carte
     const hasValidCoordinates = institution.coordonnees && institution.coordonnees.lat && institution.coordonnees.lon;
 
@@ -176,14 +179,6 @@ export default function InstitutionDetailsScreen() {
                             <Text style={styles.infoLabel}>Adresse :</Text>
                             <Text style={styles.infoValue}>{institution.adresse}</Text>
                         </View>
-
-                        {institution.surface_totale > 0 && (
-                            <View style={styles.infoRow}>
-                                <Ionicons name="resize-outline" size={20} color="#555" style={styles.infoIcon} />
-                                <Text style={styles.infoLabel}>Surface :</Text>
-                                <Text style={styles.infoValue}>{institution.surface_totale} m²</Text>
-                            </View>
-                        )}
                     </View>
 
                     {/* Équipements */}
@@ -198,11 +193,11 @@ export default function InstitutionDetailsScreen() {
                     )}
 
                     {/* Activités sportives */}
-                    {institution.activites && institution.activites.length > 0 && (
+                    {activitesArray.length > 0 && (
                         <View style={styles.activitiesSection}>
                             {renderSectionTitle("Activités sportives", "fitness-outline")}
                             <View style={styles.activitiesList}>
-                                {institution.activites.map((activity, index) => (
+                                {activitesArray.map((activity, index) => (
                                     <View key={index} style={styles.activityItem}>
                                         <Ionicons name="checkmark-circle-outline" size={16} color="#007AFF" style={styles.activityIcon} />
                                         <Text style={styles.activityText}>{activity}</Text>
