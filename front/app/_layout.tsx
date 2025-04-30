@@ -1,3 +1,4 @@
+import { InstitutionFiltersProvider } from "@/contexts/InstitutionFiltersContext";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { DarkTheme, DefaultTheme, ThemeProvider } from "@react-navigation/native";
 import { useFonts } from "expo-font";
@@ -23,15 +24,17 @@ export default function RootLayout() {
     }, [loaded]);
 
     return (
-        <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-            <Stack screenOptions={{ headerBackButtonDisplayMode: "minimal" }}>
-                <Stack.Screen name="login" options={{ headerShown: false }} />
-                <Stack.Screen name="register" options={{ headerShown: false }} />
-                <Stack.Screen name="map" options={{ title: "Carte" }} />
-                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-                <Stack.Screen name="+not-found" />
-            </Stack>
-            <StatusBar style="auto" />
-        </ThemeProvider>
+        <InstitutionFiltersProvider>
+            <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+                <Stack screenOptions={{ headerBackButtonDisplayMode: "minimal" }}>
+                    <Stack.Screen name="login" options={{ headerShown: false }} />
+                    <Stack.Screen name="register" options={{ headerShown: false }} />
+                    <Stack.Screen name="map" options={{ title: "Carte" }} />
+                    <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                    <Stack.Screen name="+not-found" />
+                </Stack>
+                <StatusBar style="auto" />
+            </ThemeProvider>
+        </InstitutionFiltersProvider>
     );
 }

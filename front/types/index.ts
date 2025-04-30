@@ -89,7 +89,6 @@ export interface Booking {
 /**
  * Type pour les cartes d'institutions
  */
-
 export interface InstitutionCardProps {
     item: Institution;
     onPress?: () => void;
@@ -107,4 +106,26 @@ export interface BadgeProps {
     text: string;
     color?: string;
     backgroundColor?: string;
+}
+
+/**
+ * Type pour les filtres
+ */
+export interface FilterOptions {
+    activities: string[];
+    equipements: {
+        douches: boolean;
+        sanitaires: boolean;
+    };
+}
+
+/**
+ * Type pour la barre de recherche
+ */
+export interface SearchFilterBarProps {
+    onSearch: (text: string) => void;
+    onFilterChange: (filters: FilterOptions) => void;
+    activities: string[];
+    currentFilters: FilterOptions;
+    searchText: string;
 }

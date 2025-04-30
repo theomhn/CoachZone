@@ -1,5 +1,7 @@
 import InstitutionCard from "@/components/InstitutionCard";
+import SearchFilterBar from "@/components/SearchFilterBar";
 import { API_BASE_URL } from "@/config";
+import { useInstitutionFiltersContext } from "@/contexts/InstitutionFiltersContext";
 import { Institution } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import * as Location from "expo-location";
@@ -9,7 +11,6 @@ import { ActivityIndicator, Alert, Dimensions, StyleSheet, TouchableOpacity, Vie
 import MapView, { Marker, PROVIDER_DEFAULT } from "react-native-maps";
 
 export default function MapScreen() {
-    const [institutions, setInstitutions] = useState<Institution[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [selectedInstitution, setSelectedInstitution] = useState<Institution | null>(null);
     const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
@@ -19,6 +20,9 @@ export default function MapScreen() {
         latitudeDelta: 0.0922,
         longitudeDelta: 0.0421,
     });
+
+    // Utiliser le contexte partagé
+    const { filteredInstitutions, allActivities, updateInstitutions, handleSearch, handleFilterChange, filters, searchText } = useInstitutionFiltersContext();
 
     // Récupération des lieux
     useEffect(() => {
@@ -33,7 +37,7 @@ export default function MapScreen() {
                 throw new Error("Erreur lors de la récupération des données");
             }
             const data = await response.json();
-            setInstitutions(data);
+            updateInstitutions(data);
 
             // Si des institutions sont disponibles, centrer la carte sur la première
             if (data.length > 0 && data[0].coordonnees) {
@@ -109,7 +113,7 @@ export default function MapScreen() {
     }
 
     // Filtrer les institutions sans coordonnées
-    const institutionsWithCoordinates = institutions.filter((inst) => inst.coordonnees && inst.coordonnees.lat && inst.coordonnees.lon);
+    const markersToShow = filteredInstitutions.filter((inst) => inst.coordonnees && inst.coordonnees.lat && inst.coordonnees.lon);
 
     return (
         <View style={styles.container}>
@@ -123,7 +127,7 @@ export default function MapScreen() {
                 region={region}
                 onRegionChangeComplete={setRegion}
             >
-                {institutionsWithCoordinates.map((institution) => (
+                {markersToShow.map((institution) => (
                     <Marker
                         key={institution.inst_numero}
                         coordinate={{
@@ -146,6 +150,11 @@ export default function MapScreen() {
                     />
                 )}
             </MapView>
+
+            {/* Utiliser le contexte pour SearchFilterBar */}
+            <View style={styles.searchFilterContainer}>
+                <SearchFilterBar onSearch={handleSearch} onFilterChange={handleFilterChange} activities={allActivities} currentFilters={filters} searchText={searchText} />
+            </View>
 
             {/* Bouton pour centrer sur l'utilisateur */}
             {userLocation && (
@@ -178,6 +187,13 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: "center",
         alignItems: "center",
+    },
+    searchFilterContainer: {
+        position: "absolute",
+        top: 16,
+        left: 16,
+        right: 16,
+        zIndex: 1,
     },
     map: {
         width: Dimensions.get("window").width,

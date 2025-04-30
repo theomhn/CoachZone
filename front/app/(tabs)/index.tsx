@@ -1,5 +1,7 @@
 import InstitutionCard from "@/components/InstitutionCard";
+import SearchFilterBar from "@/components/SearchFilterBar";
 import { API_BASE_URL } from "@/config";
+import { useInstitutionFiltersContext } from "@/contexts/InstitutionFiltersContext";
 import { Institution } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -7,9 +9,11 @@ import React, { useEffect, useState } from "react";
 import { ActivityIndicator, Alert, FlatList, RefreshControl, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export default function InstitutionsScreen() {
-    const [institutions, setInstitutions] = useState<Institution[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isRefreshing, setIsRefreshing] = useState(false);
+
+    // Utiliser le contexte partagé
+    const { filteredInstitutions, searchText, filters, allActivities, updateInstitutions, handleSearch, handleFilterChange } = useInstitutionFiltersContext();
 
     const fetchInstitutions = async () => {
         try {
@@ -19,7 +23,7 @@ export default function InstitutionsScreen() {
                 throw new Error("Erreur lors de la récupération des données");
             }
             const data = await response.json();
-            setInstitutions(data);
+            updateInstitutions(data);
         } catch (error: unknown) {
             const errorMessage = error instanceof Error ? error.message : "Une erreur est survenue";
             Alert.alert("Erreur", errorMessage);
@@ -66,8 +70,11 @@ export default function InstitutionsScreen() {
 
     return (
         <View style={styles.container}>
+            {/* Utiliser le contexte pour SearchFilterBar */}
+            <SearchFilterBar onSearch={handleSearch} onFilterChange={handleFilterChange} activities={allActivities} currentFilters={filters} searchText={searchText} />
+
             <FlatList
-                data={institutions}
+                data={filteredInstitutions}
                 renderItem={renderInstitutionCard}
                 keyExtractor={(item) => item.inst_numero}
                 contentContainerStyle={styles.listContainer}
@@ -100,7 +107,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
     },
     listContainer: {
-        paddingBottom: 80, // Espace en bas pour le bouton flottant
+        paddingBottom: 80,
     },
     emptyContainer: {
         flex: 1,
