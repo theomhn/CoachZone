@@ -1,3 +1,4 @@
+import styles from "@/assets/styles/mapScreen";
 import InstitutionCard from "@/components/InstitutionCard";
 import SearchFilterBar from "@/components/SearchFilterBar";
 import { API_BASE_URL } from "@/config";
@@ -7,7 +8,7 @@ import { Ionicons } from "@expo/vector-icons";
 import * as Location from "expo-location";
 import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { ActivityIndicator, Alert, Dimensions, StyleSheet, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Alert, TouchableOpacity, View } from "react-native";
 import MapView, { Marker, PROVIDER_DEFAULT } from "react-native-maps";
 
 export default function MapScreen() {
@@ -177,39 +178,3 @@ export default function MapScreen() {
         </View>
     );
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: "#fff",
-    },
-    centered: {
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-    },
-    searchFilterContainer: {
-        position: "absolute",
-        top: 16,
-        left: 16,
-        right: 16,
-        zIndex: 1,
-    },
-    map: {
-        width: Dimensions.get("window").width,
-        height: Dimensions.get("window").height,
-    },
-    locationButton: {
-        position: "absolute",
-        bottom: 20,
-        right: 20,
-        backgroundColor: "#fff",
-        borderRadius: 30,
-        padding: 10,
-        elevation: 5,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-    },
-});

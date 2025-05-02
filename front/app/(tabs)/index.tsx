@@ -1,3 +1,4 @@
+import styles from "@/assets/styles/institutionsScreen";
 import InstitutionCard from "@/components/InstitutionCard";
 import SearchFilterBar from "@/components/SearchFilterBar";
 import { API_BASE_URL } from "@/config";
@@ -6,7 +7,7 @@ import { Institution } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { ActivityIndicator, Alert, FlatList, RefreshControl, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Alert, FlatList, RefreshControl, Text, TouchableOpacity, View } from "react-native";
 
 export default function InstitutionsScreen() {
     const [isLoading, setIsLoading] = useState(true);
@@ -94,52 +95,3 @@ export default function InstitutionsScreen() {
         </View>
     );
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: "#f5f5f5",
-        padding: 16,
-    },
-    centered: {
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-    },
-    listContainer: {
-        paddingBottom: 80,
-    },
-    emptyContainer: {
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        paddingVertical: 32,
-    },
-    emptyText: {
-        fontSize: 16,
-        color: "#666",
-        textAlign: "center",
-    },
-    floatingMapButton: {
-        position: "absolute",
-        bottom: 25,
-        alignSelf: "center",
-        flexDirection: "row",
-        alignItems: "center",
-        backgroundColor: "#e1f5fe",
-        paddingHorizontal: 20,
-        paddingVertical: 12,
-        borderRadius: 30,
-        elevation: 5,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-    },
-    mapButtonText: {
-        color: "#007AFF",
-        marginLeft: 8,
-        fontWeight: "600",
-        fontSize: 16,
-    },
-});
