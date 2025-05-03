@@ -1,5 +1,6 @@
 import styles from "@/assets/styles/registrationScreen";
 import { API_BASE_URL } from "@/config";
+import { Colors } from "@/constants/Colors";
 import { InstitutionRegister } from "@/types";
 import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
@@ -168,7 +169,7 @@ export default function RegisterScreen() {
                         onChangeText={setEmail}
                         keyboardType="email-address"
                         autoCapitalize="none"
-                        placeholderTextColor="#666"
+                        placeholderTextColor={Colors.grayDark}
                     />
                 </View>
 
@@ -180,7 +181,7 @@ export default function RegisterScreen() {
                         value={password}
                         onChangeText={setPassword}
                         secureTextEntry
-                        placeholderTextColor="#666"
+                        placeholderTextColor={Colors.grayDark}
                     />
                 </View>
 
@@ -188,15 +189,21 @@ export default function RegisterScreen() {
                     <>
                         <View style={styles.inputContainer}>
                             <Text style={styles.label}>Prénom</Text>
-                            <TextInput style={styles.input} placeholder="Entrez votre prénom" value={firstName} onChangeText={setFirstName} placeholderTextColor="#666" />
+                            <TextInput
+                                style={styles.input}
+                                placeholder="Entrez votre prénom"
+                                value={firstName}
+                                onChangeText={setFirstName}
+                                placeholderTextColor={Colors.grayDark}
+                            />
                         </View>
                         <View style={styles.inputContainer}>
                             <Text style={styles.label}>Nom</Text>
-                            <TextInput style={styles.input} placeholder="Entrez votre nom" value={lastName} onChangeText={setLastName} placeholderTextColor="#666" />
+                            <TextInput style={styles.input} placeholder="Entrez votre nom" value={lastName} onChangeText={setLastName} placeholderTextColor={Colors.grayDark} />
                         </View>
                         <View style={styles.inputContainer}>
                             <Text style={styles.label}>Profession</Text>
-                            <TextInput style={styles.input} placeholder="Entrez votre profession" value={work} onChangeText={setWork} placeholderTextColor="#666" />
+                            <TextInput style={styles.input} placeholder="Entrez votre profession" value={work} onChangeText={setWork} placeholderTextColor={Colors.grayDark} />
                         </View>
                     </>
                 ) : (
@@ -204,7 +211,7 @@ export default function RegisterScreen() {
                         <Text style={styles.label}>Nom de l'établissement</Text>
                         {isLoadingInstitutions ? (
                             <View style={[styles.input, styles.loadingContainer]}>
-                                <ActivityIndicator size="small" color="#007AFF" />
+                                <ActivityIndicator size="small" color={Colors.primary} />
                                 <Text style={styles.loadingText}>Chargement des établissements...</Text>
                             </View>
                         ) : (
@@ -237,7 +244,7 @@ export default function RegisterScreen() {
                                 value={searchText}
                                 onChangeText={setSearchText}
                                 autoFocus
-                                placeholderTextColor="#666"
+                                placeholderTextColor={Colors.grayDark}
                             />
                             <TouchableOpacity style={styles.closeButton} onPress={() => setShowModal(false)}>
                                 <Text style={styles.closeButtonText}>Fermer</Text>

@@ -1,4 +1,5 @@
 import styles from "@/assets/styles/searchFilterBar";
+import { Colors } from "@/constants/Colors";
 import { SearchFilterBarProps } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import AntDesign from "@expo/vector-icons/AntDesign";
@@ -103,19 +104,19 @@ const SearchFilterBar: React.FC<SearchFilterBarProps> = ({ onSearch, onFilterCha
     return (
         <View style={styles.container}>
             <View style={styles.searchContainer}>
-                <Ionicons name="search" size={20} color="#999" style={styles.searchIcon} />
+                <Ionicons name="search" size={20} color={Colors.grayMedium} style={styles.searchIcon} />
                 <TextInput style={styles.searchInput} placeholder="Rechercher par nom ou activité..." value={searchText} onChangeText={handleSearch} />
                 {searchText !== "" && (
                     <TouchableOpacity onPress={() => handleSearch("")}>
-                        <Ionicons name="close-circle" size={20} color="#999" />
+                        <Ionicons name="close-circle" size={20} color={Colors.grayMedium} />
                     </TouchableOpacity>
                 )}
             </View>
 
             <TouchableOpacity style={styles.filterButton} onPress={openModal}>
                 <View style={styles.filterButtonContent}>
-                    <Feather name="filter" size={18} color="#007AFF" />
-                    <AntDesign name="down" size={12} color="#007AFF" style={styles.downIcon} />
+                    <Feather name="filter" size={18} color={Colors.primary} />
+                    <AntDesign name="down" size={12} color={Colors.primary} style={styles.downIcon} />
                 </View>
                 {(selectedActivities.length > 0 || douchesFilter || sanitairesFilter) && <View style={styles.filterBadge} />}
             </TouchableOpacity>
@@ -126,7 +127,7 @@ const SearchFilterBar: React.FC<SearchFilterBarProps> = ({ onSearch, onFilterCha
                         <View style={styles.modalHeader}>
                             <Text style={styles.modalTitle}>Filtres</Text>
                             <TouchableOpacity onPress={closeModal}>
-                                <AntDesign name="close" size={24} color="#000" />
+                                <AntDesign name="close" size={24} color={Colors.black} />
                             </TouchableOpacity>
                         </View>
 
@@ -134,7 +135,7 @@ const SearchFilterBar: React.FC<SearchFilterBarProps> = ({ onSearch, onFilterCha
                             {/* Section Activités */}
                             <TouchableOpacity style={styles.sectionHeader} onPress={() => toggleSection("activities")}>
                                 <Text style={styles.sectionTitle}>Activités</Text>
-                                <AntDesign name={activitiesSectionExpanded ? "up" : "down"} size={16} color="#333" />
+                                <AntDesign name={activitiesSectionExpanded ? "up" : "down"} size={16} color={Colors.grayDarkest} />
                             </TouchableOpacity>
 
                             {activitiesSectionExpanded && (
@@ -154,13 +155,13 @@ const SearchFilterBar: React.FC<SearchFilterBarProps> = ({ onSearch, onFilterCha
                             {/* Section Équipements */}
                             <TouchableOpacity style={styles.sectionHeader} onPress={() => toggleSection("equipements")}>
                                 <Text style={styles.sectionTitle}>Équipements</Text>
-                                <AntDesign name={equipementsSectionExpanded ? "up" : "down"} size={16} color="#333" />
+                                <AntDesign name={equipementsSectionExpanded ? "up" : "down"} size={16} color={Colors.grayDarkest} />
                             </TouchableOpacity>
 
                             {equipementsSectionExpanded && (
                                 <View style={styles.equipementsContainer}>
                                     <TouchableOpacity style={[styles.equipementChip, douchesFilter ? styles.selectedChip : {}]} onPress={() => setDouchesFilter(!douchesFilter)}>
-                                        <Ionicons name="water-outline" size={18} color={douchesFilter ? "#fff" : "#007AFF"} />
+                                        <Ionicons name="water-outline" size={18} color={douchesFilter ? Colors.white : Colors.primary} />
                                         <Text style={[styles.equipementChipText, douchesFilter ? styles.selectedChipText : {}]}>Douches</Text>
                                     </TouchableOpacity>
 
@@ -168,7 +169,7 @@ const SearchFilterBar: React.FC<SearchFilterBarProps> = ({ onSearch, onFilterCha
                                         style={[styles.equipementChip, sanitairesFilter ? styles.selectedChip : {}]}
                                         onPress={() => setSanitairesFilter(!sanitairesFilter)}
                                     >
-                                        <Ionicons name="medical-outline" size={18} color={sanitairesFilter ? "#fff" : "#007AFF"} />
+                                        <Ionicons name="medical-outline" size={18} color={sanitairesFilter ? Colors.white : Colors.primary} />
                                         <Text style={[styles.equipementChipText, sanitairesFilter ? styles.selectedChipText : {}]}>Sanitaires</Text>
                                     </TouchableOpacity>
                                 </View>

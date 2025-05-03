@@ -1,5 +1,6 @@
 import styles from "@/assets/styles/loginScreen";
 import { API_BASE_URL } from "@/config";
+import { Colors } from "@/constants/Colors";
 import { router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import React, { useState } from "react";
@@ -60,7 +61,7 @@ export default function LoginScreen() {
                         onChangeText={setEmail}
                         keyboardType="email-address"
                         autoCapitalize="none"
-                        placeholderTextColor="#666"
+                        placeholderTextColor={Colors.grayDark}
                     />
                 </View>
 
@@ -72,7 +73,7 @@ export default function LoginScreen() {
                         value={password}
                         onChangeText={setPassword}
                         secureTextEntry
-                        placeholderTextColor="#666"
+                        placeholderTextColor={Colors.grayDark}
                     />
                 </View>
 

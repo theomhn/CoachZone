@@ -1,4 +1,6 @@
+import { Colors } from "@/constants/Colors";
 import { StyleSheet } from "react-native";
+
 export default StyleSheet.create({
     container: {
         flexDirection: "row",
@@ -9,11 +11,11 @@ export default StyleSheet.create({
         flex: 1,
         flexDirection: "row",
         alignItems: "center",
-        backgroundColor: "white",
+        backgroundColor: Colors.white,
         borderRadius: 10,
         paddingHorizontal: 12,
         paddingVertical: 8,
-        shadowColor: "#000",
+        shadowColor: Colors.black,
         shadowOffset: { width: 0, height: 1 },
         shadowOpacity: 0.1,
         shadowRadius: 2,
@@ -25,17 +27,17 @@ export default StyleSheet.create({
     searchInput: {
         flex: 1,
         fontSize: 16,
-        color: "#333",
+        color: Colors.grayDarkest,
     },
     filterButton: {
         marginLeft: 12,
         paddingHorizontal: 12,
         height: 40,
         borderRadius: 20,
-        backgroundColor: "white",
+        backgroundColor: Colors.white,
         alignItems: "center",
         justifyContent: "center",
-        shadowColor: "#000",
+        shadowColor: Colors.black,
         shadowOffset: { width: 0, height: 1 },
         shadowOpacity: 0.1,
         shadowRadius: 2,
@@ -55,12 +57,12 @@ export default StyleSheet.create({
         width: 8,
         height: 8,
         borderRadius: 4,
-        backgroundColor: "#ff3b30",
+        backgroundColor: Colors.danger,
     },
     modalContainer: {
         flex: 1,
-        backgroundColor: "#ffffff",
-        paddingTop: 50, // Espace pour éviter le header du téléphone
+        backgroundColor: Colors.white,
+        paddingTop: 50,
         position: "absolute",
         top: 0,
         bottom: 0,
@@ -69,7 +71,7 @@ export default StyleSheet.create({
         zIndex: 1000,
     },
     modalContent: {
-        backgroundColor: "white",
+        backgroundColor: Colors.white,
         flex: 1,
         paddingHorizontal: 16,
         paddingBottom: 30,
@@ -80,12 +82,12 @@ export default StyleSheet.create({
         alignItems: "center",
         paddingVertical: 16,
         borderBottomWidth: 1,
-        borderBottomColor: "#eee",
+        borderBottomColor: Colors.grayLight,
     },
     modalTitle: {
         fontSize: 24,
         fontWeight: "bold",
-        color: "#000",
+        color: Colors.black,
     },
     sectionHeader: {
         flexDirection: "row",
@@ -93,13 +95,13 @@ export default StyleSheet.create({
         alignItems: "center",
         paddingVertical: 16,
         borderBottomWidth: 1,
-        borderBottomColor: "#eee",
+        borderBottomColor: Colors.grayLight,
         marginBottom: 12,
     },
     sectionTitle: {
         fontSize: 20,
         fontWeight: "500",
-        color: "#000",
+        color: Colors.black,
     },
     activitiesContainer: {
         flexDirection: "row",
@@ -112,18 +114,18 @@ export default StyleSheet.create({
         paddingHorizontal: 12,
         paddingVertical: 6,
         borderRadius: 18,
-        backgroundColor: "#f0f0f0",
+        backgroundColor: Colors.grayLightest,
         marginBottom: 8,
     },
     selectedChip: {
-        backgroundColor: "#007AFF",
+        backgroundColor: Colors.primary,
     },
     activityChipText: {
         fontSize: 14,
-        color: "#333",
+        color: Colors.grayDarkest,
     },
     selectedChipText: {
-        color: "#fff",
+        color: Colors.white,
     },
     equipementsContainer: {
         flexDirection: "row",
@@ -137,20 +139,20 @@ export default StyleSheet.create({
         paddingHorizontal: 12,
         paddingVertical: 8,
         borderRadius: 18,
-        backgroundColor: "#f0f0f0",
+        backgroundColor: Colors.grayLightest,
         marginBottom: 8,
     },
     equipementChipText: {
         fontSize: 14,
         marginLeft: 6,
-        color: "#333",
+        color: Colors.grayDarkest,
     },
     modalFooter: {
         flexDirection: "row",
         justifyContent: "space-between",
         paddingTop: 16,
         borderTopWidth: 1,
-        borderTopColor: "#eee",
+        borderTopColor: Colors.grayLight,
         marginTop: 16,
     },
     resetButton: {
@@ -158,17 +160,17 @@ export default StyleSheet.create({
         paddingHorizontal: 16,
     },
     resetButtonText: {
-        color: "#999",
+        color: Colors.grayMedium,
         fontSize: 16,
     },
     applyButton: {
-        backgroundColor: "#007AFF",
+        backgroundColor: Colors.primary,
         paddingVertical: 10,
         paddingHorizontal: 20,
         borderRadius: 8,
     },
     applyButtonText: {
-        color: "#fff",
+        color: Colors.white,
         fontSize: 16,
         fontWeight: "600",
     },

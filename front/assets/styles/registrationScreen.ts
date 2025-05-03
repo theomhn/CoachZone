@@ -1,9 +1,12 @@
+import { Colors } from "@/constants/Colors";
 import { Dimensions, StyleSheet } from "react-native";
+
 const { width, height } = Dimensions.get("window");
+
 export default StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#fff",
+        backgroundColor: Colors.white,
     },
     scrollContainer: {
         flexGrow: 1,
@@ -24,19 +27,19 @@ export default StyleSheet.create({
         flex: 1,
         padding: 15,
         borderWidth: 1,
-        borderColor: "#ddd",
+        borderColor: Colors.grayLight,
         alignItems: "center",
     },
     selectedType: {
-        backgroundColor: "#007AFF",
-        borderColor: "#007AFF",
+        backgroundColor: Colors.primary,
+        borderColor: Colors.primary,
     },
     typeText: {
-        color: "#000",
+        color: Colors.black,
         fontSize: 16,
     },
     selectedTypeText: {
-        color: "#fff",
+        color: Colors.white,
     },
     inputContainer: {
         marginBottom: 15,
@@ -44,20 +47,20 @@ export default StyleSheet.create({
     label: {
         fontSize: 16,
         fontWeight: "600",
-        color: "#333",
+        color: Colors.grayDarkest,
         marginBottom: 8,
     },
     input: {
         height: 50,
         borderWidth: 1,
-        borderColor: "#ddd",
+        borderColor: Colors.grayLight,
         borderRadius: 8,
         paddingHorizontal: 15,
         fontSize: 16,
         justifyContent: "center",
     },
     button: {
-        backgroundColor: "#007AFF",
+        backgroundColor: Colors.primary,
         height: 50,
         borderRadius: 8,
         justifyContent: "center",
@@ -65,7 +68,7 @@ export default StyleSheet.create({
         marginTop: 15,
     },
     buttonText: {
-        color: "#fff",
+        color: Colors.white,
         fontSize: 16,
         fontWeight: "600",
     },
@@ -75,7 +78,7 @@ export default StyleSheet.create({
         marginBottom: 20,
     },
     linkText: {
-        color: "#007AFF",
+        color: Colors.primary,
         fontSize: 16,
     },
     loadingContainer: {
@@ -85,15 +88,15 @@ export default StyleSheet.create({
     },
     loadingText: {
         marginLeft: 10,
-        color: "#666",
+        color: Colors.grayDark,
         fontSize: 14,
     },
     placeholderText: {
-        color: "#666",
+        color: Colors.grayDark,
         fontSize: 16,
     },
     selectedText: {
-        color: "#333",
+        color: Colors.grayDarkest,
         fontSize: 16,
     },
     modalContainer: {
@@ -102,7 +105,7 @@ export default StyleSheet.create({
         justifyContent: "flex-end",
     },
     modalContent: {
-        backgroundColor: "#fff",
+        backgroundColor: Colors.white,
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
         height: height * 0.7,
@@ -111,13 +114,13 @@ export default StyleSheet.create({
         flexDirection: "row",
         padding: 15,
         borderBottomWidth: 1,
-        borderBottomColor: "#eee",
+        borderBottomColor: Colors.grayLight,
         alignItems: "center",
     },
     searchInput: {
         flex: 1,
         height: 40,
-        backgroundColor: "#f5f5f5",
+        backgroundColor: Colors.grayLightest,
         borderRadius: 8,
         paddingHorizontal: 15,
         fontSize: 16,
@@ -127,21 +130,21 @@ export default StyleSheet.create({
         padding: 8,
     },
     closeButtonText: {
-        color: "#007AFF",
+        color: Colors.primary,
         fontSize: 16,
         fontWeight: "600",
     },
     institutionItem: {
         padding: 15,
         borderBottomWidth: 1,
-        borderBottomColor: "#eee",
+        borderBottomColor: Colors.grayLight,
     },
     institutionName: {
         fontSize: 16,
-        color: "#333",
+        color: Colors.grayDarkest,
     },
     institutionId: {
-        color: "#777",
+        color: Colors.grayDark,
         fontSize: 14,
     },
     emptyListContainer: {
@@ -150,7 +153,7 @@ export default StyleSheet.create({
     },
     emptyListText: {
         fontSize: 16,
-        color: "#999",
+        color: Colors.grayMedium,
         textAlign: "center",
     },
 });

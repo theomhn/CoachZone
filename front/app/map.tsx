@@ -2,6 +2,7 @@ import styles from "@/assets/styles/mapScreen";
 import InstitutionCard from "@/components/InstitutionCard";
 import SearchFilterBar from "@/components/SearchFilterBar";
 import { API_BASE_URL } from "@/config";
+import { Colors } from "@/constants/Colors";
 import { useInstitutionFiltersContext } from "@/contexts/InstitutionFiltersContext";
 import { Institution } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
@@ -108,7 +109,7 @@ export default function MapScreen() {
     if (isLoading) {
         return (
             <View style={styles.centered}>
-                <ActivityIndicator size="large" color="#007AFF" />
+                <ActivityIndicator size="large" color={Colors.primary} />
             </View>
         );
     }
@@ -160,7 +161,7 @@ export default function MapScreen() {
             {/* Bouton pour centrer sur l'utilisateur */}
             {userLocation && (
                 <TouchableOpacity style={styles.locationButton} onPress={centerOnUserLocation}>
-                    <Ionicons name="locate" size={24} color="#007AFF" />
+                    <Ionicons name="locate" size={24} color={Colors.primary} />
                 </TouchableOpacity>
             )}
 

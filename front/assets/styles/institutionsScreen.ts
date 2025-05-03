@@ -1,8 +1,10 @@
+import { Colors } from "@/constants/Colors";
 import { StyleSheet } from "react-native";
+
 export default StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#f5f5f5",
+        backgroundColor: Colors.grayLightest,
         padding: 16,
     },
     centered: {
@@ -21,7 +23,7 @@ export default StyleSheet.create({
     },
     emptyText: {
         fontSize: 16,
-        color: "#666",
+        color: Colors.grayDark,
         textAlign: "center",
     },
     floatingMapButton: {
@@ -30,18 +32,18 @@ export default StyleSheet.create({
         alignSelf: "center",
         flexDirection: "row",
         alignItems: "center",
-        backgroundColor: "#e1f5fe",
+        backgroundColor: Colors.blueLight,
         paddingHorizontal: 20,
         paddingVertical: 12,
         borderRadius: 30,
         elevation: 5,
-        shadowColor: "#000",
+        shadowColor: Colors.black,
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.25,
         shadowRadius: 3.84,
     },
     mapButtonText: {
-        color: "#007AFF",
+        color: Colors.primary,
         marginLeft: 8,
         fontWeight: "600",
         fontSize: 16,

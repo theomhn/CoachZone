@@ -1,5 +1,6 @@
 import styles from "@/assets/styles/bookingScreen";
 import { API_BASE_URL } from "@/config";
+import { Colors } from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import * as SecureStore from "expo-secure-store";
@@ -198,7 +199,7 @@ export default function BookingScreen() {
     // Définir les dates marquées pour le calendrier
     const markedDates = selectedDate
         ? {
-              [selectedDate]: { selected: true, selectedColor: "#007AFF" },
+              [selectedDate]: { selected: true, selectedColor: Colors.primary },
           }
         : {};
 
@@ -214,7 +215,7 @@ export default function BookingScreen() {
             <ScrollView style={styles.scrollView}>
                 {/* Informations sur l'installation */}
                 <View style={styles.placeInfo}>
-                    <Ionicons name="business-outline" size={24} color="#555" />
+                    <Ionicons name="business-outline" size={24} color={Colors.grayDark} />
                     <Text style={styles.placeName}>{placeName}</Text>
                 </View>
 
@@ -227,8 +228,8 @@ export default function BookingScreen() {
                         minDate={minDate}
                         enableSwipeMonths={true}
                         theme={{
-                            todayTextColor: "#007AFF",
-                            arrowColor: "#007AFF",
+                            todayTextColor: Colors.primary,
+                            arrowColor: Colors.primary,
                             textDayFontSize: 14,
                             textMonthFontSize: 16,
                             textDayHeaderFontSize: 14,
@@ -340,7 +341,7 @@ export default function BookingScreen() {
                     onPress={handleSubmit}
                     disabled={!selectedDate || selectedTimeSlots.length === 0 || isSubmitting}
                 >
-                    {isSubmitting ? <ActivityIndicator color="#fff" size="small" /> : <Text style={styles.submitButtonText}>Confirmer la réservation</Text>}
+                    {isSubmitting ? <ActivityIndicator color={Colors.white} size="small" /> : <Text style={styles.submitButtonText}>Confirmer la réservation</Text>}
                 </TouchableOpacity>
             </ScrollView>
         </KeyboardAvoidingView>

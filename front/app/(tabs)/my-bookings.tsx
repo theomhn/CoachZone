@@ -1,5 +1,6 @@
 import styles from "@/assets/styles/myBookingsScreen";
 import { API_BASE_URL } from "@/config";
+import { Colors } from "@/constants/Colors";
 import { Booking } from "@/types";
 import { formatDate } from "@/utils/date";
 import { Ionicons } from "@expo/vector-icons";
@@ -127,14 +128,14 @@ export default function MyBookingsScreen() {
 
                 <View style={styles.bookingDetails}>
                     <View style={styles.detailRow}>
-                        <Ionicons name="location-outline" size={18} color="#555" style={styles.icon} />
+                        <Ionicons name="location-outline" size={18} color={Colors.grayDark} style={styles.icon} />
                         <Text style={styles.detailText}>{item.placeEquipmentName || "Lieu non disponible"}</Text>
                     </View>
 
                     {/* Afficher le nom du coach pour les institutions */}
                     {currentUser && currentUser.type === "institution" && item.coachFullName && (
                         <View style={styles.detailRow}>
-                            <Ionicons name="person-outline" size={18} color="#555" style={styles.icon} />
+                            <Ionicons name="person-outline" size={18} color={Colors.grayDark} style={styles.icon} />
                             <Text style={styles.detailText}>{item.coachFullName}</Text>
                         </View>
                     )}
@@ -147,7 +148,7 @@ export default function MyBookingsScreen() {
     if (isLoading && !refreshing) {
         return (
             <View style={[styles.container, styles.centered]}>
-                <ActivityIndicator size="large" color="#007AFF" />
+                <ActivityIndicator size="large" color={Colors.primary} />
             </View>
         );
     }
@@ -156,7 +157,7 @@ export default function MyBookingsScreen() {
     if (!global.user) {
         return (
             <View style={[styles.container, styles.centered]}>
-                <Ionicons name="person-outline" size={48} color="#ccc" />
+                <Ionicons name="person-outline" size={48} color={Colors.grayMedium} />
                 <Text style={styles.emptyText}>Vous devez être connecté pour voir vos réservations</Text>
             </View>
         );
@@ -183,7 +184,7 @@ export default function MyBookingsScreen() {
                 refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
                 ListEmptyComponent={
                     <View style={styles.emptyContainer}>
-                        <Ionicons name="calendar-outline" size={48} color="#ccc" />
+                        <Ionicons name="calendar-outline" size={48} color={Colors.grayMedium} />
                         <Text style={styles.emptyText}>{showUpcoming ? "Aucune réservation à venir" : "Aucune réservation passée"}</Text>
                     </View>
                 }

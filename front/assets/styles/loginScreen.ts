@@ -1,8 +1,10 @@
+import { Colors } from "@/constants/Colors";
 import { StyleSheet } from "react-native";
+
 export default StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#fff",
+        backgroundColor: Colors.white,
     },
     scrollContainer: {
         flexGrow: 1,
@@ -21,19 +23,19 @@ export default StyleSheet.create({
     label: {
         fontSize: 16,
         fontWeight: "600",
-        color: "#333",
+        color: Colors.grayDarkest,
         marginBottom: 8,
     },
     input: {
         height: 50,
         borderWidth: 1,
-        borderColor: "#ddd",
+        borderColor: Colors.grayLight,
         borderRadius: 8,
         paddingHorizontal: 15,
         fontSize: 16,
     },
     button: {
-        backgroundColor: "#007AFF",
+        backgroundColor: Colors.primary,
         height: 50,
         borderRadius: 8,
         justifyContent: "center",
@@ -41,7 +43,7 @@ export default StyleSheet.create({
         marginTop: 15,
     },
     buttonText: {
-        color: "#fff",
+        color: Colors.white,
         fontSize: 16,
         fontWeight: "600",
     },
@@ -50,7 +52,7 @@ export default StyleSheet.create({
         alignItems: "center",
     },
     linkText: {
-        color: "#007AFF",
+        color: Colors.primary,
         fontSize: 16,
     },
 });

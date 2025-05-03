@@ -2,6 +2,7 @@ import styles from "@/assets/styles/institutionsScreen";
 import InstitutionCard from "@/components/InstitutionCard";
 import SearchFilterBar from "@/components/SearchFilterBar";
 import { API_BASE_URL } from "@/config";
+import { Colors } from "@/constants/Colors";
 import { useInstitutionFiltersContext } from "@/contexts/InstitutionFiltersContext";
 import { Institution } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
@@ -64,7 +65,7 @@ export default function InstitutionsScreen() {
     if (isLoading) {
         return (
             <View style={styles.centered}>
-                <ActivityIndicator size="large" color="#007AFF" />
+                <ActivityIndicator size="large" color={Colors.primary} />
             </View>
         );
     }
@@ -89,7 +90,7 @@ export default function InstitutionsScreen() {
 
             {/* Bouton Voir la carte en position absolute */}
             <TouchableOpacity style={styles.floatingMapButton} onPress={navigateToMap}>
-                <Ionicons name="map-outline" size={24} color="#007AFF" />
+                <Ionicons name="map-outline" size={24} color={Colors.primary} />
                 <Text style={styles.mapButtonText}>Voir la carte</Text>
             </TouchableOpacity>
         </View>

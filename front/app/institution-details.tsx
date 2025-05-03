@@ -1,6 +1,7 @@
 import styles from "@/assets/styles/institutionDetailsScreen";
 import Badge from "@/components/Badge";
 import { API_BASE_URL } from "@/config";
+import { Colors } from "@/constants/Colors";
 import { Institution, Place } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
@@ -113,7 +114,7 @@ export default function InstitutionDetailsScreen() {
     if (isLoading) {
         return (
             <View style={styles.centered}>
-                <ActivityIndicator size="large" color="#007AFF" />
+                <ActivityIndicator size="large" color={Colors.primary} />
             </View>
         );
     }
@@ -135,7 +136,7 @@ export default function InstitutionDetailsScreen() {
     // Fonction pour créer un titre de section avec icône alignée correctement
     const renderSectionTitle = (title: string, iconName: any) => (
         <View style={styles.sectionTitleContainer}>
-            <Ionicons name={iconName} size={20} color="#555" style={styles.sectionTitleIcon} />
+            <Ionicons name={iconName} size={20} color={Colors.grayDark} style={styles.sectionTitleIcon} />
             <Text style={styles.sectionTitleText}>{title}</Text>
         </View>
     );
@@ -174,13 +175,13 @@ export default function InstitutionDetailsScreen() {
                 <View style={styles.card}>
                     <View style={styles.infoSection}>
                         <View style={styles.infoRow}>
-                            <Ionicons name="business-outline" size={20} color="#555" style={styles.infoIcon} />
+                            <Ionicons name="business-outline" size={20} color={Colors.grayDark} style={styles.infoIcon} />
                             <Text style={styles.infoLabel}>Établissement :</Text>
                             <Text style={styles.infoValue}>{institution.inst_name}</Text>
                         </View>
 
                         <View style={styles.infoRow}>
-                            <Ionicons name="location-outline" size={20} color="#555" style={styles.infoIcon} />
+                            <Ionicons name="location-outline" size={20} color={Colors.grayDark} style={styles.infoIcon} />
                             <Text style={styles.infoLabel}>Adresse :</Text>
                             <Text style={styles.infoValue}>{institution.adresse}</Text>
                         </View>
@@ -204,7 +205,7 @@ export default function InstitutionDetailsScreen() {
                             <View style={styles.activitiesList}>
                                 {activitesArray.map((activity, index) => (
                                     <View key={index} style={styles.activityItem}>
-                                        <Ionicons name="checkmark-circle-outline" size={16} color="#007AFF" style={styles.activityIcon} />
+                                        <Ionicons name="checkmark-circle-outline" size={16} color={Colors.primary} style={styles.activityIcon} />
                                         <Text style={styles.activityText}>{activity}</Text>
                                     </View>
                                 ))}
@@ -218,7 +219,7 @@ export default function InstitutionDetailsScreen() {
                     {renderSectionTitle("Sites disponibles", "grid-outline")}
 
                     {isLoadingPlaces ? (
-                        <ActivityIndicator size="small" color="#007AFF" style={styles.placesLoading} />
+                        <ActivityIndicator size="small" color={Colors.primary} style={styles.placesLoading} />
                     ) : places.length > 0 ? (
                         <View style={styles.placesContainer}>
                             {places.map((place) => (
@@ -240,7 +241,12 @@ export default function InstitutionDetailsScreen() {
                                     {/* Surface de l'équipement */}
                                     {place.data.equip_surf > 0 && (
                                         <View style={styles.placeInfoRow}>
-                                            <Ionicons name="resize-outline" size={16} color={selectedPlace?.id === place.id ? "#007AFF" : "#555"} style={styles.placeInfoIcon} />
+                                            <Ionicons
+                                                name="resize-outline"
+                                                size={16}
+                                                color={selectedPlace?.id === place.id ? Colors.primary : Colors.grayDark}
+                                                style={styles.placeInfoIcon}
+                                            />
                                             <Text style={[styles.placeInfoText, selectedPlace?.id === place.id && styles.selectedPlaceCardText]}>
                                                 Surface: {place.data.equip_surf} m²
                                             </Text>
@@ -250,7 +256,12 @@ export default function InstitutionDetailsScreen() {
                                     {/* Prix de l'équipement */}
                                     {place.price !== undefined && (
                                         <View style={styles.placeInfoRow}>
-                                            <Ionicons name="pricetag-outline" size={16} color={selectedPlace?.id === place.id ? "#007AFF" : "#555"} style={styles.placeInfoIcon} />
+                                            <Ionicons
+                                                name="pricetag-outline"
+                                                size={16}
+                                                color={selectedPlace?.id === place.id ? Colors.primary : Colors.grayDark}
+                                                style={styles.placeInfoIcon}
+                                            />
                                             <Text style={[styles.placeInfoText, selectedPlace?.id === place.id && styles.selectedPlaceCardText]}>
                                                 Prix: {place.price} € / créneau
                                             </Text>
@@ -264,7 +275,7 @@ export default function InstitutionDetailsScreen() {
                                                 <Ionicons
                                                     name="fitness-outline"
                                                     size={16}
-                                                    color={selectedPlace?.id === place.id ? "#007AFF" : "#555"}
+                                                    color={selectedPlace?.id === place.id ? Colors.primary : Colors.grayDark}
                                                     style={styles.placeInfoIcon}
                                                 />
                                                 <Text style={[styles.placeActivitiesLabel, selectedPlace?.id === place.id && styles.selectedPlaceCardText]}>Activités:</Text>
@@ -278,7 +289,7 @@ export default function InstitutionDetailsScreen() {
                                     {/* Indicateur de sélection */}
                                     {selectedPlace?.id === place.id && (
                                         <View style={styles.selectedIndicator}>
-                                            <Ionicons name="checkmark-circle" size={20} color="#007AFF" />
+                                            <Ionicons name="checkmark-circle" size={20} color={Colors.primary} />
                                         </View>
                                     )}
                                 </TouchableOpacity>
@@ -292,7 +303,7 @@ export default function InstitutionDetailsScreen() {
                     {global.user && places.length > 0 && (
                         <TouchableOpacity style={styles.bookingButton} onPress={navigateToBooking} disabled={!selectedPlace}>
                             <View style={styles.bookingButtonContent}>
-                                <Ionicons name="calendar-outline" size={20} color="#fff" />
+                                <Ionicons name="calendar-outline" size={20} color={Colors.white} />
                                 <Text style={styles.bookingButtonText}>Réserver {selectedPlace ? `(${selectedPlace.data.equip_nom || selectedPlace.inst_name})` : ""}</Text>
                             </View>
                         </TouchableOpacity>

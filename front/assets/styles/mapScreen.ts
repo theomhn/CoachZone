@@ -1,8 +1,10 @@
+import { Colors } from "@/constants/Colors";
 import { Dimensions, StyleSheet } from "react-native";
+
 export default StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#fff",
+        backgroundColor: Colors.white,
     },
     centered: {
         flex: 1,
@@ -24,11 +26,11 @@ export default StyleSheet.create({
         position: "absolute",
         bottom: 20,
         right: 20,
-        backgroundColor: "#fff",
+        backgroundColor: Colors.white,
         borderRadius: 30,
         padding: 10,
         elevation: 5,
-        shadowColor: "#000",
+        shadowColor: Colors.black,
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.25,
         shadowRadius: 3.84,

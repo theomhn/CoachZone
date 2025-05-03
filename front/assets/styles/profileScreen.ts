@@ -1,25 +1,27 @@
+import { Colors } from "@/constants/Colors";
 import { StyleSheet } from "react-native";
+
 export default StyleSheet.create({
     priceExplanation: {
-        color: "#666",
+        color: Colors.grayDark,
         fontStyle: "italic",
         marginBottom: 15,
         fontSize: 14,
     },
     container: {
         flex: 1,
-        backgroundColor: "#fff",
+        backgroundColor: Colors.white,
     },
     header: {
         padding: 20,
         borderBottomWidth: 1,
-        borderBottomColor: "#e1e1e1",
-        backgroundColor: "#f8f8f8",
+        borderBottomColor: Colors.grayLight,
+        backgroundColor: Colors.grayLightest,
     },
     title: {
         fontSize: 24,
         fontWeight: "bold",
-        color: "#333",
+        color: Colors.grayDarkest,
     },
     content: {
         flex: 1,
@@ -30,24 +32,24 @@ export default StyleSheet.create({
         marginBottom: 20,
     },
     infoSection: {
-        backgroundColor: "#f8f8f8",
+        backgroundColor: Colors.grayLightest,
         padding: 15,
         borderRadius: 8,
         marginBottom: 20,
     },
     label: {
         fontSize: 14,
-        color: "#666",
+        color: Colors.grayDark,
         marginTop: 12,
     },
     value: {
         fontSize: 16,
-        color: "#333",
+        color: Colors.grayDarkest,
         fontWeight: "500",
         marginTop: 4,
     },
     placesSection: {
-        backgroundColor: "#f8f8f8",
+        backgroundColor: Colors.grayLightest,
         padding: 15,
         borderRadius: 8,
         marginTop: 20,
@@ -55,19 +57,19 @@ export default StyleSheet.create({
     sectionTitle: {
         fontSize: 18,
         fontWeight: "600",
-        color: "#333",
+        color: Colors.grayDarkest,
         marginBottom: 15,
     },
     placeItem: {
         marginBottom: 15,
         borderBottomWidth: 1,
-        borderBottomColor: "#e1e1e1",
+        borderBottomColor: Colors.grayLight,
         paddingBottom: 15,
     },
     placeName: {
         fontSize: 16,
         fontWeight: "500",
-        color: "#333",
+        color: Colors.grayDarkest,
         marginBottom: 8,
     },
     priceInputContainer: {
@@ -79,9 +81,9 @@ export default StyleSheet.create({
         flexDirection: "row",
         alignItems: "center",
         borderWidth: 1,
-        borderColor: "#ccc",
+        borderColor: Colors.grayMedium,
         borderRadius: 4,
-        backgroundColor: "#fff",
+        backgroundColor: Colors.white,
         marginRight: 10,
         paddingRight: 8,
     },
@@ -91,22 +93,22 @@ export default StyleSheet.create({
     },
     euroSymbol: {
         fontSize: 16,
-        color: "#666",
+        color: Colors.grayDark,
         fontWeight: "500",
     },
     updateButton: {
-        backgroundColor: "#007AFF",
+        backgroundColor: Colors.primary,
         padding: 10,
         borderRadius: 4,
         minWidth: 100,
         alignItems: "center",
     },
     updateButtonText: {
-        color: "#fff",
+        color: Colors.white,
         fontWeight: "500",
     },
     noPlacesText: {
-        color: "#666",
+        color: Colors.grayDark,
         fontStyle: "italic",
         textAlign: "center",
         marginVertical: 15,
@@ -115,14 +117,14 @@ export default StyleSheet.create({
         marginVertical: 20,
     },
     logoutButton: {
-        backgroundColor: "#ff3b30",
+        backgroundColor: Colors.danger,
         margin: 20,
         padding: 15,
         borderRadius: 8,
         alignItems: "center",
     },
     logoutButtonText: {
-        color: "#fff",
+        color: Colors.white,
         fontSize: 16,
         fontWeight: "600",
     },

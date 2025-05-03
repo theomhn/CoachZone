@@ -1,8 +1,10 @@
+import { Colors } from "@/constants/Colors";
 import { StyleSheet } from "react-native";
+
 export default StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#f5f5f5",
+        backgroundColor: Colors.grayLightest,
     },
     centered: {
         flex: 1,
@@ -11,7 +13,7 @@ export default StyleSheet.create({
     },
     errorText: {
         fontSize: 16,
-        color: "#666",
+        color: Colors.grayDark,
     },
     scrollView: {
         flex: 1,
@@ -28,13 +30,13 @@ export default StyleSheet.create({
         height: "100%",
     },
     card: {
-        backgroundColor: "#fff",
+        backgroundColor: Colors.white,
         borderRadius: 12,
         marginHorizontal: 16,
         marginBottom: 16,
         padding: 16,
         elevation: 2,
-        shadowColor: "#000",
+        shadowColor: Colors.black,
         shadowOffset: { width: 0, height: 1 },
         shadowOpacity: 0.1,
         shadowRadius: 2,
@@ -44,7 +46,7 @@ export default StyleSheet.create({
     },
     infoRow: {
         flexDirection: "row",
-        alignItems: "center", // Centrer verticalement le texte avec les icônes
+        alignItems: "center",
         marginBottom: 12,
     },
     infoIcon: {
@@ -53,15 +55,14 @@ export default StyleSheet.create({
     infoLabel: {
         fontSize: 14,
         fontWeight: "600",
-        color: "#555",
+        color: Colors.grayDark,
         paddingRight: 5,
     },
     infoValue: {
         fontSize: 14,
-        color: "#333",
+        color: Colors.grayDarkest,
         flex: 1,
     },
-    // Nouveaux styles pour les titres de section avec alignement
     sectionTitleContainer: {
         flexDirection: "row",
         alignItems: "center",
@@ -73,13 +74,12 @@ export default StyleSheet.create({
     sectionTitleText: {
         fontSize: 16,
         fontWeight: "600",
-        color: "#333",
+        color: Colors.grayDarkest,
     },
-    // Ancien style maintenu pour la compatibilité
     sectionTitle: {
         fontSize: 16,
         fontWeight: "600",
-        color: "#333",
+        color: Colors.grayDarkest,
         marginBottom: 16,
     },
     facilitiesSection: {
@@ -106,7 +106,7 @@ export default StyleSheet.create({
     },
     activityText: {
         fontSize: 14,
-        color: "#333",
+        color: Colors.grayDarkest,
     },
     placesLoading: {
         marginVertical: 20,
@@ -115,26 +115,26 @@ export default StyleSheet.create({
         marginBottom: 16,
     },
     placeCard: {
-        backgroundColor: "#f8f8f8",
+        backgroundColor: Colors.grayLightest,
         borderRadius: 10,
         padding: 16,
         marginBottom: 12,
         borderWidth: 2,
-        borderColor: "#eaeaea",
+        borderColor: Colors.grayLight,
         position: "relative",
     },
     selectedPlaceCard: {
-        borderColor: "#007AFF",
+        borderColor: Colors.primary,
     },
     placeCardTitle: {
         fontSize: 16,
         fontWeight: "600",
-        color: "#333",
+        color: Colors.grayDarkest,
         marginBottom: 6,
     },
     placeCardSubtitle: {
         fontSize: 14,
-        color: "#666",
+        color: Colors.grayDark,
         marginBottom: 8,
     },
     selectedPlaceCardText: {
@@ -150,7 +150,7 @@ export default StyleSheet.create({
     },
     placeInfoText: {
         fontSize: 14,
-        color: "#555",
+        color: Colors.grayDark,
     },
     placeActivities: {
         marginTop: 4,
@@ -158,13 +158,13 @@ export default StyleSheet.create({
     placeActivitiesLabel: {
         fontSize: 14,
         fontWeight: "500",
-        color: "#555",
+        color: Colors.grayDark,
     },
     placeActivitiesText: {
         fontSize: 13,
-        color: "#666",
+        color: Colors.grayDark,
         fontStyle: "italic",
-        marginLeft: 22, // Aligner avec l'icône
+        marginLeft: 22,
     },
     selectedIndicator: {
         position: "absolute",
@@ -173,18 +173,18 @@ export default StyleSheet.create({
     },
     noPlacesText: {
         fontSize: 14,
-        color: "#666",
+        color: Colors.grayDark,
         fontStyle: "italic",
         textAlign: "center",
         marginVertical: 10,
     },
     bookingButton: {
-        backgroundColor: "#28a745",
+        backgroundColor: Colors.success,
         padding: 14,
         marginTop: 10,
         borderRadius: 8,
         elevation: 2,
-        shadowColor: "#000",
+        shadowColor: Colors.black,
         shadowOffset: { width: 0, height: 1 },
         shadowOpacity: 0.2,
         shadowRadius: 1.5,
@@ -195,7 +195,7 @@ export default StyleSheet.create({
         justifyContent: "center",
     },
     bookingButtonText: {
-        color: "#fff",
+        color: Colors.white,
         fontSize: 16,
         fontWeight: "600",
         marginLeft: 8,

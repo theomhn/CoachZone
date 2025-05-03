@@ -1,5 +1,6 @@
 import styles from "@/assets/styles/profileScreen";
 import { API_BASE_URL } from "@/config";
+import { Colors } from "@/constants/Colors";
 import { Place } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -133,7 +134,7 @@ export default function ProfileScreen() {
 
             <View style={styles.content}>
                 <View style={styles.iconContainer}>
-                    <Ionicons name="person-circle" size={80} color="#007AFF" />
+                    <Ionicons name="person-circle" size={80} color={Colors.primary} />
                 </View>
 
                 <View style={styles.infoSection}>
@@ -166,12 +167,12 @@ export default function ProfileScreen() {
                 {user.type === "institution" && (
                     <View style={styles.placesSection}>
                         <Text style={styles.sectionTitle}>
-                            <Ionicons name="cash-outline" size={20} color="#333" /> Gestion des prix
+                            <Ionicons name="cash-outline" size={20} color={Colors.grayDarkest} /> Gestion des prix
                         </Text>
                         <Text style={styles.priceExplanation}>Définissez le tarif par créneau pour chaque équipement</Text>
 
                         {loading ? (
-                            <ActivityIndicator size="large" color="#007AFF" style={styles.loader} />
+                            <ActivityIndicator size="large" color={Colors.primary} style={styles.loader} />
                         ) : places.length > 0 ? (
                             places.map((place) => (
                                 <View key={place.id} style={styles.placeItem}>
@@ -194,7 +195,7 @@ export default function ProfileScreen() {
                                         </View>
                                         <TouchableOpacity style={styles.updateButton} onPress={() => updatePlacePrice(place.id)} disabled={updatingPlace === place.id}>
                                             {updatingPlace === place.id ? (
-                                                <ActivityIndicator size="small" color="#fff" />
+                                                <ActivityIndicator size="small" color={Colors.white} />
                                             ) : (
                                                 <Text style={styles.updateButtonText}>Mettre à jour</Text>
                                             )}

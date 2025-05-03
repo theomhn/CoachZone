@@ -1,9 +1,11 @@
+import { Colors } from "@/constants/Colors";
 import { StyleSheet } from "react-native";
+
 export default StyleSheet.create({
     container: {
-        backgroundColor: "white",
+        backgroundColor: Colors.white,
         borderRadius: 12,
-        shadowColor: "#000",
+        shadowColor: Colors.black,
         shadowOffset: {
             width: 0,
             height: 2,
@@ -31,7 +33,7 @@ export default StyleSheet.create({
         fontSize: 18,
         fontWeight: "bold",
         marginBottom: 12,
-        color: "#333",
+        color: Colors.grayDarkest,
     },
     infoRow: {
         flexDirection: "row",
@@ -44,7 +46,7 @@ export default StyleSheet.create({
     },
     infoValue: {
         fontSize: 14,
-        color: "#666",
+        color: Colors.grayDark,
         flex: 1,
     },
     activitiesText: {
@@ -57,7 +59,7 @@ export default StyleSheet.create({
     facilitiesTitle: {
         fontSize: 14,
         marginTop: 3,
-        color: "#555",
+        color: Colors.grayDark,
     },
     badgeContainer: {
         flexDirection: "row",
@@ -70,7 +72,7 @@ export default StyleSheet.create({
         position: "absolute",
         top: 12,
         right: 12,
-        backgroundColor: "#ff3b30",
+        backgroundColor: Colors.danger,
         borderRadius: 15,
         width: 30,
         height: 30,
@@ -79,7 +81,7 @@ export default StyleSheet.create({
         zIndex: 1,
     },
     detailsButton: {
-        backgroundColor: "#007AFF",
+        backgroundColor: Colors.primary,
         borderRadius: 8,
         paddingVertical: 8,
         paddingHorizontal: 12,
@@ -89,7 +91,7 @@ export default StyleSheet.create({
         alignItems: "center",
     },
     detailsButtonText: {
-        color: "#fff",
+        color: Colors.white,
         fontSize: 14,
         fontWeight: "600",
         marginRight: 4,
