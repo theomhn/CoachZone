@@ -43,15 +43,15 @@ class Booking
     private ?int $id = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    #[Groups(['booking:read', 'booking:write'])]
+    #[Groups(['booking:read', 'booking:write', 'place:read'])]
     private ?\DateTimeInterface $dateStart = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    #[Groups(['booking:read', 'booking:write'])]
+    #[Groups(['booking:read', 'booking:write', 'place:read'])]
     private ?\DateTimeInterface $dateEnd = null;
 
     #[ORM\Column]
-    #[Groups(['booking:read', 'booking:write'])]
+    #[Groups(['booking:read', 'booking:write', 'place:read'])]
     private ?float $price = null;
 
     #[ORM\ManyToOne(inversedBy: 'bookings')]

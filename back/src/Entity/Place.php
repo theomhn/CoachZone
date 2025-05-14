@@ -2,9 +2,8 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
-use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use App\DataProvider\PlaceCollectionProvider;
@@ -18,6 +17,9 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ORM\Entity(repositoryClass: PlaceRepository::class)]
 #[ApiResource(
     operations: [
+        new Get(
+            normalizationContext: ['groups' => ['place:read']]
+        ),
         new GetCollection(
             provider: PlaceCollectionProvider::class,
             normalizationContext: ['groups' => ['place:read']]
@@ -30,10 +32,6 @@ use Symfony\Component\Serializer\Annotation\Groups;
     ],
     order: ['inst_name', 'inst_numero', 'id']
 )]
-#[ApiFilter(SearchFilter::class, properties: [
-    'id' => 'exact',
-    'inst_numero' => 'exact',
-])]
 class Place
 {
     #[ORM\Id]
@@ -145,6 +143,21 @@ class Place
     public function getBookings(): Collection
     {
         return $this->bookings;
+    }
+
+    /**
+     * Retourne uniquement les réservations qui ne sont pas passées (futures ou en cours)
+     * 
+     * @return Collection<int, Booking>
+     */
+    #[Groups(['place:read'])]
+    public function getUpcomingBookings(): Collection
+    {
+        $now = new \DateTime();
+
+        return $this->bookings->filter(function (Booking $booking) use ($now) {
+            return $booking->getDateEnd() > $now;
+        });
     }
 
     public function addBooking(Booking $booking): static
