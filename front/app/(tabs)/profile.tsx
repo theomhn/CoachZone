@@ -1,6 +1,6 @@
-import styles from "@/assets/styles/profileScreen";
+import getStyles from "@/assets/styles/profileScreen";
 import { API_BASE_URL } from "@/config";
-import { Colors } from "@/constants/Colors";
+import { useTheme } from "@/hooks/useTheme";
 import { Place } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -14,6 +14,10 @@ export default function ProfileScreen() {
     const [loading, setLoading] = useState(false);
     const [prices, setPrices] = useState<{ [id: string]: string }>({});
     const [updatingPlace, setUpdatingPlace] = useState<string | null>(null);
+
+    // Récupérer le thème actuel et les couleurs associées
+    const { currentTheme } = useTheme();
+    const styles = getStyles(currentTheme);
 
     useEffect(() => {
         if (global.user) {
@@ -134,7 +138,7 @@ export default function ProfileScreen() {
 
             <View style={styles.content}>
                 <View style={styles.iconContainer}>
-                    <Ionicons name="person-circle" size={80} color={Colors.primary} />
+                    <Ionicons name="person-circle" size={80} style={styles.icon} />
                 </View>
 
                 <View style={styles.infoSection}>
@@ -167,12 +171,12 @@ export default function ProfileScreen() {
                 {user.type === "institution" && (
                     <View style={styles.placesSection}>
                         <Text style={styles.sectionTitle}>
-                            <Ionicons name="cash-outline" size={20} color={Colors.grayDarkest} /> Gestion des prix
+                            <Ionicons name="cash-outline" size={20} style={styles.icon} /> Gestion des prix
                         </Text>
                         <Text style={styles.priceExplanation}>Définissez le tarif par créneau pour chaque équipement</Text>
 
                         {loading ? (
-                            <ActivityIndicator size="large" color={Colors.primary} style={styles.loader} />
+                            <ActivityIndicator size="large" color={currentTheme.primary} style={styles.loader} />
                         ) : places.length > 0 ? (
                             places.map((place) => (
                                 <View key={place.id} style={styles.placeItem}>
@@ -195,7 +199,7 @@ export default function ProfileScreen() {
                                         </View>
                                         <TouchableOpacity style={styles.updateButton} onPress={() => updatePlacePrice(place.id)} disabled={updatingPlace === place.id}>
                                             {updatingPlace === place.id ? (
-                                                <ActivityIndicator size="small" color={Colors.white} />
+                                                <ActivityIndicator size="small" color={currentTheme.primary} />
                                             ) : (
                                                 <Text style={styles.updateButtonText}>Mettre à jour</Text>
                                             )}

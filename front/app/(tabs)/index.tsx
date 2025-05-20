@@ -1,9 +1,9 @@
-import styles from "@/assets/styles/institutionsScreen";
+import getStyles from "@/assets/styles/institutionsScreen";
 import InstitutionCard from "@/components/InstitutionCard";
 import SearchFilterBar from "@/components/SearchFilterBar";
 import { API_BASE_URL } from "@/config";
-import { Colors } from "@/constants/Colors";
 import { useInstitutionFiltersContext } from "@/contexts/InstitutionFiltersContext";
+import { useTheme } from "@/hooks/useTheme";
 import { Institution } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -13,6 +13,10 @@ import { ActivityIndicator, Alert, FlatList, RefreshControl, Text, TouchableOpac
 export default function InstitutionsScreen() {
     const [isLoading, setIsLoading] = useState(true);
     const [isRefreshing, setIsRefreshing] = useState(false);
+
+    // Récupérer le thème actuel et les couleurs associées
+    const { currentTheme } = useTheme();
+    const styles = getStyles(currentTheme);
 
     // Utiliser le contexte partagé
     const { filteredInstitutions, searchText, filters, allActivities, updateInstitutions, handleSearch, handleFilterChange } = useInstitutionFiltersContext();
@@ -65,7 +69,7 @@ export default function InstitutionsScreen() {
     if (isLoading) {
         return (
             <View style={styles.centered}>
-                <ActivityIndicator size="large" color={Colors.primary} />
+                <ActivityIndicator size="large" color={currentTheme.primary} />
             </View>
         );
     }
@@ -90,7 +94,7 @@ export default function InstitutionsScreen() {
 
             {/* Bouton Voir la carte en position absolute */}
             <TouchableOpacity style={styles.floatingMapButton} onPress={navigateToMap}>
-                <Ionicons name="map-outline" size={24} color={Colors.primary} />
+                <Ionicons name="map-outline" size={24} style={styles.icon} />
                 <Text style={styles.mapButtonText}>Voir la carte</Text>
             </TouchableOpacity>
         </View>

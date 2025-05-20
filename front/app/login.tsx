@@ -1,15 +1,19 @@
-import styles from "@/assets/styles/loginScreen";
+import getStyles from "@/assets/styles/authScreen";
 import { API_BASE_URL } from "@/config";
-import { Colors } from "@/constants/Colors";
+import { useTheme } from "@/hooks/useTheme";
 import { router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import React, { useState } from "react";
-import { Alert, KeyboardAvoidingView, Platform, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Alert, Image, KeyboardAvoidingView, Platform, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
 
 export default function LoginScreen() {
     const [email, setEmail] = useState("coach@test.com");
     const [password, setPassword] = useState("test123");
     const [isLoading, setIsLoading] = useState(false);
+
+    // Récupérer le thème actuel et les couleurs associées
+    const { currentTheme } = useTheme();
+    const styles = getStyles(currentTheme);
 
     const handleLogin = async () => {
         if (!email || !password) {
@@ -50,7 +54,9 @@ export default function LoginScreen() {
     return (
         <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.container} keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}>
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContainer}>
-                <Text style={styles.title}>Connexion</Text>
+                <View style={styles.logoContainer}>
+                    <Image source={require("@/assets/images/logo.png")} style={styles.logo} resizeMode="contain" />
+                </View>
 
                 <View style={styles.inputContainer}>
                     <Text style={styles.label}>Email</Text>
@@ -61,7 +67,7 @@ export default function LoginScreen() {
                         onChangeText={setEmail}
                         keyboardType="email-address"
                         autoCapitalize="none"
-                        placeholderTextColor={Colors.grayDark}
+                        placeholderTextColor={currentTheme.placeholder}
                     />
                 </View>
 
@@ -73,7 +79,7 @@ export default function LoginScreen() {
                         value={password}
                         onChangeText={setPassword}
                         secureTextEntry
-                        placeholderTextColor={Colors.grayDark}
+                        placeholderTextColor={currentTheme.placeholder}
                     />
                 </View>
 

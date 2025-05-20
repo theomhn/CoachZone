@@ -1,3 +1,5 @@
+import { ThemeType } from "@/contexts/ThemeContext";
+
 /**
  * Interface représentant une institution sportive
  */
@@ -128,4 +130,32 @@ export interface SearchFilterBarProps {
     activities: string[];
     currentFilters: FilterOptions;
     searchText: string;
+}
+
+/**
+ * Interface pour les valeurs du contexte
+ */
+export interface ThemeContextType {
+    theme: ThemeType;
+    setTheme: (theme: ThemeType) => void;
+    toggleTheme: () => void;
+    currentTheme: {
+        /* border: string;
+        primary: string;
+        icon: string;
+        tabIconDefault: string;
+        text: string;
+        background: string;
+        tint: string;
+        tabIconSelected: string; */
+        [key: string]: string;
+    };
+}
+
+/**
+ * Interface pour le selecteur de thème
+ */
+export interface ThemeSelectorProps {
+    isVisible: boolean;
+    onClose: () => void;
 }

@@ -1,9 +1,9 @@
-import styles from "@/assets/styles/mapScreen";
+import getStyles from "@/assets/styles/mapScreen";
 import InstitutionCard from "@/components/InstitutionCard";
 import SearchFilterBar from "@/components/SearchFilterBar";
 import { API_BASE_URL } from "@/config";
-import { Colors } from "@/constants/Colors";
 import { useInstitutionFiltersContext } from "@/contexts/InstitutionFiltersContext";
+import { useTheme } from "@/hooks/useTheme";
 import { Institution } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import * as Location from "expo-location";
@@ -22,6 +22,10 @@ export default function MapScreen() {
         latitudeDelta: 0.0922,
         longitudeDelta: 0.0421,
     });
+
+    // Récupérer le thème actuel et les couleurs associées
+    const { currentTheme } = useTheme();
+    const styles = getStyles(currentTheme);
 
     // Utiliser le contexte partagé
     const { filteredInstitutions, allActivities, updateInstitutions, handleSearch, handleFilterChange, filters, searchText } = useInstitutionFiltersContext();
@@ -109,7 +113,7 @@ export default function MapScreen() {
     if (isLoading) {
         return (
             <View style={styles.centered}>
-                <ActivityIndicator size="large" color={Colors.primary} />
+                <ActivityIndicator size="large" color={currentTheme.primary} />
             </View>
         );
     }
@@ -161,7 +165,7 @@ export default function MapScreen() {
             {/* Bouton pour centrer sur l'utilisateur */}
             {userLocation && (
                 <TouchableOpacity style={styles.locationButton} onPress={centerOnUserLocation}>
-                    <Ionicons name="locate" size={24} color={Colors.primary} />
+                    <Ionicons name="locate" size={24} style={styles.icon} />
                 </TouchableOpacity>
             )}
 

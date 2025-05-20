@@ -1,10 +1,10 @@
-import styles from "@/assets/styles/registrationScreen";
+import getStyles from "@/assets/styles/authScreen";
 import { API_BASE_URL } from "@/config";
-import { Colors } from "@/constants/Colors";
+import { useTheme } from "@/hooks/useTheme";
 import { InstitutionRegister } from "@/types";
 import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { ActivityIndicator, Alert, FlatList, KeyboardAvoidingView, Modal, Platform, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Alert, FlatList, Image, KeyboardAvoidingView, Modal, Platform, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
 
 type UserType = "coach" | "institution";
 
@@ -26,6 +26,10 @@ export default function RegisterScreen() {
     const [isLoadingInstitutions, setIsLoadingInstitutions] = useState(false);
 
     const [isLoading, setIsLoading] = useState(false);
+
+    // Récupérer le thème actuel et les couleurs associées
+    const { currentTheme } = useTheme();
+    const styles = getStyles(currentTheme);
 
     // Charger la liste des institutions
     useEffect(() => {
@@ -142,7 +146,9 @@ export default function RegisterScreen() {
     return (
         <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.container} keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}>
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContainer}>
-                <Text style={styles.title}>Inscription</Text>
+                <View style={styles.logoContainer}>
+                    <Image source={require("@/assets/images/logo.png")} style={styles.logo} resizeMode="contain" />
+                </View>
 
                 <View style={styles.typeSelector}>
                     <TouchableOpacity
@@ -160,6 +166,31 @@ export default function RegisterScreen() {
                     </TouchableOpacity>
                 </View>
 
+                {userType === "coach" && (
+                    <>
+                        <View style={styles.inputContainer}>
+                            <Text style={styles.label}>Prénom</Text>
+                            <TextInput
+                                style={styles.input}
+                                placeholder="Entrez votre prénom"
+                                value={firstName}
+                                onChangeText={setFirstName}
+                                placeholderTextColor={currentTheme.placeholder}
+                            />
+                        </View>
+                        <View style={styles.inputContainer}>
+                            <Text style={styles.label}>Nom</Text>
+                            <TextInput
+                                style={styles.input}
+                                placeholder="Entrez votre nom"
+                                value={lastName}
+                                onChangeText={setLastName}
+                                placeholderTextColor={currentTheme.placeholder}
+                            />
+                        </View>
+                    </>
+                )}
+
                 <View style={styles.inputContainer}>
                     <Text style={styles.label}>Email</Text>
                     <TextInput
@@ -169,7 +200,7 @@ export default function RegisterScreen() {
                         onChangeText={setEmail}
                         keyboardType="email-address"
                         autoCapitalize="none"
-                        placeholderTextColor={Colors.grayDark}
+                        placeholderTextColor={currentTheme.placeholder}
                     />
                 </View>
 
@@ -181,37 +212,21 @@ export default function RegisterScreen() {
                         value={password}
                         onChangeText={setPassword}
                         secureTextEntry
-                        placeholderTextColor={Colors.grayDark}
+                        placeholderTextColor={currentTheme.placeholder}
                     />
                 </View>
 
                 {userType === "coach" ? (
-                    <>
-                        <View style={styles.inputContainer}>
-                            <Text style={styles.label}>Prénom</Text>
-                            <TextInput
-                                style={styles.input}
-                                placeholder="Entrez votre prénom"
-                                value={firstName}
-                                onChangeText={setFirstName}
-                                placeholderTextColor={Colors.grayDark}
-                            />
-                        </View>
-                        <View style={styles.inputContainer}>
-                            <Text style={styles.label}>Nom</Text>
-                            <TextInput style={styles.input} placeholder="Entrez votre nom" value={lastName} onChangeText={setLastName} placeholderTextColor={Colors.grayDark} />
-                        </View>
-                        <View style={styles.inputContainer}>
-                            <Text style={styles.label}>Profession</Text>
-                            <TextInput style={styles.input} placeholder="Entrez votre profession" value={work} onChangeText={setWork} placeholderTextColor={Colors.grayDark} />
-                        </View>
-                    </>
+                    <View style={styles.inputContainer}>
+                        <Text style={styles.label}>Profession</Text>
+                        <TextInput style={styles.input} placeholder="Entrez votre profession" value={work} onChangeText={setWork} placeholderTextColor={currentTheme.placeholder} />
+                    </View>
                 ) : (
                     <View style={styles.inputContainer}>
                         <Text style={styles.label}>Nom de l'établissement</Text>
                         {isLoadingInstitutions ? (
                             <View style={[styles.input, styles.loadingContainer]}>
-                                <ActivityIndicator size="small" color={Colors.primary} />
+                                <ActivityIndicator size="small" color={currentTheme.primary} />
                                 <Text style={styles.loadingText}>Chargement des établissements...</Text>
                             </View>
                         ) : (
@@ -244,7 +259,7 @@ export default function RegisterScreen() {
                                 value={searchText}
                                 onChangeText={setSearchText}
                                 autoFocus
-                                placeholderTextColor={Colors.grayDark}
+                                placeholderTextColor={currentTheme.placeholder}
                             />
                             <TouchableOpacity style={styles.closeButton} onPress={() => setShowModal(false)}>
                                 <Text style={styles.closeButtonText}>Fermer</Text>

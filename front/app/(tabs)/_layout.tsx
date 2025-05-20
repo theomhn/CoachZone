@@ -1,22 +1,20 @@
-import { Tabs } from "expo-router";
-import React, { useEffect } from "react";
-
 import { HapticTab } from "@/components/HapticTab";
+import { getThemeToggleButton } from "@/components/theme/ThemeToggleButton";
 import { IconSymbol } from "@/components/ui/IconSymbol";
-import TabBarBackground from "@/components/ui/TabBarBackground";
-import { Colors } from "@/constants/Colors";
-import { useColorScheme } from "@/hooks/useColorScheme";
-
 import { API_BASE_URL } from "@/config";
-import { router } from "expo-router";
+import { useTheme } from "@/hooks/useTheme";
+import { router, Tabs } from "expo-router";
 import * as SecureStore from "expo-secure-store";
+import React, { useEffect, useState } from "react";
 
 export default function TabLayout() {
-    const colorScheme = useColorScheme();
+    // Utiliser notre hook de thème personnalisé à la place
+    const { currentTheme } = useTheme();
+    const [user, setUser] = useState(global.user);
 
     useEffect(() => {
         checkAuth();
-    });
+    }, []);
 
     const checkAuth = async () => {
         try {
@@ -35,6 +33,7 @@ export default function TabLayout() {
 
                 if (response.ok) {
                     const userData = await response.json();
+                    setUser(userData);
                     global.user = userData;
                 } else {
                     // Si la requête échoue
@@ -51,17 +50,22 @@ export default function TabLayout() {
     return (
         <Tabs
             screenOptions={{
-                tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
-                headerShown: true,
+                headerShown: true, // Détermine si l'en-tête (header) est visible ou non
                 tabBarButton: HapticTab,
-                tabBarBackground: TabBarBackground,
-                /* tabBarStyle: Platform.select({
-                    ios: {
-                        // Use a transparent background on iOS to show the blur effect
-                        position: "absolute",
-                    },
-                    default: {},
-                }), */
+                ...getThemeToggleButton(), // Ajoute un bouton de basculement de thème dans le header pour tous les écrans
+
+                // Styles pour l'en-tête (header)
+                headerStyle: {
+                    backgroundColor: currentTheme.background, // Couleur d'arrière-plan de l'en-tête
+                },
+                headerTintColor: currentTheme.text, // Couleur du texte et des icônes dans l'en-tête, affecte le titre et les boutons de navigation
+
+                // Styles pour la barre d'onglets (menu)
+                tabBarStyle: {
+                    backgroundColor: currentTheme.background, // Couleur d'arrière-plan de la barre d'onglets
+                    borderTopColor: currentTheme.border, // Couleur de la bordure supérieure de la barre d'onglets
+                },
+                tabBarActiveTintColor: currentTheme.icon, // Définit la couleur des icônes et du texte des onglets actifs
             }}
         >
             <Tabs.Screen

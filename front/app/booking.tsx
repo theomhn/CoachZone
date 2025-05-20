@@ -1,6 +1,6 @@
-import styles from "@/assets/styles/bookingScreen";
+import getStyles from "@/assets/styles/bookingScreen";
 import { API_BASE_URL } from "@/config";
-import { Colors } from "@/constants/Colors";
+import { useTheme } from "@/hooks/useTheme";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import * as SecureStore from "expo-secure-store";
@@ -15,6 +15,10 @@ export default function BookingScreen() {
         placePrice: string;
     }>();
     const router = useRouter();
+
+    // Récupérer le thème actuel et les couleurs associées
+    const { currentTheme } = useTheme();
+    const styles = getStyles(currentTheme);
 
     // Convertir le prix reçu en paramètre en nombre
     const pricePerSlot = placePrice ? parseFloat(placePrice) : 0;
@@ -199,7 +203,7 @@ export default function BookingScreen() {
     // Définir les dates marquées pour le calendrier
     const markedDates = selectedDate
         ? {
-              [selectedDate]: { selected: true, selectedColor: Colors.primary },
+              [selectedDate]: { selected: true, selectedColor: currentTheme.primary },
           }
         : {};
 
@@ -215,7 +219,7 @@ export default function BookingScreen() {
             <ScrollView style={styles.scrollView}>
                 {/* Informations sur l'installation */}
                 <View style={styles.placeInfo}>
-                    <Ionicons name="business-outline" size={24} color={Colors.grayDark} />
+                    <Ionicons name="business-outline" size={24} style={styles.placeInfoIcon} />
                     <Text style={styles.placeName}>{placeName}</Text>
                 </View>
 
@@ -228,11 +232,19 @@ export default function BookingScreen() {
                         minDate={minDate}
                         enableSwipeMonths={true}
                         theme={{
-                            todayTextColor: Colors.primary,
-                            arrowColor: Colors.primary,
-                            textDayFontSize: 14,
-                            textMonthFontSize: 16,
-                            textDayHeaderFontSize: 14,
+                            calendarBackground: currentTheme.lightBackground,
+                            arrowColor: currentTheme.primary, // Couleur des flèches de navigation (mois précédent/suivant)
+
+                            todayTextColor: currentTheme.primary, // Couleur du jour actuel (aujourd'hui)
+                            todayBackgroundColor: "transparent", // Fond transparent
+                            // Autres propriétés du thème
+                            textSectionTitleColor: currentTheme.text,
+                            textDayColor: currentTheme.text,
+                            monthTextColor: currentTheme.text,
+                            selectedDayTextColor: currentTheme.white,
+                            selectedDayBackgroundColor: currentTheme.primary, // Assurez-vous que c'est aussi défini
+                            dayTextColor: currentTheme.text,
+                            textDisabledColor: currentTheme.secondaryText,
                         }}
                     />
                 </View>
@@ -341,7 +353,7 @@ export default function BookingScreen() {
                     onPress={handleSubmit}
                     disabled={!selectedDate || selectedTimeSlots.length === 0 || isSubmitting}
                 >
-                    {isSubmitting ? <ActivityIndicator color={Colors.white} size="small" /> : <Text style={styles.submitButtonText}>Confirmer la réservation</Text>}
+                    {isSubmitting ? <ActivityIndicator color={currentTheme.white} size="small" /> : <Text style={styles.submitButtonText}>Confirmer la réservation</Text>}
                 </TouchableOpacity>
             </ScrollView>
         </KeyboardAvoidingView>

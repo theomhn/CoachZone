@@ -1,5 +1,5 @@
-import styles from "@/assets/styles/institutionCard";
-import { Colors } from "@/constants/Colors";
+import getStyles from "@/assets/styles/institutionCard";
+import { useTheme } from "@/hooks/useTheme";
 import { InstitutionCardProps } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
@@ -8,6 +8,10 @@ import Badge from "./Badge";
 
 const InstitutionCard: React.FC<InstitutionCardProps> = ({ item, onPress, onClose, onViewDetails, variant = "card", showActivities = true, showDetailsButton = true }) => {
     const isPopup = variant === "popup";
+
+    // Récupérer le thème actuel et les couleurs associées
+    const { currentTheme } = useTheme();
+    const styles = getStyles(currentTheme);
 
     // Convertir l'objet activités en tableau de valeurs
     const activitesArray = item.activites ? Object.values(item.activites) : [];
@@ -18,7 +22,7 @@ const InstitutionCard: React.FC<InstitutionCardProps> = ({ item, onPress, onClos
                 {/* Bouton de fermeture (uniquement pour popup) */}
                 {isPopup && onClose && (
                     <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-                        <Ionicons name="close" size={20} color={Colors.white} />
+                        <Ionicons name="close" size={20} style={styles.icon} />
                     </TouchableOpacity>
                 )}
 
@@ -27,14 +31,14 @@ const InstitutionCard: React.FC<InstitutionCardProps> = ({ item, onPress, onClos
 
                 {/* Adresse */}
                 <View style={styles.infoRow}>
-                    <Ionicons name="location-outline" size={18} color={Colors.grayDark} style={styles.infoIcon} />
+                    <Ionicons name="location-outline" size={18} style={[styles.icon, styles.infoIcon]} />
                     <Text style={styles.infoValue}>{item.adresse}</Text>
                 </View>
 
                 {/* Activités (optionnel) */}
                 {showActivities && activitesArray.length > 0 && (
                     <View style={styles.infoRow}>
-                        <Ionicons name="fitness-outline" size={18} color={Colors.grayDark} style={styles.infoIcon} />
+                        <Ionicons name="fitness-outline" size={18} style={[styles.icon, styles.infoIcon]} />
                         <Text style={[styles.infoValue, styles.activitiesText]}>{activitesArray.join(", ")}</Text>
                     </View>
                 )}
@@ -43,7 +47,7 @@ const InstitutionCard: React.FC<InstitutionCardProps> = ({ item, onPress, onClos
                 {(item.equipements?.douches || item.equipements?.sanitaires) && (
                     <View style={styles.facilitiesContainer}>
                         <View style={styles.infoRow}>
-                            <Ionicons name="water-outline" size={18} color={Colors.grayDark} style={styles.infoIcon} />
+                            <Ionicons name="water-outline" size={18} style={[styles.icon, styles.infoIcon]} />
                             <Text style={styles.facilitiesTitle}>Équipements :</Text>
                         </View>
                         <View style={styles.badgeContainer}>
@@ -57,7 +61,7 @@ const InstitutionCard: React.FC<InstitutionCardProps> = ({ item, onPress, onClos
                 {showDetailsButton && onViewDetails && (
                     <TouchableOpacity style={styles.detailsButton} onPress={onViewDetails} activeOpacity={0.7}>
                         <Text style={styles.detailsButtonText}>Voir plus de détails</Text>
-                        <Ionicons name="chevron-forward" size={18} color={Colors.white} />
+                        <Ionicons name="chevron-forward" size={18} style={styles.icon} />
                     </TouchableOpacity>
                 )}
             </View>
