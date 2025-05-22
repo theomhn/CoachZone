@@ -1,6 +1,7 @@
 import getStyles from "@/assets/styles/bookingScreen";
 import { API_BASE_URL } from "@/config";
 import { useTheme } from "@/hooks/useTheme";
+import { Booking } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import * as SecureStore from "expo-secure-store";
@@ -30,6 +31,11 @@ export default function BookingScreen() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [showAllTimeSlots, setShowAllTimeSlots] = useState(false);
 
+    // Nouveaux états pour la gestion des réservations
+    const [placeBookings, setPlaceBookings] = useState<Booking[]>([]);
+    const [coachBookings, setCoachBookings] = useState<Booking[]>([]);
+    const [isLoadingBookings, setIsLoadingBookings] = useState(false);
+
     // Mise à jour du prix lorsque les créneaux changent
     useEffect(() => {
         setPrice(selectedTimeSlots.length * pricePerSlot);
@@ -44,6 +50,236 @@ export default function BookingScreen() {
         return slots;
     }, []);
 
+    // Fonction pour récupérer les réservations du coach connecté
+    const fetchCoachBookings = async () => {
+        if (!global.user || global.user.type !== "coach") return;
+
+        try {
+            const token = await SecureStore.getItemAsync("userToken");
+
+            if (!token) {
+                console.warn("Pas de token disponible pour récupérer les réservations du coach");
+                return;
+            }
+
+            const response = await fetch(`${API_BASE_URL}/bookings`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            if (!response.ok) {
+                console.warn("Erreur lors de la récupération des réservations du coach");
+                return;
+            }
+
+            const data = await response.json();
+
+            // Les données sont directement un tableau de réservations
+            const bookings = Array.isArray(data) ? data : [];
+            setCoachBookings(bookings);
+        } catch (error) {
+            console.error("Erreur lors de la récupération des réservations du coach:", error);
+            setCoachBookings([]);
+        }
+    };
+
+    // Fonction pour récupérer les réservations de la place
+    const fetchPlaceBookings = async () => {
+        if (!placeId) return;
+
+        try {
+            setIsLoadingBookings(true);
+            const token = await SecureStore.getItemAsync("userToken");
+
+            if (!token) {
+                console.warn("Pas de token disponible pour récupérer les réservations");
+                return;
+            }
+
+            const response = await fetch(`${API_BASE_URL}/places/${placeId}`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error("Erreur lors de la récupération des réservations");
+            }
+
+            const data = await response.json();
+
+            // S'assurer que upcomingBookings est bien un tableau
+            const bookings = Array.isArray(data.upcomingBookings) ? data.upcomingBookings : [];
+            setPlaceBookings(bookings);
+        } catch (error) {
+            console.error("Erreur lors de la récupération des réservations:", error);
+            // On ne montre pas d'alerte à l'utilisateur pour ne pas être intrusif
+            setPlaceBookings([]);
+        } finally {
+            setIsLoadingBookings(false);
+        }
+    };
+
+    // Récupérer les réservations au chargement du composant
+    useEffect(() => {
+        fetchPlaceBookings();
+        fetchCoachBookings();
+    }, [placeId]);
+
+    // Fonction pour trouver la réservation conflictuelle du coach
+    const findConflictingCoachBooking = (date: string, timeSlot: string): Booking | null => {
+        if (!Array.isArray(coachBookings) || coachBookings.length === 0) {
+            return null;
+        }
+
+        const [hours] = timeSlot.split(":").map(Number);
+        const slotStart = new Date(date);
+        slotStart.setHours(hours, 0, 0, 0);
+
+        const slotEnd = new Date(date);
+        slotEnd.setHours(hours + 1, 0, 0, 0);
+
+        return (
+            coachBookings.find((booking) => {
+                const bookingStart = new Date(booking.dateStart);
+                const bookingEnd = new Date(booking.dateEnd);
+
+                // Vérifier si les dates sont le même jour
+                const isSameDay = bookingStart.toDateString() === slotStart.toDateString();
+
+                if (!isSameDay) return false;
+
+                // Vérifier le chevauchement
+                return slotStart < bookingEnd && slotEnd > bookingStart;
+            }) || null
+        );
+    };
+
+    // Fonction pour déterminer pourquoi un créneau est indisponible
+    const getUnavailabilityReason = (date: string, timeSlot: string): { reason: "past" | "place-booked" | "coach-booked" | "available"; conflictingBooking?: Booking } => {
+        if (!date) return { reason: "available" };
+
+        // Vérifier si c'est dans le passé
+        if (isTimeSlotInPast(date, timeSlot)) {
+            return { reason: "past" };
+        }
+
+        const [hours] = timeSlot.split(":").map(Number);
+        const slotStart = new Date(date);
+        slotStart.setHours(hours, 0, 0, 0);
+
+        const slotEnd = new Date(date);
+        slotEnd.setHours(hours + 1, 0, 0, 0);
+
+        // Vérifier conflit avec réservations de la place
+        if (
+            Array.isArray(placeBookings) &&
+            placeBookings.some((booking) => {
+                const bookingStart = new Date(booking.dateStart);
+                const bookingEnd = new Date(booking.dateEnd);
+                const isSameDay = bookingStart.toDateString() === slotStart.toDateString();
+                return isSameDay && slotStart < bookingEnd && slotEnd > bookingStart;
+            })
+        ) {
+            return { reason: "place-booked" };
+        }
+
+        // Vérifier conflit avec réservations du coach
+        const conflictingBooking = findConflictingCoachBooking(date, timeSlot);
+        if (conflictingBooking) {
+            return { reason: "coach-booked", conflictingBooking };
+        }
+
+        return { reason: "available" };
+    };
+
+    // Fonction pour vérifier si un créneau est dans le passé (pour aujourd'hui uniquement)
+    const isTimeSlotInPast = (date: string, timeSlot: string): boolean => {
+        if (!date) return false;
+
+        const now = new Date();
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const selectedDate = new Date(date);
+        selectedDate.setHours(0, 0, 0, 0);
+
+        // Seulement pour aujourd'hui
+        if (selectedDate.getTime() !== today.getTime()) {
+            return false;
+        }
+
+        const [hours] = timeSlot.split(":").map(Number);
+        const slotStart = new Date(date);
+        slotStart.setHours(hours, 0, 0, 0);
+
+        return slotStart <= now;
+    };
+
+    // Fonction pour vérifier si un créneau horaire est disponible
+    const isTimeSlotAvailable = (date: string, timeSlot: string): boolean => {
+        if (!date) return true;
+
+        const [hours] = timeSlot.split(":").map(Number);
+        const slotStart = new Date(date);
+        slotStart.setHours(hours, 0, 0, 0);
+
+        const slotEnd = new Date(date);
+        slotEnd.setHours(hours + 1, 0, 0, 0);
+
+        // Vérifier si le créneau est dans le passé pour aujourd'hui
+        const now = new Date();
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const selectedDate = new Date(date);
+        selectedDate.setHours(0, 0, 0, 0);
+
+        // Si c'est aujourd'hui et que le créneau est dans le passé
+        if (selectedDate.getTime() === today.getTime()) {
+            if (slotStart <= now) {
+                return false; // Créneau dans le passé
+            }
+        }
+
+        // Fonction helper pour vérifier les conflits avec une liste de réservations
+        const hasConflictWithBookings = (bookings: Booking[]) => {
+            if (!Array.isArray(bookings) || bookings.length === 0) {
+                return false;
+            }
+
+            return bookings.some((booking) => {
+                const bookingStart = new Date(booking.dateStart);
+                const bookingEnd = new Date(booking.dateEnd);
+
+                // Vérifier si les dates sont le même jour
+                const isSameDay = bookingStart.toDateString() === slotStart.toDateString();
+
+                if (!isSameDay) return false;
+
+                // Vérifier le chevauchement
+                return slotStart < bookingEnd && slotEnd > bookingStart;
+            });
+        };
+
+        // Vérifier les conflits avec les réservations de la place
+        if (hasConflictWithBookings(placeBookings)) {
+            return false;
+        }
+
+        // Vérifier les conflits avec les réservations du coach
+        if (hasConflictWithBookings(coachBookings)) {
+            return false;
+        }
+
+        return true;
+    };
+
     // Gestion de la sélection de date sur le calendrier
     const handleDayPress = (day: DateData): void => {
         setSelectedDate(day.dateString);
@@ -53,6 +289,44 @@ export default function BookingScreen() {
 
     // Gestion de la sélection des créneaux horaires
     const handleTimeSlotPress = (timeSlot: string): void => {
+        // Vérifier si le créneau est disponible
+        if (!isTimeSlotAvailable(selectedDate, timeSlot)) {
+            const unavailabilityInfo = getUnavailabilityReason(selectedDate, timeSlot);
+            let title = "Créneau indisponible";
+            let message = "Ce créneau horaire n'est pas disponible";
+
+            switch (unavailabilityInfo.reason) {
+                case "past":
+                    title = "Créneau passé";
+                    message = "Ce créneau est dans le passé";
+                    break;
+                case "place-booked":
+                    title = "Installation occupée";
+                    message = "Ce créneau est déjà réservé sur cette installation";
+                    break;
+                case "coach-booked":
+                    title = "Vous avez déjà une réservation";
+                    if (unavailabilityInfo.conflictingBooking) {
+                        const booking = unavailabilityInfo.conflictingBooking;
+                        const startTime = new Date(booking.dateStart).toLocaleTimeString("fr-FR", {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                        });
+                        const endTime = new Date(booking.dateEnd).toLocaleTimeString("fr-FR", {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                        });
+                        message = `Vous avez déjà une réservation de ${startTime} à ${endTime} sur :\n\n${booking.placeEquipmentName}`;
+                    } else {
+                        message = "Vous avez déjà une réservation à ce moment-là";
+                    }
+                    break;
+            }
+
+            Alert.alert(title, message);
+            return;
+        }
+
         // Vérifier si le créneau est déjà sélectionné
         if (selectedTimeSlots.includes(timeSlot)) {
             // Trier les créneaux pour trouver la position de celui qui est cliqué
@@ -83,9 +357,26 @@ export default function BookingScreen() {
             const minHour = Math.min(...hours);
             const maxHour = Math.max(...hours);
 
-            // Le nouveau créneau doit être adjacent à la sélection actuelle
+            // Le nouveau créneau doit être adjacent à la sélection actuelle et disponible
             if (hourToAdd === minHour - 1 || hourToAdd === maxHour + 1) {
-                setSelectedTimeSlots([...selectedTimeSlots, timeSlot]);
+                // Vérifier que tous les créneaux entre min et max sont disponibles
+                const startHour = Math.min(minHour, hourToAdd);
+                const endHour = Math.max(maxHour, hourToAdd);
+
+                let allAvailable = true;
+                for (let h = startHour; h <= endHour; h++) {
+                    const checkSlot = `${h.toString().padStart(2, "0")}:00`;
+                    if (!isTimeSlotAvailable(selectedDate, checkSlot) && !selectedTimeSlots.includes(checkSlot)) {
+                        allAvailable = false;
+                        break;
+                    }
+                }
+
+                if (allAvailable) {
+                    setSelectedTimeSlots([...selectedTimeSlots, timeSlot]);
+                } else {
+                    Alert.alert("Créneau indisponible", "Un ou plusieurs créneaux dans cette plage sont déjà réservés");
+                }
             } else {
                 Alert.alert("Erreur", "Vous devez sélectionner des créneaux consécutifs");
             }
@@ -255,6 +546,13 @@ export default function BookingScreen() {
 
                     {selectedDate ? (
                         <>
+                            {isLoadingBookings && (
+                                <View style={styles.loadingContainer}>
+                                    <ActivityIndicator size="small" color={currentTheme.primary} />
+                                    <Text style={styles.loadingText}>Chargement des disponibilités...</Text>
+                                </View>
+                            )}
+
                             <Text style={styles.instructionText}>
                                 {selectedTimeSlots.length === 0
                                     ? "Sélectionnez un ou plusieurs créneaux horaires consécutifs"
@@ -263,16 +561,45 @@ export default function BookingScreen() {
 
                             <View style={styles.timeSlotsContainer}>
                                 {displayedTimeSlots.map((timeSlot) => {
-                                    // Déterminer si ce créneau est sélectionné
+                                    // Déterminer l'état du créneau
                                     const isSelected = selectedTimeSlots.includes(timeSlot);
+                                    const isAvailable = isTimeSlotAvailable(selectedDate, timeSlot);
+                                    const unavailabilityInfo = getUnavailabilityReason(selectedDate, timeSlot);
+
+                                    // Déterminer l'icône et le style à utiliser
+                                    let icon = null;
+                                    let additionalStyle = {};
+                                    let additionalTextStyle = {};
+
+                                    if (!isAvailable) {
+                                        switch (unavailabilityInfo.reason) {
+                                            case "past":
+                                                icon = <Ionicons name="time-outline" size={12} style={styles.pastIcon} />;
+                                                additionalStyle = styles.pastTimeSlot;
+                                                additionalTextStyle = styles.pastTimeSlotText;
+                                                break;
+                                            case "place-booked":
+                                                icon = <Ionicons name="lock-closed" size={12} style={styles.placeBookedIcon} />;
+                                                additionalStyle = styles.unavailableTimeSlot;
+                                                additionalTextStyle = styles.unavailableTimeSlotText;
+                                                break;
+                                            case "coach-booked":
+                                                icon = <Ionicons name="person" size={12} style={styles.coachBookedIcon} />;
+                                                additionalStyle = styles.coachBookedTimeSlot;
+                                                additionalTextStyle = styles.coachBookedTimeSlotText;
+                                                break;
+                                        }
+                                    }
 
                                     return (
                                         <TouchableOpacity
                                             key={timeSlot}
-                                            style={[styles.timeSlot, isSelected && styles.selectedTimeSlot]}
+                                            style={[styles.timeSlot, isSelected && styles.selectedTimeSlot, !isAvailable && additionalStyle]}
                                             onPress={() => handleTimeSlotPress(timeSlot)}
+                                            disabled={!isAvailable}
                                         >
-                                            <Text style={[styles.timeSlotText, isSelected && styles.selectedTimeSlotText]}>{timeSlot}</Text>
+                                            <Text style={[styles.timeSlotText, isSelected && styles.selectedTimeSlotText, !isAvailable && additionalTextStyle]}>{timeSlot}</Text>
+                                            {icon}
                                         </TouchableOpacity>
                                     );
                                 })}

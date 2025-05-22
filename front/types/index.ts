@@ -86,6 +86,7 @@ export interface Booking {
     coach: string;
     coachFullName: string;
     placeEquipmentName: string;
+    institutionNumero: string;
 }
 
 /**
