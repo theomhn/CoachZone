@@ -1,6 +1,7 @@
 api_platform:
-    title: Hello API Platform
-    version: 1.0.0
+    title: "CoachZone API"
+    version: "1.0.0"
+    description: "API pour mettre en relation des coachs sportifs avec des institutions"
     formats:
         json: ["application/json"]
     error_formats:
@@ -10,3 +11,7 @@ api_platform:
         formats: ["json"]
         cache_headers:
             vary: ["Content-Type", "Authorization", "Origin"]
+
+    # Configuration pour la documentation
+    enable_swagger_ui: true
+    enable_re_doc: true

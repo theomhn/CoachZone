@@ -1,21 +1,20 @@
 <?php
 
+// LoginController.php
 namespace App\Controller;
 
 use App\Entity\AccessToken;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use App\Entity\User;
-use App\Repository\AccessTokenRepository;
-use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Attribute\AsController;
 
+#[AsController]
 class LoginController extends AbstractController
 {
-    #[Route('/api/login', name: 'app_login', methods: ['POST'])]
-    public function login(#[CurrentUser] ?User $user, EntityManagerInterface $entityManager): Response
+    public function __invoke(#[CurrentUser] ?User $user, EntityManagerInterface $entityManager): Response
     {
         if (null === $user) {
             return $this->json([
@@ -33,21 +32,5 @@ class LoginController extends AbstractController
         $entityManager->flush();
 
         return $this->json($token);
-    }
-
-    #[Route('/api/logout', name: 'app_logout', methods: ['POST'])]
-    public function logout(Request $request, AccessTokenRepository $tokenRepository, EntityManagerInterface $entityManager): Response
-    {
-        $authHeader = $request->headers->get('Authorization');
-        $token = str_replace('Bearer ', '', $authHeader);
-
-        $accessToken = $tokenRepository->findOneByToken($token);
-
-        if ($accessToken) {
-            $entityManager->remove($accessToken);
-            $entityManager->flush();
-        }
-
-        return $this->json(['message' => 'Logged out successfully']);
     }
 }
