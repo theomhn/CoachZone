@@ -29,7 +29,7 @@ class Institution extends User
     private ?string $inst_name = null;
 
     /**
-     * Adresse complète de l'institution (combinaison de inst_adresse, inst_cp, inst_com_nom)
+     * Adresse complète de l'institution (combinaison de inst_adresse, inst_cp, lib_bdv)
      */
     #[Groups(['institution:read'])]
     public ?string $adresse = null;

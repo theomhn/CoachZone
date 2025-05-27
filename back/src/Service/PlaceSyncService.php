@@ -18,12 +18,12 @@ class PlaceSyncService
     public function synchronizePlaces(): void
     {
         $offset = 0;
-        $totalProcessed = 0;
+        $totalProcessed = 0;            
 
         do {
             $response = $this->httpClient->request('GET', 'https://equipements.sports.gouv.fr/api/explore/v2.1/catalog/datasets/data-es/records', [
                 'query' => [
-                    'where' => 'inst_com_nom LIKE "montpellier"',
+                    'where' => 'new_name LIKE "montpellier"',
                     'limit' => self::LIMIT_PER_PAGE,
                     'offset' => $offset,
                     'refine' => 'dep_code_filled:"34"'

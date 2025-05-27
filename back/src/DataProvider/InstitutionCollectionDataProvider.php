@@ -113,8 +113,8 @@ class InstitutionCollectionDataProvider implements ProviderInterface
                 if (!empty($firstPlaceData['inst_cp'])) {
                     $cpVille .= $firstPlaceData['inst_cp'] . ' ';
                 }
-                if (!empty($firstPlaceData['inst_com_nom'])) {
-                    $cpVille .= $firstPlaceData['inst_com_nom'];
+                if (!empty($firstPlaceData['lib_bdv'])) {
+                    $cpVille .= $firstPlaceData['lib_bdv'];
                 }
 
                 if (!empty($cpVille)) {
