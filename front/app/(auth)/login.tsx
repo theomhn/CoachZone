@@ -42,6 +42,7 @@ export default function LoginScreen() {
 
             await SecureStore.setItemAsync("userToken", data);
 
+            // Rediriger vers la racine, le layout principal gérera la redirection selon le type d'utilisateur
             router.replace("/");
         } catch (error: unknown) {
             const errorMessage = error instanceof Error ? error.message : "Une erreur est survenue";
@@ -87,7 +88,7 @@ export default function LoginScreen() {
                     <Text style={styles.buttonText}>{isLoading ? "Chargement..." : "Se connecter"}</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.linkButton} onPress={() => router.replace("/register")}>
+                <TouchableOpacity style={styles.linkButton} onPress={() => router.replace("/(auth)/register")}>
                     <Text style={styles.linkText}>Pas encore de compte ? S'inscrire</Text>
                 </TouchableOpacity>
             </ScrollView>

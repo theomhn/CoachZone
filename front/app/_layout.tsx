@@ -38,16 +38,15 @@ function ThemedLayout() {
             backgroundColor: currentTheme.background,
         },
         headerTintColor: currentTheme.text,
-        // Ajouter d'autres styles globaux que vous voulez appliquer partout
     };
 
     return (
         <>
             <Stack screenOptions={globalScreenOptions}>
-                <Stack.Screen name="login" options={{ headerShown: false }} />
-                <Stack.Screen name="register" options={{ headerShown: false }} />
-                <Stack.Screen name="map" options={{ title: "Carte" }} />
-                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                <Stack.Screen name="index" options={{ headerShown: false }} />
+                <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+                <Stack.Screen name="(coach)" options={{ headerShown: false }} />
+                <Stack.Screen name="(institution)" options={{ headerShown: false }} />
                 <Stack.Screen name="+not-found" />
             </Stack>
             <StatusBar style={isDarkMode ? "light" : "dark"} />

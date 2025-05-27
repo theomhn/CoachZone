@@ -16,6 +16,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 #[ORM\DiscriminatorMap(['coach' => Coach::class, 'institution' => Institution::class])]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
 #[ApiResource(operations: [
+    new Get(requirements: ['id' => '\d+']),
     new Get(
         name: 'me',
         uriTemplate: 'users/me',

@@ -4,12 +4,22 @@ import { API_BASE_URL } from "@/config";
 import { useTheme } from "@/hooks/useTheme";
 import { Institution, Place } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
-import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
-import React, { useEffect, useState } from "react";
+import { useFocusEffect, useLocalSearchParams, useNavigation, useRouter } from "expo-router";
+import React, { useCallback, useEffect, useState } from "react";
 import { ActivityIndicator, Alert, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import MapView, { Marker, PROVIDER_DEFAULT } from "react-native-maps";
 
 export default function InstitutionDetailsScreen() {
+    // Protection : Rediriger si pas coach
+    useFocusEffect(
+        useCallback(() => {
+            if (!global.user || global.user.type !== "coach") {
+                router.replace("/(auth)/login" as any);
+                return;
+            }
+        }, [])
+    );
+
     const { id, source } = useLocalSearchParams<{ id: string; source: string }>();
     const router = useRouter();
     const navigation = useNavigation();
@@ -22,6 +32,11 @@ export default function InstitutionDetailsScreen() {
     // Récupérer le thème actuel et les couleurs associées
     const { currentTheme } = useTheme();
     const styles = getStyles(currentTheme);
+
+    // Si pas coach, ne pas afficher l'écran
+    if (!global.user || global.user.type !== "coach") {
+        return null;
+    }
 
     // Définir le titre de la page quand l'institution est chargée
     useEffect(() => {
@@ -37,7 +52,7 @@ export default function InstitutionDetailsScreen() {
     const navigateToBooking = () => {
         if (institution && selectedPlace) {
             router.push({
-                pathname: "/booking",
+                pathname: "/booking" as any,
                 params: {
                     placeId: selectedPlace.id,
                     placeName: `${institution.inst_name} - ${selectedPlace.data.equip_nom || selectedPlace.data.lib_bdv}`,

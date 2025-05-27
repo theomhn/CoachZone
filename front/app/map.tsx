@@ -7,12 +7,22 @@ import { useTheme } from "@/hooks/useTheme";
 import { Institution } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import * as Location from "expo-location";
-import { router } from "expo-router";
-import React, { useEffect, useState } from "react";
+import { router, useFocusEffect } from "expo-router";
+import React, { useCallback, useEffect, useState } from "react";
 import { ActivityIndicator, Alert, TouchableOpacity, View } from "react-native";
 import MapView, { Marker, PROVIDER_DEFAULT } from "react-native-maps";
 
 export default function MapScreen() {
+    // Protection : Rediriger si pas coach
+    useFocusEffect(
+        useCallback(() => {
+            if (!global.user || global.user.type !== "coach") {
+                router.replace("/(auth)/login" as any);
+                return;
+            }
+        }, [])
+    );
+
     const [isLoading, setIsLoading] = useState(true);
     const [selectedInstitution, setSelectedInstitution] = useState<Institution | null>(null);
     const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
@@ -29,6 +39,11 @@ export default function MapScreen() {
 
     // Utiliser le contexte partagé
     const { filteredInstitutions, allActivities, updateInstitutions, handleSearch, handleFilterChange, filters, searchText } = useInstitutionFiltersContext();
+
+    // Si pas coach, ne pas afficher l'écran
+    if (!global.user || global.user.type !== "coach") {
+        return null;
+    }
 
     // Récupération des lieux
     useEffect(() => {
@@ -102,7 +117,7 @@ export default function MapScreen() {
 
     const navigateToInstitutionDetails = (institutionId: string) => {
         router.push({
-            pathname: "/institution-details",
+            pathname: "/institution-details" as any,
             params: {
                 id: institutionId,
                 source: "map", // Indiquer que l'on vient de la carte

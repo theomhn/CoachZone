@@ -49,12 +49,12 @@ export default function InstitutionsScreen() {
     };
 
     const navigateToMap = () => {
-        router.push("/map");
+        router.push("/map" as any);
     };
 
     const navigateToInstitutionDetails = (institutionId: string) => {
         router.push({
-            pathname: "/institution-details",
+            pathname: "/institution-details" as any,
             params: {
                 id: institutionId,
                 source: "list", // Indiquer que l'on vient de la liste

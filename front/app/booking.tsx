@@ -3,13 +3,23 @@ import { API_BASE_URL } from "@/config";
 import { useTheme } from "@/hooks/useTheme";
 import { Booking } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import * as SecureStore from "expo-secure-store";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, Alert, KeyboardAvoidingView, Platform, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { Calendar, DateData } from "react-native-calendars";
 
 export default function BookingScreen() {
+    // Protection : Rediriger si pas coach
+    useFocusEffect(
+        useCallback(() => {
+            if (!global.user || global.user.type !== "coach") {
+                router.replace("/(auth)/login" as any);
+                return;
+            }
+        }, [])
+    );
+
     const { placeId, placeName, placePrice } = useLocalSearchParams<{
         placeId: string;
         placeName: string;
@@ -20,6 +30,11 @@ export default function BookingScreen() {
     // Récupérer le thème actuel et les couleurs associées
     const { currentTheme } = useTheme();
     const styles = getStyles(currentTheme);
+
+    // Si pas coach, ne pas afficher l'écran
+    if (!global.user || global.user.type !== "coach") {
+        return null;
+    }
 
     // Convertir le prix reçu en paramètre en nombre
     const pricePerSlot = placePrice ? parseFloat(placePrice) : 0;
@@ -461,7 +476,7 @@ export default function BookingScreen() {
 
             if (!token) {
                 Alert.alert("Erreur", "Vous devez être connecté pour effectuer une réservation");
-                router.replace("/login");
+                router.replace("/(auth)/login" as any);
                 return;
             }
 
