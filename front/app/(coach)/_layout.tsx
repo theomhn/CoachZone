@@ -44,6 +44,13 @@ export default function CoachLayout() {
                 }}
             />
             <Tabs.Screen
+                name="favorites"
+                options={{
+                    title: "Mes favoris",
+                    tabBarIcon: ({ color }) => <IconSymbol size={28} name="heart.fill" color={color} />,
+                }}
+            />
+            <Tabs.Screen
                 name="profile"
                 options={{
                     title: "Profil",

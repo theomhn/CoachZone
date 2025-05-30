@@ -160,3 +160,13 @@ export interface ThemeSelectorProps {
     isVisible: boolean;
     onClose: () => void;
 }
+
+/**
+ * Interface pour le bouton favoris
+ */
+export interface FavoriteButtonProps {
+    instNumero: string;
+    size?: number;
+    onFavoriteChange?: (isFavorite: boolean) => void; // Callback optionnel pour notifier le parent
+    style?: any;
+}

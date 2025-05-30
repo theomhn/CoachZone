@@ -51,5 +51,27 @@ export default function (currentTheme: any) {
             fontWeight: "600",
             fontSize: 16,
         },
+        // Nouveaux styles pour le FavoriteButton
+        cardContainer: {
+            position: "relative",
+            marginBottom: 16,
+        },
+        favoriteButtonOverlay: {
+            position: "absolute",
+            top: 12,
+            right: 12,
+            zIndex: 10,
+            backgroundColor: currentTheme.background,
+            borderRadius: 20,
+            shadowColor: currentTheme.shadow,
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.1,
+            shadowRadius: 4,
+            elevation: 3,
+        },
+        favoriteButton: {
+            backgroundColor: "transparent",
+            padding: 6,
+        },
     });
 }
