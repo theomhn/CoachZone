@@ -1,6 +1,6 @@
 import { API_BASE_URL } from "@/config";
 import { useTheme } from "@/hooks/useTheme";
-import { User } from "@/types";
+import { Place, User } from "@/types";
 import { Redirect } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import React, { useEffect, useState } from "react";
@@ -10,10 +10,45 @@ export default function IndexScreen() {
     const { currentTheme } = useTheme();
     const [isLoading, setIsLoading] = useState(true);
     const [user, setUser] = useState<User | null>(null);
+    const [hasConfiguredPrices, setHasConfiguredPrices] = useState<boolean | null>(null);
 
     useEffect(() => {
         checkAuth();
     }, []);
+
+    const checkPriceStatus = async (userData: User) => {
+        if (userData.type !== "institution") {
+            setHasConfiguredPrices(true);
+            return;
+        }
+
+        try {
+            const userToken = await SecureStore.getItemAsync("userToken");
+            if (!userToken) {
+                setHasConfiguredPrices(true);
+                return;
+            }
+
+            const response = await fetch(`${API_BASE_URL}/places?inst_numero=${userData.inst_numero}`, {
+                headers: {
+                    Authorization: `Bearer ${userToken}`,
+                },
+            });
+
+            if (!response.ok) {
+                setHasConfiguredPrices(true);
+                return;
+            }
+
+            const places: Place[] = await response.json();
+            const unconfiguredPlaces = places.filter((place) => place.price === null || place.price === undefined);
+
+            setHasConfiguredPrices(unconfiguredPlaces.length === 0 || places.length === 0);
+        } catch (error) {
+            console.error("Erreur lors de la vérification des prix :", error);
+            setHasConfiguredPrices(true);
+        }
+    };
 
     const checkAuth = async () => {
         try {
@@ -36,6 +71,11 @@ export default function IndexScreen() {
                 const userData = await response.json();
                 setUser(userData);
                 global.user = userData;
+
+                // Vérifier les prix seulement pour les institutions
+                if (userData.type === "institution") {
+                    await checkPriceStatus(userData);
+                }
             } else {
                 // Si la requête échoue
                 await SecureStore.deleteItemAsync("userToken");
@@ -48,7 +88,7 @@ export default function IndexScreen() {
     };
 
     // Afficher un loader pendant la vérification
-    if (isLoading) {
+    if (isLoading || (user?.type === "institution" && hasConfiguredPrices === null)) {
         return (
             <View
                 style={{
@@ -73,6 +113,10 @@ export default function IndexScreen() {
     }
 
     if (user.type === "institution") {
+        // Vérifier si l'institution a configuré au moins un prix
+        if (hasConfiguredPrices === false) {
+            return <Redirect href="/(institution)/profile" />;
+        }
         return <Redirect href="/(institution)/my-bookings" />;
     }
 

@@ -8,7 +8,11 @@ import * as SecureStore from "expo-secure-store";
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, Alert, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
 
-export default function ProfileScreen() {
+interface ProfileScreenProps {
+    onPriceUpdated?: () => void;
+}
+
+export default function ProfileScreen({ onPriceUpdated }: ProfileScreenProps) {
     const [user, setUser] = useState(global.user);
     const [places, setPlaces] = useState<Place[]>([]);
     const [loading, setLoading] = useState(false);
@@ -88,6 +92,11 @@ export default function ProfileScreen() {
 
             // Rafraîchir les places pour obtenir les données mises à jour
             fetchPlaces();
+
+            // Notifier le parent que les prix ont été mis à jour
+            if (onPriceUpdated) {
+                onPriceUpdated();
+            }
         } catch (error) {
             console.error("Erreur :", error);
             Alert.alert("Erreur", "Impossible de mettre à jour le prix");
