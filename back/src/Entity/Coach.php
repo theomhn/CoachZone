@@ -13,7 +13,6 @@ use App\Repository\CoachRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: CoachRepository::class)]
 #[ApiResource(
@@ -55,7 +54,6 @@ class Coach extends User
      */
     #[ORM\ManyToMany(targetEntity: Institution::class)]
     #[ORM\JoinTable(name: 'coach_favorite_institutions')]
-    #[Groups(['coach:favorites'])]
     private Collection $favoriteInstitutions;
 
     public function __construct()
