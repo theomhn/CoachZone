@@ -4,6 +4,7 @@ import { useTheme } from "@/hooks/useTheme";
 import { Booking } from "@/types";
 import { formatDate } from "@/utils/date";
 import { Ionicons } from "@expo/vector-icons";
+import { useFocusEffect } from "@react-navigation/native";
 import * as SecureStore from "expo-secure-store";
 import React, { useCallback, useEffect, useState } from "react";
 import { ActivityIndicator, Alert, FlatList, RefreshControl, Text, TouchableOpacity, View } from "react-native";
@@ -104,6 +105,15 @@ export default function MyBookingsScreen() {
             setIsLoading(false);
         }
     }, [fetchBookings]);
+
+    // Recharger les données quand l'écran reprend le focus
+    useFocusEffect(
+        useCallback(() => {
+            if (global.user) {
+                fetchBookings();
+            }
+        }, [fetchBookings])
+    );
 
     // Fonction pour formater l'heure
     const formatTime = (dateString: string): string => {
