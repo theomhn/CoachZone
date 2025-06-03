@@ -5,12 +5,12 @@ namespace App\Controller;
 use App\Repository\PlaceRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\HttpKernel\Attribute\AsController;
 
+#[AsController]
 class InstitutionController extends AbstractController
 {
-    #[Route('/api/opendata/institutions', name: 'api_institutions_list', methods: ['GET'])]
-    public function listInstitutions(PlaceRepository $placeRepository): Response
+    public function __invoke(PlaceRepository $placeRepository): Response
     {
         $institutions = $placeRepository->findDistinctInstitutions();
 

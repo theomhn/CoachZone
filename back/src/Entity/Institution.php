@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\GetCollection;
+use App\Controller\InstitutionController;
 use App\DataProvider\InstitutionCollectionDataProvider;
 use App\Repository\InstitutionRepository;
 use Doctrine\ORM\Mapping as ORM;
@@ -15,6 +16,10 @@ use Symfony\Component\Serializer\Annotation\Groups;
         new GetCollection(
             provider: InstitutionCollectionDataProvider::class,
             normalizationContext: ['groups' => ['institution:read']]
+        ),
+        new GetCollection(
+            uriTemplate: '/opendata/institutions',
+            controller: InstitutionController::class,
         )
     ]
 )]
