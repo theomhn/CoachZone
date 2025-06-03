@@ -16,11 +16,17 @@ use Symfony\Component\Security\Core\User\UserInterface;
 #[ORM\DiscriminatorMap(['coach' => Coach::class, 'institution' => Institution::class])]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
 #[ApiResource(operations: [
-    new Get(requirements: ['id' => '\d+']),
+    new Get(
+        requirements: ['id' => '\d+'],
+        security: "is_granted('ROLE_USER') and (object == user or is_granted('ROLE_ADMIN'))",
+        securityMessage: "Vous ne pouvez accéder qu'à votre propre profil utilisateur."
+    ),
     new Get(
         name: 'me',
         uriTemplate: 'users/me',
-        controller: MeController::class
+        controller: MeController::class,
+        security: "is_granted('ROLE_USER')",
+        securityMessage: "Vous devez être authentifié pour accéder à votre profil."
     )
 ])]
 class User implements UserInterface, PasswordAuthenticatedUserInterface

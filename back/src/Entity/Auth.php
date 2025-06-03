@@ -14,19 +14,22 @@ use App\Controller\RegistrationController;
             name: 'login',
             uriTemplate: '/login',
             controller: LoginController::class,
-            description: 'Authentifie un utilisateur et retourne un token d\'accès'
+            description: 'Authentifie un utilisateur et retourne un token d\'accès',
+            security: 'true' // Route publique
         ),
         new Post(
             name: 'logout',
             uriTemplate: '/logout',
             controller: LogoutController::class,
-            description: 'Déconnecte un utilisateur en invalidant son token'
+            description: 'Déconnecte un utilisateur en invalidant son token',
+            security: 'true' // Route publique
         ),
         new Post(
             name: 'register',
             uriTemplate: '/register',
             controller: RegistrationController::class,
-            description: 'Crée un nouveau compte utilisateur (Coach ou Institution)'
+            description: 'Crée un nouveau compte utilisateur (Coach ou Institution)',
+            security: 'true' // Route publique
         )
     ]
 )]

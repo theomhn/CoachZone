@@ -21,14 +21,20 @@ use Doctrine\ORM\Mapping as ORM;
             uriTemplate: '/coaches/me/favorites',
             controller: CoachFavoritesController::class,
             normalizationContext: ['groups' => ['coach:favorites']],
+            security: "is_granted('ROLE_COACH')",
+            securityMessage: "Seuls les coachs peuvent accéder à leurs favoris."
         ),
         new Post(
             uriTemplate: '/coaches/me/favorites/{institutionId}',
             controller: AddFavoriteInstitutionController::class,
+            security: "is_granted('ROLE_COACH')",
+            securityMessage: "Seuls les coachs peuvent ajouter des favoris."
         ),
         new Delete(
             uriTemplate: '/coaches/me/favorites/{institutionId}',
             controller: RemoveFavoriteInstitutionController::class,
+            security: "is_granted('ROLE_COACH')",
+            securityMessage: "Seuls les coachs peuvent supprimer des favoris."
         )
     ]
 )]

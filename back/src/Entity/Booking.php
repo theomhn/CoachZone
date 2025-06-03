@@ -24,11 +24,15 @@ use Symfony\Component\Serializer\Annotation\Groups;
         ),
         new Get(
             requirements: ['id' => '\d+'],
-            normalizationContext: ['groups' => ['booking:read', 'booking:details']]
+            normalizationContext: ['groups' => ['booking:read', 'booking:details']],
+            security: "is_granted('ROLE_COACH') and object.getCoach() == user or (is_granted('ROLE_INSTITUTION') and object.getInstitutionNumero() == user.getInstNumero())",
+            securityMessage: "Les coachs ne peuvent voir que leurs propres réservations, les institutions ne peuvent voir que les réservations dans leurs places."
         ),
         new GetCollection(
             controller: BookingController::class,
-            normalizationContext: ['groups' => ['booking:read', 'booking:details']]
+            normalizationContext: ['groups' => ['booking:read', 'booking:details']],
+            security: "is_granted('ROLE_COACH') or is_granted('ROLE_INSTITUTION')",
+            securityMessage: "Seuls les coachs et institutions peuvent accéder aux réservations."
         )
     ],
     normalizationContext: ['groups' => ['booking:read']],

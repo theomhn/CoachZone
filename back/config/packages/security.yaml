@@ -31,8 +31,30 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
-        # - { path: ^/admin, roles: ROLE_ADMIN }
-        # - { path: ^/profile, roles: ROLE_USER }
+        # Routes publiques - Documentation API
+        - { path: ^/api/docs, roles: PUBLIC_ACCESS }
+        - { path: ^/api/docs\.json, roles: PUBLIC_ACCESS }
+        - { path: ^/api/docs\.jsonld, roles: PUBLIC_ACCESS }
+        - { path: ^/api/contexts, roles: PUBLIC_ACCESS }
+
+        # Routes publiques - Authentification
+        - { path: ^/api/login, roles: PUBLIC_ACCESS }
+        - { path: ^/api/logout, roles: PUBLIC_ACCESS }
+        - { path: ^/api/register, roles: PUBLIC_ACCESS }
+
+        # Routes publiques - Données ouvertes
+        - { path: ^/api/opendata, roles: PUBLIC_ACCESS }
+
+        # Routes spécifiques aux coachs (consultation)
+        - { path: ^/api/coaches, roles: ROLE_COACH }
+        - { path: ^/api/institutions, roles: ROLE_COACH }
+        - { path: ^/api/places, roles: ROLE_COACH }
+
+        # Routes pour coachs et institutions (réservations)
+        - { path: ^/api/bookings, roles: [ROLE_COACH, ROLE_INSTITUTION] }
+
+        # Routes utilisateurs générales
+        - { path: ^/api/users, roles: ROLE_USER }
 
 when@test:
     security:

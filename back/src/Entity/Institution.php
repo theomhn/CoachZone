@@ -15,11 +15,14 @@ use Symfony\Component\Serializer\Annotation\Groups;
     operations: [
         new GetCollection(
             provider: InstitutionCollectionDataProvider::class,
-            normalizationContext: ['groups' => ['institution:read']]
+            normalizationContext: ['groups' => ['institution:read']],
+            security: "is_granted('ROLE_COACH')",
+            securityMessage: "Seuls les coachs peuvent consulter la liste des institutions."
         ),
         new GetCollection(
             uriTemplate: '/opendata/institutions',
             controller: InstitutionController::class,
+            security: 'true' // Route publique pour les données ouvertes
         )
     ]
 )]
@@ -43,7 +46,7 @@ class Institution extends User
      * Coordonnées géographiques de l'institution
      */
     #[Groups(['institution:read'])]
-    public ?array $coordonnees = null;
+    public array $coordonnees = [];
 
     /**
      * Liste des activités sportives (equip_aps_nom) dans cette institution

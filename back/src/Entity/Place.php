@@ -18,16 +18,21 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ApiResource(
     operations: [
         new Get(
-            normalizationContext: ['groups' => ['place:read']]
+            normalizationContext: ['groups' => ['place:read']],
+            security: "is_granted('ROLE_COACH')",
+            securityMessage: "Seuls les coachs peuvent consulter les détails des places."
         ),
         new GetCollection(
             provider: PlaceCollectionProvider::class,
-            normalizationContext: ['groups' => ['place:read']]
+            normalizationContext: ['groups' => ['place:read']],
+            security: "is_granted('ROLE_COACH')",
+            securityMessage: "Seuls les coachs peuvent consulter la liste des places."
         ),
         new Patch(
             denormalizationContext: ['groups' => ['price:write']],
             normalizationContext: ['groups' => ['place:read']],
-            security: "is_granted('ROLE_INSTITUTION') and object.getInstitutionNumero() == user.getInstNumero()"
+            security: "is_granted('ROLE_INSTITUTION') and object.getInstitutionNumero() == user.getInstNumero()",
+            securityMessage: "Seules les institutions peuvent modifier le prix de leurs propres places."
         )
     ],
     order: ['inst_name', 'inst_numero', 'id']
