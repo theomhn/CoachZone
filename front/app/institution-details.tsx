@@ -5,6 +5,7 @@ import { useTheme } from "@/hooks/useTheme";
 import { Institution, Place } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect, useLocalSearchParams, useNavigation, useRouter } from "expo-router";
+import * as SecureStore from "expo-secure-store";
 import React, { useCallback, useEffect, useState } from "react";
 import { ActivityIndicator, Alert, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import MapView, { Marker, PROVIDER_DEFAULT } from "react-native-maps";
@@ -79,8 +80,17 @@ export default function InstitutionDetailsScreen() {
         if (!id) return;
 
         try {
-            // Récupération de toutes les institutions puis filtrage par ID
-            const response = await fetch(`${API_BASE_URL}/institutions`);
+            // Ajouter la récupération du token
+            const token = await SecureStore.getItemAsync("userToken");
+
+            const response = await fetch(`${API_BASE_URL}/institutions`, {
+                method: "GET",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                },
+            });
+
             if (!response.ok) {
                 throw new Error("Erreur lors de la récupération des données");
             }
@@ -107,7 +117,18 @@ export default function InstitutionDetailsScreen() {
 
         try {
             setIsLoadingPlaces(true);
-            const response = await fetch(`${API_BASE_URL}/places?inst_numero=${institution.inst_numero}`);
+
+            // Ajouter la récupération du token
+            const token = await SecureStore.getItemAsync("userToken");
+
+            const response = await fetch(`${API_BASE_URL}/places?inst_numero=${institution.inst_numero}`, {
+                method: "GET",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                },
+            });
+
             if (!response.ok) {
                 throw new Error("Erreur lors de la récupération des équipements");
             }

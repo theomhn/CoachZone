@@ -8,6 +8,7 @@ import { useTheme } from "@/hooks/useTheme";
 import { Institution } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import { router, useFocusEffect } from "expo-router";
+import * as SecureStore from "expo-secure-store";
 import React, { useCallback, useEffect, useState } from "react";
 import { ActivityIndicator, Alert, FlatList, RefreshControl, Text, TouchableOpacity, View } from "react-native";
 
@@ -25,7 +26,16 @@ export default function InstitutionsScreen() {
 
     const fetchInstitutions = async () => {
         try {
-            const response = await fetch(`${API_BASE_URL}/institutions`);
+            // Ajouter la récupération du token
+            const token = await SecureStore.getItemAsync("userToken");
+
+            const response = await fetch(`${API_BASE_URL}/institutions`, {
+                method: "GET",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                },
+            });
 
             if (!response.ok) {
                 throw new Error("Erreur lors de la récupération des données");
