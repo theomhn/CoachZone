@@ -11,10 +11,10 @@ const THEME_STORAGE_KEY = "app_theme";
 
 // Création du contexte avec valeurs par défaut
 export const ThemeContext = createContext<ThemeContextType>({
-    theme: "light",
+    theme: "dark",
     setTheme: () => {},
     toggleTheme: () => {},
-    currentTheme: Themes.light,
+    currentTheme: Themes.dark,
 });
 
 // Props du ThemeProvider
@@ -24,7 +24,7 @@ interface ThemeProviderProps {
 
 export function ThemeProvider({ children }: ThemeProviderProps) {
     const systemColorScheme = useColorScheme() as "light" | "dark" | null;
-    const [theme, setThemeState] = useState<ThemeType>("light");
+    const [theme, setThemeState] = useState<ThemeType>("dark"); // Changé de "light" à "dark"
 
     // Déterminer le thème actuel
     const getCurrentTheme = () => {
@@ -54,8 +54,8 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
             if (savedTheme && (savedTheme === "light" || savedTheme === "dark" || savedTheme === "system")) {
                 setThemeState(savedTheme as ThemeType);
             } else {
-                // Utiliser le thème système par défaut
-                setThemeState(systemColorScheme ? "system" : "light");
+                // Utiliser le thème dark par défaut si pas de thème sauvegardé
+                setThemeState("dark");
             }
         } catch (error) {
             console.error("Failed to load theme:", error);
