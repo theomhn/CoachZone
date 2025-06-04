@@ -25,8 +25,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
         new GetCollection(
             provider: PlaceCollectionProvider::class,
             normalizationContext: ['groups' => ['place:read']],
-            security: "is_granted('ROLE_COACH')",
-            securityMessage: "Seuls les coachs peuvent consulter la liste des places."
+            security: "is_granted('ROLE_COACH') or is_granted('ROLE_INSTITUTION')",
+            securityMessage: "Seuls les coachs et institutions peuvent consulter la liste des places."
         ),
         new Patch(
             denormalizationContext: ['groups' => ['price:write']],

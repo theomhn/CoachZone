@@ -45,12 +45,12 @@ security:
         # Routes publiques - Données ouvertes
         - { path: ^/api/opendata, roles: PUBLIC_ACCESS }
 
-        # Routes spécifiques aux coachs (consultation)
+        # Routes spécifiques aux coachs
         - { path: ^/api/coaches, roles: ROLE_COACH }
         - { path: ^/api/institutions, roles: ROLE_COACH }
-        - { path: ^/api/places, roles: ROLE_COACH }
 
-        # Routes pour coachs et institutions (réservations)
+        # Routes pour coachs et institutions
+        - { path: ^/api/places, roles: [ROLE_COACH, ROLE_INSTITUTION] }
         - { path: ^/api/bookings, roles: [ROLE_COACH, ROLE_INSTITUTION] }
 
         # Routes utilisateurs générales
