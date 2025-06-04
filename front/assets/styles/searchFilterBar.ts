@@ -29,7 +29,7 @@ export default function (currentTheme: any) {
         searchInput: {
             flex: 1,
             fontSize: 16,
-            color: currentTheme.placeholder,
+            color: currentTheme.text, // Couleur du texte saisi (pas du placeholder)
         },
         filterButton: {
             marginLeft: 12,

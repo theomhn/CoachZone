@@ -1,10 +1,10 @@
 import getStyles from "@/assets/styles/favoritesScreen";
 import Badge from "@/components/Badge";
 import FavoriteButton from "@/components/FavoriteButton";
-import { IconSymbol } from "@/components/ui/IconSymbol";
 import { API_BASE_URL } from "@/config";
 import { useTheme } from "@/hooks/useTheme";
 import { Institution } from "@/types";
+import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import React, { useCallback, useEffect, useState } from "react";
@@ -109,16 +109,16 @@ export default function FavoritesScreen() {
                 <Text style={styles.sectionTitle}>Équipements</Text>
                 <View style={styles.equipmentsList}>
                     <View style={styles.equipmentItem}>
-                        <IconSymbol
-                            name={item.equipements.douches ? "checkmark.circle.fill" : "xmark.circle.fill"}
+                        <Ionicons
+                            name={item.equipements.douches ? "checkmark-circle" : "close-circle"}
                             size={20}
                             color={item.equipements.douches ? styles.successIcon.color : styles.errorIcon.color}
                         />
                         <Text style={styles.equipmentText}>Douches</Text>
                     </View>
                     <View style={styles.equipmentItem}>
-                        <IconSymbol
-                            name={item.equipements.sanitaires ? "checkmark.circle.fill" : "xmark.circle.fill"}
+                        <Ionicons
+                            name={item.equipements.sanitaires ? "checkmark-circle" : "close-circle"}
                             size={20}
                             color={item.equipements.sanitaires ? styles.successIcon.color : styles.errorIcon.color}
                         />
@@ -142,7 +142,7 @@ export default function FavoritesScreen() {
         <View style={styles.container}>
             {favorites.length === 0 ? (
                 <View style={styles.emptyContainer}>
-                    <IconSymbol name="heart" size={64} color={styles.emptyIcon.color} />
+                    <Ionicons name="heart-outline" size={64} color={styles.emptyIcon.color} />
                     <Text style={styles.emptyTitle}>Aucun favori</Text>
                     <Text style={styles.emptySubtitle}>Vous n'avez pas encore ajouté d'institutions en favoris</Text>
                 </View>

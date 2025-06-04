@@ -1,7 +1,7 @@
 import { HapticTab } from "@/components/HapticTab";
 import { getThemeToggleButton } from "@/components/theme/ThemeToggleButton";
-import { IconSymbol } from "@/components/ui/IconSymbol";
 import { useTheme } from "@/hooks/useTheme";
+import { Ionicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
 import React from "react";
 
@@ -33,28 +33,28 @@ export default function CoachLayout() {
                 name="institutions"
                 options={{
                     title: "Accueil",
-                    tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+                    tabBarIcon: ({ color }) => <Ionicons name="home" size={28} color={color} />,
                 }}
             />
             <Tabs.Screen
                 name="my-bookings"
                 options={{
                     title: "Mes réservations",
-                    tabBarIcon: ({ color }) => <IconSymbol name="calendar" size={28} color={color} />,
+                    tabBarIcon: ({ color }) => <Ionicons name="calendar" size={28} color={color} />,
                 }}
             />
             <Tabs.Screen
                 name="favorites"
                 options={{
                     title: "Mes favoris",
-                    tabBarIcon: ({ color }) => <IconSymbol size={28} name="heart.fill" color={color} />,
+                    tabBarIcon: ({ color }) => <Ionicons name="heart" size={28} color={color} />,
                 }}
             />
             <Tabs.Screen
                 name="profile"
                 options={{
                     title: "Profil",
-                    tabBarIcon: ({ color }) => <IconSymbol size={28} name="person.fill" color={color} />,
+                    tabBarIcon: ({ color }) => <Ionicons name="person" size={28} color={color} />,
                 }}
             />
         </Tabs>

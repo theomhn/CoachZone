@@ -1,7 +1,7 @@
-import { IconSymbol } from "@/components/ui/IconSymbol";
 import { API_BASE_URL } from "@/config";
 import { useTheme } from "@/hooks/useTheme";
 import { FavoriteButtonProps } from "@/types";
+import { Ionicons } from "@expo/vector-icons";
 import * as SecureStore from "expo-secure-store";
 import React, { useEffect, useState } from "react";
 import { Alert, StyleSheet, TouchableOpacity } from "react-native";
@@ -81,8 +81,8 @@ export default function FavoriteButton({ instNumero, size = 24, onFavoriteChange
 
     return (
         <TouchableOpacity style={[styles.button, style]} onPress={toggleFavorite} disabled={isLoading}>
-            <IconSymbol
-                name={isFavorite ? "heart.fill" : "heart"}
+            <Ionicons
+                name={isFavorite ? "heart" : "heart-outline"}
                 size={size}
                 color={isFavorite ? currentTheme.danger : currentTheme.secondaryText}
                 style={{ opacity: isLoading ? 0.5 : 1 }}

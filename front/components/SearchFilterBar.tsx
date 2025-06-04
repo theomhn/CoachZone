@@ -109,7 +109,13 @@ const SearchFilterBar: React.FC<SearchFilterBarProps> = ({ onSearch, onFilterCha
         <View style={styles.container}>
             <View style={styles.searchContainer}>
                 <Ionicons name="search" size={20} style={styles.searchIcon} />
-                <TextInput style={styles.searchInput} placeholder="Rechercher par nom ou activité..." value={searchText} onChangeText={handleSearch} />
+                <TextInput
+                    style={styles.searchInput}
+                    placeholder="Rechercher par nom ou activité..."
+                    placeholderTextColor={currentTheme.placeholder}
+                    value={searchText}
+                    onChangeText={handleSearch}
+                />
                 {searchText !== "" && (
                     <TouchableOpacity onPress={() => handleSearch("")}>
                         <Ionicons name="close-circle" size={20} style={styles.iconPrimary} />
