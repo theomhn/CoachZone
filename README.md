@@ -21,7 +21,7 @@ CoachZone est une application mobile dédiée aux indépendants du sport, conçu
 
 ### Vision du projet
 
-Cette application vise dans un premier temps à **simplifier la recherche et la réservation d'infrastructures** pouvant accueillir leurs activités, selon leurs besoins spécifiques. Dans un second temps, CoachZone évoluera vers un **système de gestion d'entreprise complet** intégrant un ERP (type Odoo) pour la gestion de facturation, le suivi client, l'organisation de cours et le suivi budgétaire.
+Cette application vise dans un premier temps à **simplifier la recherche et la réservation d'infrastructures** pouvant accueillir leurs activités, selon leurs besoins spécifiques. Dans un second temps, CoachZone évoluera vers un **système de gestion d'entreprise complet** intégrant un ERP (type Odoo) pour la gestion de la facturation, le suivi client, l'organisation de cours et le suivi budgétaire.
 
 ### Fonctionnalités principales
 
@@ -29,7 +29,7 @@ Cette application vise dans un premier temps à **simplifier la recherche et la 
 
 **Système de réservation** : Les professionnels du sport peuvent réserver ces espaces pour organiser leurs cours et séances d'entraînement avec leur clientèle existante. L'interface permet de réserver des créneaux horaires facilement.
 
-**Carte interactive avec Open Data** : Une carte interactive et le répertoire (liste) utilisent le même jeu de données des espaces sportifs disponibles grâce à l'Open Data, offrant deux expériences utilisateur différentes pour visualiser les installations à proximité. Fonctionnalités de recherche et filtrage disponibles : recherche par nom ou activité, filtres par activités, et filtres par équipements (toilettes, douche).
+**Carte interactive avec Open Data** : Une carte interactive et le répertoire (liste) utilisent le même jeu de données des espaces sportifs disponibles grâce à l'Open Data, offrant deux expériences utilisateur différentes pour visualiser les installations à proximité. Fonctionnalités de recherche et de filtrage disponibles : recherche par nom ou activité, filtres par activités, et filtres par équipements (toilettes, douches).
 
 ### État actuel (MVP)
 
@@ -38,18 +38,19 @@ Le projet actuel implémente les fonctionnalités essentielles :
 -   Authentification et gestion des utilisateurs (coachs/institutions)
 -   Répertoire complet des installations sportives
 -   Carte interactive avec filtres
+-   Système de favoris pour les institutions
 -   Réservation de créneaux horaires
 -   Interface différenciée par type d'utilisateur
 
-### Évolution future
+### Évolutions futures
 
 L'application intégrera progressivement :
 
-**Fonctionnalités de gestion avancées** : Affichage des horaires d'ouverture des installations et affichage des créneaux de réservation (ne sera plus une plage horaire fixe pour chaque complexe sportif), système de contact direct via l'application, gestion des annulations/modifications de réservations, notifications avancées, système de formules d'abonnement avec tarifs préférentiels et support dédié.
+**Fonctionnalités de gestion avancées** : Affichage des horaires d'ouverture des installations et des créneaux de réservation (ne sera plus une plage horaire fixe pour chaque complexe sportif), système de contact direct via l'application, gestion des annulations/modifications de réservations, notifications avancées, système de formules d'abonnement avec tarifs préférentiels et support dédié.
 
 **Ouverture au grand public** : Permettre aux sportifs (particuliers) de réserver directement des cours avec les coachs via l'application.
 
-**ERP complet** : Intégration d'un système de gestion d'entreprise complet (type Odoo) incluant envoi de factures, suivi budgétaire, gestion client approfondie, organisation de cours avancée, transformant CoachZone en solution tout-en-un pour les indépendants du sport.
+**ERP complet** : Intégration d'un système de gestion d'entreprise complet (type Odoo) incluant l'envoi de factures, le suivi budgétaire, la gestion clientèle approfondie, l'organisation de cours avancée, transformant CoachZone en solution tout-en-un pour les indépendants du sport.
 
 _Projet réalisé dans le cadre de la fin d'études de Master._
 
@@ -121,25 +122,33 @@ composer install
 cp .env .env.local
 ```
 
-2. Modifier `.env.local` si nécessaire avec vos paramètres de base de données :
+2. Modifier `.env.local` avec vos paramètres de base de données :
 
 ```env
+APP_ENV=dev
+APP_SECRET=votre-clé-secrète-forte
 DATABASE_URL="mysql://CZ-admin:votre-mot-de-passe@127.0.0.1:3306/coachZone?serverVersion=5.7.39-MySQL&charset=utf8mb4"
 ```
+
+> **Note sur les fichiers d'environnement** :
+>
+> -   `.env` : Contient les valeurs par défaut et est commité dans le repository
+> -   `.env.local` : Contient vos valeurs locales et ne doit jamais être commité
+> -   `.env.prod` : Template pour la production, également commité
 
 #### Création du schéma de base de données
 
 ```bash
-# Créer les migrations (si elles n'existent pas à vérifier dans /migrations)
+# Créer les migrations (si elles n'existent pas - à vérifier dans /migrations)
 php bin/console make:migration
 
 # Exécuter les migrations
 php bin/console doctrine:migrations:migrate
 ```
 
-> **⚠️ Warning OpenData** : L'OpenData a récemment supprimé certaines données importantes (activités réalisables pour les équipements sportifs). Cela provoque des dysfonctionnements dans les filtres par activités et l'affichage des activités disponibles **si la commande `php bin/console app:sync-places` est exécutée**.
+> **⚠️ Warning OpenData** : Les gestionnaires de l'OpenData ont récemment revu leur jeu de données et supprimé certaines informations essentielles au bon fonctionnement de l'application (notamment les activités réalisables dans les équipements sportifs). Cela provoque des dysfonctionnements dans les filtres par activités et l'affichage des activités disponibles **si la commande `php bin/console app:sync-places` est exécutée**.
 >
-> **Solution recommandée** : Après l'exécution des migrations, importez directement le fichier `place.sql qui est dans /back/` dans la base de données qui contient une sauvegarde complète des places. Cet import s'exécute sans problème et ne nécessite pas de supprimer la table créée par les migrations.
+> **Solution recommandée** : Cette situation ayant été anticipée, une sauvegarde complète des données est disponible dans le fichier `place.sql` situé dans le répertoire `/back/`. Après l'exécution des migrations, importez directement ce fichier dans la base de données. Cet import s'exécute sans problème et ne nécessite pas de supprimer la table créée par les migrations.
 
 ### 3. Installation du Frontend
 
@@ -157,14 +166,6 @@ Le projet utilise un fichier `config.ts` pour gérer les URLs d'API. Par défaut
 ```typescript
 export const API_BASE_URL = LOCAL_API;
 ```
-
-**Si vous rencontrez des problèmes avec l'API locale sur Android**, modifiez le fichier `config.ts` pour utiliser l'API de production :
-
-```typescript
-export const API_BASE_URL = PROD_API;
-```
-
-> **Note** : Un problème connu empêche l'API locale de fonctionner correctement avec Android, bien qu'elle fonctionne parfaitement avec iOS. Ce problème n'a pas encore été résolu.
 
 ## Lancement des serveurs
 
@@ -189,10 +190,13 @@ cd front/
 # Démarrer le serveur de développement Expo
 npm run start
 
-# Puis presser 'i' pour ouvrir sur le simulateur iOS (macOS uniquement)
+# Puis appuyer sur 'i' pour ouvrir sur le simulateur iOS (macOS uniquement)
+# ou 'a' pour ouvrir sur l'émulateur Android
 ```
 
-> **Note** : L'iOS Simulator est uniquement disponible sur macOS avec Xcode installé. Sur Windows/Linux, utilisez un émulateur Android ou testez directement sur un appareil physique via l'app Expo Go.
+> **Note** : L'iOS Simulator est uniquement disponible sur macOS avec Xcode installé. Sur Windows/Linux, utilisez un émulateur Android.
+>
+> **Appareils physiques** : Les tests sur appareils physiques via l'app Expo Go ne sont actuellement pas possibles car l'application utilise SDK 52 tandis que l'app Expo Go fonctionne avec SDK 53. Privilégiez les simulateurs/émulateurs.
 
 ## Scripts disponibles
 
@@ -204,7 +208,7 @@ cd back/
 # Vider le cache
 php bin/console cache:clear
 
-# Synchroniser les places depuis l'OpenData (Attention à l'exécution de cette commande - Warning plus haut)
+# Synchroniser les places depuis l'OpenData (Attention à l'exécution de cette commande - voir l'avertissement ci-dessus)
 php bin/console app:sync-places
 
 # Créer une migration
@@ -252,6 +256,12 @@ Une fois le backend lancé, la documentation de l'API sera disponible à :
 -   **POST** `/api/bookings` - Crée une nouvelle réservation
 -   **GET** `/api/bookings/{id}` - Récupère une réservation spécifique
 
+#### Favoris (Coach)
+
+-   **GET** `/api/coaches/me/favorites` - Récupère les institutions favorites du coach connecté
+-   **POST** `/api/coaches/me/favorites/{institutionId}` - Ajoute une institution aux favoris
+-   **DELETE** `/api/coaches/me/favorites/{institutionId}` - Supprime une institution des favoris
+
 #### Institutions
 
 -   **GET** `/api/institutions` - Récupère la collection des institutions
@@ -293,9 +303,8 @@ Une fois le backend lancé, la documentation de l'API sera disponible à :
 
 ### Notes importantes du projet
 
--   **API locale + Android** : Un problème non résolu empêche l'API locale de fonctionner avec Android (fonctionne correctement avec iOS). Solution de contournement : modifier `config.ts` pour utiliser `PROD_API` au lieu de `LOCAL_API`.
--   **Compatibilité SDK** : L'application nécessite Expo SDK 53 pour les appareils physiques, mais le projet utilise actuellement SDK 52.x.x. Certaines librairies ne sont pas encore mises à jour. Privilégier les simulateurs/émulateurs pour les tests.
--   **Problème OpenData** : L'OpenData a supprimé des données essentielles (activités des équipements), impactant les filtres par activités. Une sauvegarde complète de la table `places` est nécessaire pour un fonctionnement optimal.
+-   **Compatibilité SDK** : L'application nécessite Expo SDK 53 pour les appareils physiques, mais le projet utilise actuellement SDK 52.x.x. Certaines bibliothèques ne sont pas encore mises à jour. Privilégiez les simulateurs/émulateurs pour les tests.
+-   **Problème OpenData** : L'OpenData a récemment supprimé des données essentielles (activités des équipements), impactant les filtres par activités. Une sauvegarde complète de la table `places` est nécessaire pour un fonctionnement optimal.
 
 ### Structure des dossiers Backend
 
@@ -310,6 +319,7 @@ back/
 │   ├── Controller/     # Contrôleurs
 │   ├── DataProvider/   # Fournisseurs de données
 │   ├── Entity/         # Entités Doctrine
+│   ├── OpenApi/        # Documentation Swagger API Platform
 │   ├── Repository/     # Repositories
 │   ├── Security/       # Configuration sécurité
 │   ├── Service/        # Services métier
@@ -324,25 +334,30 @@ back/
 front/
 ├── app/            # Pages et navigation (Expo Router)
 │   ├── (auth)/         # Pages d'authentification
+│   │   ├── _layout.tsx     # Layout pour l'authentification
+│   │   ├── login.tsx       # Page de connexion
+│   │   └── register.tsx    # Page d'inscription
 │   ├── (coach)/        # Écrans spécifiques aux coachs
+│   │   ├── _layout.tsx     # Layout pour les coachs
+│   │   ├── favorites.tsx   # Page des favoris
+│   │   ├── institutions.tsx # Liste des institutions
+│   │   ├── my-bookings.tsx # Mes réservations
+│   │   └── profile.tsx     # Profil coach
 │   ├── (institution)/  # Écrans spécifiques aux institutions
-│   ├── booking.tsx     # Page de réservation
+│   │   ├── _layout.tsx     # Layout pour les institutions
+│   │   ├── my-bookings.tsx # Mes réservations
+│   │   └── profile.tsx     # Profil institution
+│   ├── booking.tsx     # Page de réservation (coach)
 │   ├── index.tsx       # Gestion auth & routing par type d'utilisateur
-│   ├── institution-details.tsx # Détails institution
-│   └── map.tsx         # Carte interactive
-├── assets/         # Ressources statiques
-│   ├── fonts/          # Polices
-│   ├── images/         # Images
-│   └── styles/         # Styles globaux
-├── components/     # Composants réutilisables
-│   ├── screens/        # Composants d'écrans
-│   ├── theme/          # Composants de thème
-│   └── ui/             # Composants UI (Badge, Card, etc.)
-├── constants/      # Constantes (couleurs, thèmes)
-├── contexts/       # Contexts React (filtres, thème)
-├── hooks/          # Hooks personnalisés
-├── types/          # Interfaces TypeScript centralisées
-└── utils/          # Utilitaires (formatage date, etc.)
+│   ├── institution-details.tsx # Détails institution (coach)
+│   └── map.tsx         # Carte interactive (coach)
+├── assets/
+├── components/
+├── constants/
+├── contexts/
+├── hooks/
+├── types/
+└── utils/
 ```
 
 ## Troubleshooting
@@ -356,20 +371,12 @@ front/
 ### Problèmes courants Frontend
 
 -   **Metro bundler issues** : `npx expo start --clear`
--   **Dependencies issues** : Supprimer `node_modules/` et refaire `npm install`
+-   **Dependencies issues** : Supprimer `node_modules/` et exécuter à nouveau `npm install`
 -   **iOS Simulator** : Assurez-vous qu'Xcode est installé et configuré (macOS uniquement)
 -   **Sur Windows/Linux** : Utilisez un émulateur Android ou l'app Expo Go sur votre téléphone
-
-## Contribution
-
-1. Fork le projet
-2. Créer une branche pour votre fonctionnalité (`git checkout -b feature/AmazingFeature`)
-3. Commit vos changements (`git commit -m 'Add some AmazingFeature'`)
-4. Push vers la branche (`git push origin feature/AmazingFeature`)
-5. Ouvrir une Pull Request
 
 ## License
 
 Ce projet est sous licence propriétaire.
 
-© 2025 Theo Menchon. Tous droits réservés.
+© 2025 Theo Menchon - CoachZone. Tous droits réservés.
