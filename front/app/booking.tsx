@@ -191,23 +191,30 @@ export default function BookingScreen() {
         const slotEnd = new Date(date);
         slotEnd.setHours(hours + 1, 0, 0, 0);
 
-        // Vérifier conflit avec réservations de la place
+        // PRIORITÉ 1: Vérifier conflit avec réservations du coach connecté
+        const conflictingBooking = findConflictingCoachBooking(date, timeSlot);
+        if (conflictingBooking) {
+            return { reason: "coach-booked", conflictingBooking };
+        }
+
+        // PRIORITÉ 2: Vérifier conflit avec autres réservations de la place
         if (
             Array.isArray(placeBookings) &&
             placeBookings.some((booking) => {
                 const bookingStart = new Date(booking.dateStart);
                 const bookingEnd = new Date(booking.dateEnd);
                 const isSameDay = bookingStart.toDateString() === slotStart.toDateString();
-                return isSameDay && slotStart < bookingEnd && slotEnd > bookingStart;
+
+                /**
+                 * S'assurer que ce n'est pas une réservation du coach connecté
+                 * (au cas où elle serait incluse dans placeBookings)
+                 */
+                const isCurrentCoachBooking = global.user && booking.coach && (booking.coach === global.user.id.toString() || booking.coach === `/api/users/${global.user.id}`);
+
+                return isSameDay && slotStart < bookingEnd && slotEnd > bookingStart && !isCurrentCoachBooking;
             })
         ) {
             return { reason: "place-booked" };
-        }
-
-        // Vérifier conflit avec réservations du coach
-        const conflictingBooking = findConflictingCoachBooking(date, timeSlot);
-        if (conflictingBooking) {
-            return { reason: "coach-booked", conflictingBooking };
         }
 
         return { reason: "available" };
