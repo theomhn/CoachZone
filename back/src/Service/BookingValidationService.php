@@ -56,6 +56,34 @@ class BookingValidationService
     }
 
     /**
+     * Vérifie si la place est disponible (aucun autre coach n'a réservé)
+     * 
+     * @return bool true si la place est disponible, false sinon
+     */
+    public function isPlaceAvailable(Booking $booking): bool
+    {
+        $place = $booking->getPlace();
+        $coach = $booking->getCoach();
+        $dateStart = $booking->getDateStart();
+        $dateEnd = $booking->getDateEnd();
+
+        if (!$place || !$coach || !$dateStart || !$dateEnd) {
+            return false;
+        }
+
+        $existingId = $booking->getId();
+        $conflictingBookings = $this->bookingRepository->findOverlappingBookingsForPlace(
+            $place->getId(),
+            $dateStart,
+            $dateEnd,
+            $existingId,
+            $coach->getId() // Exclure les réservations du coach actuel
+        );
+
+        return count($conflictingBookings) === 0;
+    }
+
+    /**
      * Valide complètement une réservation
      * 
      * @return array Liste des erreurs, tableau vide si aucune erreur
@@ -70,6 +98,10 @@ class BookingValidationService
 
         if (!$this->hasNoOverlappingBookings($booking)) {
             $errors[] = 'Vous avez déjà une réservation qui chevauche cette période.';
+        }
+
+        if (!$this->isPlaceAvailable($booking)) {
+            $errors[] = 'Un autre coach a déjà une réservation sur ce créneau.';
         }
 
         return $errors;

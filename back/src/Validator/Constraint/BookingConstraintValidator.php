@@ -46,22 +46,31 @@ class BookingConstraintValidator extends ConstraintValidator
 
         // Vérifier que le coach n'a pas déjà une réservation qui chevauche cette période
         $coach = $booking->getCoach();
+        $place = $booking->getPlace();
         $dateStart = $booking->getDateStart();
         $dateEnd = $booking->getDateEnd();
 
-        // Ignorer la validation si les dates ne sont pas définies
-        if (!$coach || !$dateStart || !$dateEnd) {
+        // Ignorer la validation si les données nécessaires ne sont pas définies
+        if (!$coach || !$place || !$dateStart || !$dateEnd) {
             return;
         }
 
         // Exclure la réservation actuelle si elle a déjà un ID (cas d'une mise à jour)
         $existingId = $booking->getId();
 
-        // Rechercher les réservations du coach qui pourraient chevaucher
+        // 1. Rechercher les réservations du même coach qui pourraient chevaucher
         $overlappingBookings = $this->findOverlappingBookings($coach->getId(), $dateStart, $dateEnd, $existingId);
 
         if (count($overlappingBookings) > 0) {
             $this->context->buildViolation($constraint->messageOverlap)
+                ->addViolation();
+        }
+
+        // 2. Rechercher les réservations d'autres coachs sur la même place qui pourraient chevaucher
+        $conflictingBookings = $this->findConflictingBookingsForPlace($place->getId(), $dateStart, $dateEnd, $existingId, $coach->getId());
+
+        if (count($conflictingBookings) > 0) {
+            $this->context->buildViolation($constraint->messagePlaceConflict)
                 ->addViolation();
         }
     }
@@ -91,6 +100,43 @@ class BookingConstraintValidator extends ConstraintValidator
         if ($excludeId) {
             $qb->andWhere('b.id != :excludeId')
                 ->setParameter('excludeId', $excludeId);
+        }
+
+        return $qb->getQuery()->getResult();
+    }
+
+    /**
+     * Trouve les réservations qui entrent en conflit avec la période donnée pour une place donnée
+     * (toutes les réservations, peu importe le coach)
+     */
+    private function findConflictingBookingsForPlace(string|int $placeId, \DateTimeInterface $dateStart, \DateTimeInterface $dateEnd, ?int $excludeId = null, ?int $excludeCoachId = null): array
+    {
+        $qb = $this->entityManager->createQueryBuilder()
+            ->select('b')
+            ->from(Booking::class, 'b')
+            ->where('b.place = :placeId')
+            ->andWhere(
+                // Vérifie si la nouvelle réservation chevauche une réservation existante
+                // Cas 1: La nouvelle réservation commence pendant une réservation existante
+                '(:dateStart >= b.dateStart AND :dateStart < b.dateEnd) OR ' .
+                    // Cas 2: La nouvelle réservation se termine pendant une réservation existante
+                    '(:dateEnd > b.dateStart AND :dateEnd <= b.dateEnd) OR ' .
+                    // Cas 3: La nouvelle réservation contient entièrement une réservation existante
+                    '(:dateStart <= b.dateStart AND :dateEnd >= b.dateEnd)'
+            )
+            ->setParameter('placeId', $placeId)
+            ->setParameter('dateStart', $dateStart)
+            ->setParameter('dateEnd', $dateEnd);
+
+        if ($excludeId) {
+            $qb->andWhere('b.id != :excludeId')
+                ->setParameter('excludeId', $excludeId);
+        }
+
+        // Exclure les réservations du coach actuel
+        if ($excludeCoachId) {
+            $qb->andWhere('b.coach != :excludeCoachId')
+                ->setParameter('excludeCoachId', $excludeCoachId);
         }
 
         return $qb->getQuery()->getResult();

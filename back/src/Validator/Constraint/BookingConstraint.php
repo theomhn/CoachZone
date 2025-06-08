@@ -11,6 +11,7 @@ class BookingConstraint extends Constraint
 {
     public string $messageOverlap = 'Vous avez déjà une réservation qui chevauche cette période.';
     public string $messageRole = 'Seuls les coachs peuvent créer des réservations.';
+    public string $messagePlaceConflict = 'Un autre coach a déjà une réservation sur ce créneau.';
 
     public function getTargets(): string|array
     {

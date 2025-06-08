@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Booking;
 use App\Entity\Coach;
 use App\Entity\Institution;
+use App\Entity\Place;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -94,6 +95,41 @@ class BookingRepository extends ServiceEntityRepository
         if ($excludeId) {
             $qb->andWhere('b.id != :excludeId')
                 ->setParameter('excludeId', $excludeId);
+        }
+
+        return $qb->getQuery()->getResult();
+    }
+
+    /**
+     * Trouve les réservations qui chevauchent la période donnée pour une place donnée
+     * (peu importe le coach)
+     */
+    public function findOverlappingBookingsForPlace(string|int $placeId, \DateTimeInterface $dateStart, \DateTimeInterface $dateEnd, ?int $excludeId = null, ?int $excludeCoachId = null): array
+    {
+        $qb = $this->createQueryBuilder('b')
+            ->where('b.place = :placeId')
+            ->andWhere(
+                // Vérifie si la nouvelle réservation chevauche une réservation existante
+                // Cas 1: La nouvelle réservation commence pendant une réservation existante
+                '(:dateStart >= b.dateStart AND :dateStart < b.dateEnd) OR ' .
+                    // Cas 2: La nouvelle réservation se termine pendant une réservation existante
+                    '(:dateEnd > b.dateStart AND :dateEnd <= b.dateEnd) OR ' .
+                    // Cas 3: La nouvelle réservation contient entièrement une réservation existante
+                    '(:dateStart <= b.dateStart AND :dateEnd >= b.dateEnd)'
+            )
+            ->setParameter('placeId', $placeId)
+            ->setParameter('dateStart', $dateStart)
+            ->setParameter('dateEnd', $dateEnd);
+
+        if ($excludeId) {
+            $qb->andWhere('b.id != :excludeId')
+                ->setParameter('excludeId', $excludeId);
+        }
+
+        // Exclure les réservations du coach spécifié
+        if ($excludeCoachId) {
+            $qb->andWhere('b.coach != :excludeCoachId')
+                ->setParameter('excludeCoachId', $excludeCoachId);
         }
 
         return $qb->getQuery()->getResult();
