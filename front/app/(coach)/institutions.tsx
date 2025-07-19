@@ -22,7 +22,15 @@ export default function InstitutionsScreen() {
     const styles = getStyles(currentTheme);
 
     // Utiliser le contexte partagé
-    const { filteredInstitutions, searchText, filters, allActivities, updateInstitutions, handleSearch, handleFilterChange } = useInstitutionFiltersContext();
+    const {
+        filteredInstitutions,
+        searchText,
+        filters,
+        allActivities,
+        updateInstitutions,
+        handleSearch,
+        handleFilterChange,
+    } = useInstitutionFiltersContext();
 
     const fetchInstitutions = async () => {
         try {
@@ -90,7 +98,13 @@ export default function InstitutionsScreen() {
 
     const renderInstitutionCard = ({ item }: { item: Institution }) => (
         <View style={styles.cardContainer}>
-            <InstitutionCard item={item} variant="card" showActivities={true} showDetailsButton={true} onViewDetails={() => navigateToInstitutionDetails(item.inst_numero)} />
+            <InstitutionCard
+                item={item}
+                variant="card"
+                showActivities={true}
+                showDetailsButton={true}
+                onViewDetails={() => navigateToInstitutionDetails(item.inst_numero)}
+            />
             {/* Bouton favori positionné en overlay sur la carte */}
             <View style={styles.favoriteButtonOverlay}>
                 <FavoriteButton
@@ -115,7 +129,13 @@ export default function InstitutionsScreen() {
     return (
         <View style={styles.container}>
             {/* Utiliser le contexte pour SearchFilterBar */}
-            <SearchFilterBar onSearch={handleSearch} onFilterChange={handleFilterChange} activities={allActivities} currentFilters={filters} searchText={searchText} />
+            <SearchFilterBar
+                onSearch={handleSearch}
+                onFilterChange={handleFilterChange}
+                activities={allActivities}
+                currentFilters={filters}
+                searchText={searchText}
+            />
 
             <FlatList
                 data={filteredInstitutions}

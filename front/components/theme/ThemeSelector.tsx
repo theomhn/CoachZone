@@ -5,7 +5,17 @@ import { ThemeSelectorProps } from "@/types";
 import { Feather, Ionicons } from "@expo/vector-icons";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import React, { useContext, useRef } from "react";
-import { Animated, Modal, Platform, ScrollView, StatusBar, Text, TouchableOpacity, useColorScheme, View } from "react-native";
+import {
+    Animated,
+    Modal,
+    Platform,
+    ScrollView,
+    StatusBar,
+    Text,
+    TouchableOpacity,
+    useColorScheme,
+    View,
+} from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const ThemeSelector: React.FC<ThemeSelectorProps> = ({ isVisible, onClose }) => {
@@ -59,7 +69,13 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ isVisible, onClose }) => 
     const statusBarHeight = StatusBar.currentHeight || (Platform.OS === "ios" ? insets.top : 0);
 
     return (
-        <Modal visible={isVisible} animationType="none" transparent={true} onRequestClose={closeModal} statusBarTranslucent={false}>
+        <Modal
+            visible={isVisible}
+            animationType="none"
+            transparent={true}
+            onRequestClose={closeModal}
+            statusBarTranslucent={false}
+        >
             {/* Le contenu principal commence sous la barre d'état */}
             <View style={[styles.contentWrapper, { marginTop: statusBarHeight }]}>
                 <Animated.View style={[styles.modalContainer, { transform: [{ translateX: slideAnim }] }]}>
@@ -74,7 +90,10 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ isVisible, onClose }) => 
                         <ScrollView>
                             <View style={styles.themesContainer}>
                                 {/* Option Thème clair */}
-                                <TouchableOpacity style={[styles.themeOption, theme === "light" && styles.selectedOption]} onPress={() => selectTheme("light")}>
+                                <TouchableOpacity
+                                    style={[styles.themeOption, theme === "light" && styles.selectedOption]}
+                                    onPress={() => selectTheme("light")}
+                                >
                                     <View style={styles.themeIconContainer}>
                                         <Feather name="sun" size={18} style={styles.iconPrimary} />
                                     </View>
@@ -88,7 +107,10 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ isVisible, onClose }) => 
                                 </TouchableOpacity>
 
                                 {/* Option Thème sombre */}
-                                <TouchableOpacity style={[styles.themeOption, theme === "dark" && styles.selectedOption]} onPress={() => selectTheme("dark")}>
+                                <TouchableOpacity
+                                    style={[styles.themeOption, theme === "dark" && styles.selectedOption]}
+                                    onPress={() => selectTheme("dark")}
+                                >
                                     <View style={styles.themeIconContainer}>
                                         <Ionicons name="moon" size={24} style={styles.iconPrimary} />
                                     </View>
@@ -102,11 +124,16 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ isVisible, onClose }) => 
                                 </TouchableOpacity>
 
                                 {/* Option Thème système */}
-                                <TouchableOpacity style={[styles.themeOption, theme === "system" && styles.selectedOption]} onPress={() => selectTheme("system")}>
+                                <TouchableOpacity
+                                    style={[styles.themeOption, theme === "system" && styles.selectedOption]}
+                                    onPress={() => selectTheme("system")}
+                                >
                                     <View style={styles.themeIconContainer}>
                                         <Ionicons name="settings-sharp" size={24} style={styles.iconPrimary} />
                                     </View>
-                                    <Text style={styles.themeText}>Système {systemColorScheme === "dark" ? "(sombre)" : "(clair)"}</Text>
+                                    <Text style={styles.themeText}>
+                                        Système {systemColorScheme === "dark" ? "(sombre)" : "(clair)"}
+                                    </Text>
 
                                     {theme === "system" && (
                                         <View style={styles.checkIconContainer}>

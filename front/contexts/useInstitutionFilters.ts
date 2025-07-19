@@ -77,7 +77,11 @@ export const useInstitutionFilters = (initialInstitutions: Institution[] = []) =
     };
 
     // Appliquer les filtres
-    const applyFilters = (institutionsToFilter: Institution[] = institutions, search: string = searchText, filterOptions: FilterOptions = filters) => {
+    const applyFilters = (
+        institutionsToFilter: Institution[] = institutions,
+        search: string = searchText,
+        filterOptions: FilterOptions = filters
+    ) => {
         let result = institutionsToFilter;
 
         // Filtrer par recherche textuelle
@@ -91,7 +95,9 @@ export const useInstitutionFilters = (initialInstitutions: Institution[] = []) =
 
                 // Recherche dans les activités
                 if (inst.activites) {
-                    return Object.values(inst.activites).some((activity) => activity.toLowerCase().includes(searchLower));
+                    return Object.values(inst.activites).some((activity) =>
+                        activity.toLowerCase().includes(searchLower)
+                    );
                 }
 
                 return false;

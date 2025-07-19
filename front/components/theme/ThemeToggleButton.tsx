@@ -25,7 +25,12 @@ export const ThemeToggleButton: React.FC = () => {
     return (
         <>
             <View style={styles.container}>
-                <TouchableOpacity onPress={openModal} style={styles.button} accessibilityLabel="Ouvrir les paramètres de thème" accessibilityRole="button">
+                <TouchableOpacity
+                    onPress={openModal}
+                    style={styles.button}
+                    accessibilityLabel="Ouvrir les paramètres de thème"
+                    accessibilityRole="button"
+                >
                     <Feather name="settings" size={20} style={styles.iconPrimary} />
                 </TouchableOpacity>
             </View>

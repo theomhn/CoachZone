@@ -76,5 +76,7 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
         setTheme(newTheme);
     };
 
-    return <ThemeContext.Provider value={{ theme, setTheme, toggleTheme, currentTheme }}>{children}</ThemeContext.Provider>;
+    return (
+        <ThemeContext.Provider value={{ theme, setTheme, toggleTheme, currentTheme }}>{children}</ThemeContext.Provider>
+    );
 }

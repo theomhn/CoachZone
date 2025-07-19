@@ -13,96 +13,102 @@ interface PriceConfigurationBannerProps {
     onPriceConfigured?: () => void;
 }
 
-const PriceConfigurationBanner = React.forwardRef<{ refresh: () => void }, PriceConfigurationBannerProps>(({ user, onPriceConfigured }, ref) => {
-    const [placesWithoutPrice, setPlacesWithoutPrice] = useState<number>(0);
-    const [shouldShow, setShouldShow] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
+const PriceConfigurationBanner = React.forwardRef<{ refresh: () => void }, PriceConfigurationBannerProps>(
+    ({ user, onPriceConfigured }, ref) => {
+        const [placesWithoutPrice, setPlacesWithoutPrice] = useState<number>(0);
+        const [shouldShow, setShouldShow] = useState(false);
+        const [isLoading, setIsLoading] = useState(false);
 
-    // Récupérer le thème actuel et les couleurs associées
-    const { currentTheme } = useTheme();
-    const styles = getStyles(currentTheme);
+        // Récupérer le thème actuel et les couleurs associées
+        const { currentTheme } = useTheme();
+        const styles = getStyles(currentTheme);
 
-    const checkPriceStatus = useCallback(async () => {
-        if (!user || user.type !== "institution") {
-            setShouldShow(false);
-            return;
-        }
-
-        try {
-            setIsLoading(true);
-            const userToken = await SecureStore.getItemAsync("userToken");
-            if (!userToken) {
+        const checkPriceStatus = useCallback(async () => {
+            if (!user || user.type !== "institution") {
                 setShouldShow(false);
                 return;
             }
 
-            const response = await fetch(`${API_BASE_URL}/places?inst_numero=${user.inst_numero}`, {
-                headers: {
-                    Authorization: `Bearer ${userToken}`,
-                },
-            });
+            try {
+                setIsLoading(true);
+                const userToken = await SecureStore.getItemAsync("userToken");
+                if (!userToken) {
+                    setShouldShow(false);
+                    return;
+                }
 
-            if (!response.ok) {
+                const response = await fetch(`${API_BASE_URL}/places?inst_numero=${user.inst_numero}`, {
+                    headers: {
+                        Authorization: `Bearer ${userToken}`,
+                    },
+                });
+
+                if (!response.ok) {
+                    setShouldShow(false);
+                    return;
+                }
+
+                const places: Place[] = await response.json();
+                const unconfiguredPlaces = places.filter((place) => place.price === null || place.price === undefined);
+
+                setPlacesWithoutPrice(unconfiguredPlaces.length);
+                const hasUnconfiguredPrices = unconfiguredPlaces.length > 0;
+                setShouldShow(hasUnconfiguredPrices);
+
+                // Callback quand les prix sont configurés
+                if (!hasUnconfiguredPrices && onPriceConfigured) {
+                    onPriceConfigured();
+                }
+            } catch (error) {
+                console.error("Erreur lors de la vérification des prix :", error);
                 setShouldShow(false);
-                return;
+            } finally {
+                setIsLoading(false);
             }
+        }, [user, onPriceConfigured]);
 
-            const places: Place[] = await response.json();
-            const unconfiguredPlaces = places.filter((place) => place.price === null || place.price === undefined);
+        useEffect(() => {
+            checkPriceStatus();
+        }, [checkPriceStatus]);
 
-            setPlacesWithoutPrice(unconfiguredPlaces.length);
-            const hasUnconfiguredPrices = unconfiguredPlaces.length > 0;
-            setShouldShow(hasUnconfiguredPrices);
+        // Exposer la fonction refresh via ref
+        React.useImperativeHandle(
+            ref,
+            () => ({
+                refresh: checkPriceStatus,
+            }),
+            [checkPriceStatus]
+        );
 
-            // Callback quand les prix sont configurés
-            if (!hasUnconfiguredPrices && onPriceConfigured) {
-                onPriceConfigured();
-            }
-        } catch (error) {
-            console.error("Erreur lors de la vérification des prix :", error);
-            setShouldShow(false);
-        } finally {
-            setIsLoading(false);
+        const handleNavigateToProfile = () => {
+            router.navigate("/(institution)/profile");
+        };
+
+        // Ne pas afficher la bannière si pas nécessaire
+        if (!shouldShow || isLoading) {
+            return null;
         }
-    }, [user, onPriceConfigured]);
 
-    useEffect(() => {
-        checkPriceStatus();
-    }, [checkPriceStatus]);
-
-    // Exposer la fonction refresh via ref
-    React.useImperativeHandle(
-        ref,
-        () => ({
-            refresh: checkPriceStatus,
-        }),
-        [checkPriceStatus]
-    );
-
-    const handleNavigateToProfile = () => {
-        router.navigate("/(institution)/profile");
-    };
-
-    // Ne pas afficher la bannière si pas nécessaire
-    if (!shouldShow || isLoading) {
-        return null;
+        return (
+            <View style={styles.banner}>
+                <View style={styles.iconContainer}>
+                    <Ionicons name="warning" size={20} style={styles.icon} />
+                </View>
+                <View style={styles.textContainer}>
+                    <Text style={styles.title}>Configuration des prix requise</Text>
+                    <Text style={styles.subtitle}>
+                        {placesWithoutPrice > 1
+                            ? `${placesWithoutPrice} équipements sans prix`
+                            : `${placesWithoutPrice} équipement sans prix`}
+                    </Text>
+                </View>
+                <TouchableOpacity style={styles.button} onPress={handleNavigateToProfile}>
+                    <Text style={styles.buttonText}>Configurer</Text>
+                </TouchableOpacity>
+            </View>
+        );
     }
-
-    return (
-        <View style={styles.banner}>
-            <View style={styles.iconContainer}>
-                <Ionicons name="warning" size={20} style={styles.icon} />
-            </View>
-            <View style={styles.textContainer}>
-                <Text style={styles.title}>Configuration des prix requise</Text>
-                <Text style={styles.subtitle}>{placesWithoutPrice > 1 ? `${placesWithoutPrice} équipements sans prix` : `${placesWithoutPrice} équipement sans prix`}</Text>
-            </View>
-            <TouchableOpacity style={styles.button} onPress={handleNavigateToProfile}>
-                <Text style={styles.buttonText}>Configurer</Text>
-            </TouchableOpacity>
-        </View>
-    );
-});
+);
 
 PriceConfigurationBanner.displayName = "PriceConfigurationBanner";
 

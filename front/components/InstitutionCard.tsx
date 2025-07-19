@@ -6,7 +6,15 @@ import React from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 import Badge from "./Badge";
 
-const InstitutionCard: React.FC<InstitutionCardProps> = ({ item, onPress, onClose, onViewDetails, variant = "card", showActivities = true, showDetailsButton = true }) => {
+const InstitutionCard: React.FC<InstitutionCardProps> = ({
+    item,
+    onPress,
+    onClose,
+    onViewDetails,
+    variant = "card",
+    showActivities = true,
+    showDetailsButton = true,
+}) => {
     const isPopup = variant === "popup";
 
     // Récupérer le thème actuel et les couleurs associées
@@ -17,7 +25,11 @@ const InstitutionCard: React.FC<InstitutionCardProps> = ({ item, onPress, onClos
     const activitesArray = item.activites ? Object.values(item.activites) : [];
 
     return (
-        <TouchableOpacity style={[styles.container, isPopup ? styles.popupContainer : styles.cardContainer]} onPress={onPress} activeOpacity={onPress ? 0.7 : 1}>
+        <TouchableOpacity
+            style={[styles.container, isPopup ? styles.popupContainer : styles.cardContainer]}
+            onPress={onPress}
+            activeOpacity={onPress ? 0.7 : 1}
+        >
             <View style={styles.content}>
                 {/* Bouton de fermeture (uniquement pour popup) */}
                 {isPopup && onClose && (

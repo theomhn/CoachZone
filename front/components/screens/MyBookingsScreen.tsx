@@ -180,10 +180,18 @@ export default function MyBookingsScreen() {
         <View style={[styles.container]}>
             {/* Toggle entre réservations à venir et passées */}
             <View style={styles.toggleContainer}>
-                <TouchableOpacity style={[styles.toggleButton, showUpcoming && styles.toggleActive]} onPress={() => (showUpcoming ? null : toggleView())} activeOpacity={0.7}>
+                <TouchableOpacity
+                    style={[styles.toggleButton, showUpcoming && styles.toggleActive]}
+                    onPress={() => (showUpcoming ? null : toggleView())}
+                    activeOpacity={0.7}
+                >
                     <Text style={[styles.toggleText, showUpcoming && styles.toggleActiveText]}>À venir</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={[styles.toggleButton, !showUpcoming && styles.toggleActive]} onPress={() => (showUpcoming ? toggleView() : null)} activeOpacity={0.7}>
+                <TouchableOpacity
+                    style={[styles.toggleButton, !showUpcoming && styles.toggleActive]}
+                    onPress={() => (showUpcoming ? toggleView() : null)}
+                    activeOpacity={0.7}
+                >
                     <Text style={[styles.toggleText, !showUpcoming && styles.toggleActiveText]}>Passées</Text>
                 </TouchableOpacity>
             </View>
@@ -198,7 +206,9 @@ export default function MyBookingsScreen() {
                 ListEmptyComponent={
                     <View style={styles.emptyContainer}>
                         <Ionicons name="calendar-outline" size={48} style={styles.iconPrimary} />
-                        <Text style={styles.emptyText}>{showUpcoming ? "Aucune réservation à venir" : "Aucune réservation passée"}</Text>
+                        <Text style={styles.emptyText}>
+                            {showUpcoming ? "Aucune réservation à venir" : "Aucune réservation passée"}
+                        </Text>
                     </View>
                 }
             />

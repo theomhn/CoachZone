@@ -7,7 +7,13 @@ import Feather from "@expo/vector-icons/Feather";
 import React, { useEffect, useRef, useState } from "react";
 import { Animated, Modal, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
 
-const SearchFilterBar: React.FC<SearchFilterBarProps> = ({ onSearch, onFilterChange, activities, currentFilters, searchText: initialSearchText }) => {
+const SearchFilterBar: React.FC<SearchFilterBarProps> = ({
+    onSearch,
+    onFilterChange,
+    activities,
+    currentFilters,
+    searchText: initialSearchText,
+}) => {
     const [searchText, setSearchText] = useState(initialSearchText || "");
     const [isFilterModalVisible, setIsFilterModalVisible] = useState(false);
     const [selectedActivities, setSelectedActivities] = useState<string[]>(currentFilters.activities || []);
@@ -128,7 +134,9 @@ const SearchFilterBar: React.FC<SearchFilterBarProps> = ({ onSearch, onFilterCha
                     <Feather name="filter" size={18} style={styles.iconPrimary} />
                     <AntDesign name="down" size={12} style={[styles.downIcon, styles.iconPrimary]} />
                 </View>
-                {(selectedActivities.length > 0 || douchesFilter || sanitairesFilter) && <View style={styles.filterBadge} />}
+                {(selectedActivities.length > 0 || douchesFilter || sanitairesFilter) && (
+                    <View style={styles.filterBadge} />
+                )}
             </TouchableOpacity>
 
             <Modal visible={isFilterModalVisible} animationType="none" transparent={true} onRequestClose={closeModal}>
@@ -145,7 +153,11 @@ const SearchFilterBar: React.FC<SearchFilterBarProps> = ({ onSearch, onFilterCha
                             {/* Section Activités */}
                             <TouchableOpacity style={styles.sectionHeader} onPress={() => toggleSection("activities")}>
                                 <Text style={styles.sectionTitle}>Activités</Text>
-                                <AntDesign name={activitiesSectionExpanded ? "up" : "down"} size={16} style={styles.icon} />
+                                <AntDesign
+                                    name={activitiesSectionExpanded ? "up" : "down"}
+                                    size={16}
+                                    style={styles.icon}
+                                />
                             </TouchableOpacity>
 
                             {activitiesSectionExpanded && (
@@ -153,10 +165,22 @@ const SearchFilterBar: React.FC<SearchFilterBarProps> = ({ onSearch, onFilterCha
                                     {activities.map((activity) => (
                                         <TouchableOpacity
                                             key={activity}
-                                            style={[styles.activityChip, selectedActivities.includes(activity) ? styles.selectedChip : {}]}
+                                            style={[
+                                                styles.activityChip,
+                                                selectedActivities.includes(activity) ? styles.selectedChip : {},
+                                            ]}
                                             onPress={() => toggleActivity(activity)}
                                         >
-                                            <Text style={[styles.activityChipText, selectedActivities.includes(activity) ? styles.selectedChipText : {}]}>{activity}</Text>
+                                            <Text
+                                                style={[
+                                                    styles.activityChipText,
+                                                    selectedActivities.includes(activity)
+                                                        ? styles.selectedChipText
+                                                        : {},
+                                                ]}
+                                            >
+                                                {activity}
+                                            </Text>
                                         </TouchableOpacity>
                                     ))}
                                 </View>
@@ -165,22 +189,53 @@ const SearchFilterBar: React.FC<SearchFilterBarProps> = ({ onSearch, onFilterCha
                             {/* Section Équipements */}
                             <TouchableOpacity style={styles.sectionHeader} onPress={() => toggleSection("equipements")}>
                                 <Text style={styles.sectionTitle}>Équipements</Text>
-                                <AntDesign name={equipementsSectionExpanded ? "up" : "down"} size={16} style={styles.icon} />
+                                <AntDesign
+                                    name={equipementsSectionExpanded ? "up" : "down"}
+                                    size={16}
+                                    style={styles.icon}
+                                />
                             </TouchableOpacity>
 
                             {equipementsSectionExpanded && (
                                 <View style={styles.equipementsContainer}>
-                                    <TouchableOpacity style={[styles.equipementChip, douchesFilter ? styles.selectedChip : {}]} onPress={() => setDouchesFilter(!douchesFilter)}>
-                                        <Ionicons name="water-outline" size={18} style={douchesFilter ? styles.iconFilterActive : styles.iconFilterInactive} />
-                                        <Text style={[styles.equipementChipText, douchesFilter ? styles.selectedChipText : {}]}>Douches</Text>
+                                    <TouchableOpacity
+                                        style={[styles.equipementChip, douchesFilter ? styles.selectedChip : {}]}
+                                        onPress={() => setDouchesFilter(!douchesFilter)}
+                                    >
+                                        <Ionicons
+                                            name="water-outline"
+                                            size={18}
+                                            style={douchesFilter ? styles.iconFilterActive : styles.iconFilterInactive}
+                                        />
+                                        <Text
+                                            style={[
+                                                styles.equipementChipText,
+                                                douchesFilter ? styles.selectedChipText : {},
+                                            ]}
+                                        >
+                                            Douches
+                                        </Text>
                                     </TouchableOpacity>
 
                                     <TouchableOpacity
                                         style={[styles.equipementChip, sanitairesFilter ? styles.selectedChip : {}]}
                                         onPress={() => setSanitairesFilter(!sanitairesFilter)}
                                     >
-                                        <Ionicons name="medical-outline" size={18} style={sanitairesFilter ? styles.iconFilterActive : styles.iconFilterInactive} />
-                                        <Text style={[styles.equipementChipText, sanitairesFilter ? styles.selectedChipText : {}]}>Sanitaires</Text>
+                                        <Ionicons
+                                            name="medical-outline"
+                                            size={18}
+                                            style={
+                                                sanitairesFilter ? styles.iconFilterActive : styles.iconFilterInactive
+                                            }
+                                        />
+                                        <Text
+                                            style={[
+                                                styles.equipementChipText,
+                                                sanitairesFilter ? styles.selectedChipText : {},
+                                            ]}
+                                        >
+                                            Sanitaires
+                                        </Text>
                                     </TouchableOpacity>
                                 </View>
                             )}

@@ -6,7 +6,16 @@ import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { ActivityIndicator, Alert, KeyboardAvoidingView, Platform, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import {
+    ActivityIndicator,
+    Alert,
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView,
+    Text,
+    TouchableOpacity,
+    View,
+} from "react-native";
 import { Calendar, DateData } from "react-native-calendars";
 
 export default function BookingScreen() {
@@ -176,7 +185,10 @@ export default function BookingScreen() {
     };
 
     // Fonction pour déterminer pourquoi un créneau est indisponible
-    const getUnavailabilityReason = (date: string, timeSlot: string): { reason: "past" | "place-booked" | "coach-booked" | "available"; conflictingBooking?: Booking } => {
+    const getUnavailabilityReason = (
+        date: string,
+        timeSlot: string
+    ): { reason: "past" | "place-booked" | "coach-booked" | "available"; conflictingBooking?: Booking } => {
         if (!date) return { reason: "available" };
 
         // Vérifier si c'est dans le passé
@@ -209,7 +221,10 @@ export default function BookingScreen() {
                  * S'assurer que ce n'est pas une réservation du coach connecté
                  * (au cas où elle serait incluse dans placeBookings)
                  */
-                const isCurrentCoachBooking = global.user && booking.coach && (booking.coach === global.user.id.toString() || booking.coach === `/api/users/${global.user.id}`);
+                const isCurrentCoachBooking =
+                    global.user &&
+                    booking.coach &&
+                    (booking.coach === global.user.id.toString() || booking.coach === `/api/users/${global.user.id}`);
 
                 return isSameDay && slotStart < bookingEnd && slotEnd > bookingStart && !isCurrentCoachBooking;
             })
@@ -504,7 +519,9 @@ export default function BookingScreen() {
             }
 
             // Succès
-            Alert.alert("Réservation confirmée", "Votre réservation a été enregistrée avec succès !", [{ text: "OK", onPress: () => router.back() }]);
+            Alert.alert("Réservation confirmée", "Votre réservation a été enregistrée avec succès !", [
+                { text: "OK", onPress: () => router.back() },
+            ]);
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : "Une erreur est survenue";
             Alert.alert("Erreur", errorMessage);
@@ -528,7 +545,11 @@ export default function BookingScreen() {
     const displayedTimeSlots = showAllTimeSlots ? timeSlots : timeSlots.slice(0, 6);
 
     return (
-        <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.container} keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 20}>
+        <KeyboardAvoidingView
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+            style={styles.container}
+            keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 20}
+        >
             <ScrollView style={styles.scrollView}>
                 {/* Informations sur l'installation */}
                 <View style={styles.placeInfo}>
@@ -552,10 +573,9 @@ export default function BookingScreen() {
                             todayBackgroundColor: "transparent", // Fond transparent
                             // Autres propriétés du thème
                             textSectionTitleColor: currentTheme.text,
-                            textDayColor: currentTheme.text,
                             monthTextColor: currentTheme.text,
                             selectedDayTextColor: currentTheme.white,
-                            selectedDayBackgroundColor: currentTheme.primary, // Assurez-vous que c'est aussi défini
+                            selectedDayBackgroundColor: currentTheme.primary,
                             dayTextColor: currentTheme.text,
                             textDisabledColor: currentTheme.secondaryText,
                         }}
@@ -596,17 +616,27 @@ export default function BookingScreen() {
                                     if (!isAvailable) {
                                         switch (unavailabilityInfo.reason) {
                                             case "past":
-                                                icon = <Ionicons name="time-outline" size={12} style={styles.pastIcon} />;
+                                                icon = (
+                                                    <Ionicons name="time-outline" size={12} style={styles.pastIcon} />
+                                                );
                                                 additionalStyle = styles.pastTimeSlot;
                                                 additionalTextStyle = styles.pastTimeSlotText;
                                                 break;
                                             case "place-booked":
-                                                icon = <Ionicons name="lock-closed" size={12} style={styles.placeBookedIcon} />;
+                                                icon = (
+                                                    <Ionicons
+                                                        name="lock-closed"
+                                                        size={12}
+                                                        style={styles.placeBookedIcon}
+                                                    />
+                                                );
                                                 additionalStyle = styles.unavailableTimeSlot;
                                                 additionalTextStyle = styles.unavailableTimeSlotText;
                                                 break;
                                             case "coach-booked":
-                                                icon = <Ionicons name="person" size={12} style={styles.coachBookedIcon} />;
+                                                icon = (
+                                                    <Ionicons name="person" size={12} style={styles.coachBookedIcon} />
+                                                );
                                                 additionalStyle = styles.coachBookedTimeSlot;
                                                 additionalTextStyle = styles.coachBookedTimeSlotText;
                                                 break;
@@ -616,11 +646,23 @@ export default function BookingScreen() {
                                     return (
                                         <TouchableOpacity
                                             key={timeSlot}
-                                            style={[styles.timeSlot, isSelected && styles.selectedTimeSlot, !isAvailable && additionalStyle]}
+                                            style={[
+                                                styles.timeSlot,
+                                                isSelected && styles.selectedTimeSlot,
+                                                !isAvailable && additionalStyle,
+                                            ]}
                                             onPress={() => handleTimeSlotPress(timeSlot)}
                                             disabled={!isAvailable}
                                         >
-                                            <Text style={[styles.timeSlotText, isSelected && styles.selectedTimeSlotText, !isAvailable && additionalTextStyle]}>{timeSlot}</Text>
+                                            <Text
+                                                style={[
+                                                    styles.timeSlotText,
+                                                    isSelected && styles.selectedTimeSlotText,
+                                                    !isAvailable && additionalTextStyle,
+                                                ]}
+                                            >
+                                                {timeSlot}
+                                            </Text>
                                             {icon}
                                         </TouchableOpacity>
                                     );
@@ -628,8 +670,13 @@ export default function BookingScreen() {
                             </View>
 
                             {timeSlots.length > 6 && (
-                                <TouchableOpacity style={styles.showMoreButton} onPress={() => setShowAllTimeSlots(!showAllTimeSlots)}>
-                                    <Text style={styles.showMoreButtonText}>{showAllTimeSlots ? "Voir moins" : "Voir plus"}</Text>
+                                <TouchableOpacity
+                                    style={styles.showMoreButton}
+                                    onPress={() => setShowAllTimeSlots(!showAllTimeSlots)}
+                                >
+                                    <Text style={styles.showMoreButtonText}>
+                                        {showAllTimeSlots ? "Voir moins" : "Voir plus"}
+                                    </Text>
                                 </TouchableOpacity>
                             )}
                         </>
@@ -698,11 +745,18 @@ export default function BookingScreen() {
 
                 {/* Bouton de soumission */}
                 <TouchableOpacity
-                    style={[styles.submitButton, (!selectedDate || selectedTimeSlots.length === 0 || isSubmitting) && styles.disabledButton]}
+                    style={[
+                        styles.submitButton,
+                        (!selectedDate || selectedTimeSlots.length === 0 || isSubmitting) && styles.disabledButton,
+                    ]}
                     onPress={handleSubmit}
                     disabled={!selectedDate || selectedTimeSlots.length === 0 || isSubmitting}
                 >
-                    {isSubmitting ? <ActivityIndicator color={currentTheme.white} size="small" /> : <Text style={styles.submitButtonText}>Confirmer la réservation</Text>}
+                    {isSubmitting ? (
+                        <ActivityIndicator color={currentTheme.white} size="small" />
+                    ) : (
+                        <Text style={styles.submitButtonText}>Confirmer la réservation</Text>
+                    )}
                 </TouchableOpacity>
             </ScrollView>
         </KeyboardAvoidingView>

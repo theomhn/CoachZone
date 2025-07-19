@@ -152,7 +152,13 @@ export default function FavoritesScreen() {
                     renderItem={renderInstitution}
                     keyExtractor={(item) => item.inst_numero}
                     contentContainerStyle={styles.listContainer}
-                    refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={styles.refreshControl.tintColor} />}
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={refreshing}
+                            onRefresh={onRefresh}
+                            tintColor={styles.refreshControl.tintColor}
+                        />
+                    }
                     showsVerticalScrollIndicator={false}
                 />
             )}

@@ -39,7 +39,15 @@ export default function MapScreen() {
     const styles = getStyles(currentTheme);
 
     // Utiliser le contexte partagé
-    const { filteredInstitutions, allActivities, updateInstitutions, handleSearch, handleFilterChange, filters, searchText } = useInstitutionFiltersContext();
+    const {
+        filteredInstitutions,
+        allActivities,
+        updateInstitutions,
+        handleSearch,
+        handleFilterChange,
+        filters,
+        searchText,
+    } = useInstitutionFiltersContext();
 
     // Si pas coach, ne pas afficher l'écran
     if (!global.user || global.user.type !== "coach") {
@@ -145,7 +153,9 @@ export default function MapScreen() {
     }
 
     // Filtrer les institutions sans coordonnées
-    const markersToShow = filteredInstitutions.filter((inst) => inst.coordonnees && inst.coordonnees.lat && inst.coordonnees.lon);
+    const markersToShow = filteredInstitutions.filter(
+        (inst) => inst.coordonnees && inst.coordonnees.lat && inst.coordonnees.lon
+    );
 
     return (
         <View style={styles.container}>
@@ -185,7 +195,13 @@ export default function MapScreen() {
 
             {/* Utiliser le contexte pour SearchFilterBar */}
             <View style={styles.searchFilterContainer}>
-                <SearchFilterBar onSearch={handleSearch} onFilterChange={handleFilterChange} activities={allActivities} currentFilters={filters} searchText={searchText} />
+                <SearchFilterBar
+                    onSearch={handleSearch}
+                    onFilterChange={handleFilterChange}
+                    activities={allActivities}
+                    currentFilters={filters}
+                    searchText={searchText}
+                />
             </View>
 
             {/* Bouton pour centrer sur l'utilisateur */}

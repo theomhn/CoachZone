@@ -4,7 +4,20 @@ import { useTheme } from "@/hooks/useTheme";
 import { InstitutionRegister } from "@/types";
 import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { ActivityIndicator, Alert, FlatList, Image, KeyboardAvoidingView, Modal, Platform, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
+import {
+    ActivityIndicator,
+    Alert,
+    FlatList,
+    Image,
+    KeyboardAvoidingView,
+    Modal,
+    Platform,
+    ScrollView,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
+} from "react-native";
 
 type UserType = "coach" | "institution";
 
@@ -41,7 +54,9 @@ export default function RegisterScreen() {
     // Filtrer les institutions quand le texte de recherche change
     useEffect(() => {
         if (searchText) {
-            const filtered = institutions.filter((institution) => institution.name.toLowerCase().includes(searchText.toLowerCase()));
+            const filtered = institutions.filter((institution) =>
+                institution.name.toLowerCase().includes(searchText.toLowerCase())
+            );
             setFilteredInstitutions(filtered);
         } else {
             setFilteredInstitutions([]);
@@ -144,7 +159,11 @@ export default function RegisterScreen() {
     };
 
     return (
-        <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.container} keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}>
+        <KeyboardAvoidingView
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+            style={styles.container}
+            keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
+        >
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContainer}>
                 <View style={styles.logoContainer}>
                     <Image source={require("@/assets/images/logo.png")} style={styles.logo} resizeMode="contain" />
@@ -161,8 +180,13 @@ export default function RegisterScreen() {
                     >
                         <Text style={[styles.typeText, userType === "coach" && styles.selectedTypeText]}>Coach</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={[styles.typeButton, userType === "institution" && styles.selectedType]} onPress={() => setUserType("institution")}>
-                        <Text style={[styles.typeText, userType === "institution" && styles.selectedTypeText]}>Institution</Text>
+                    <TouchableOpacity
+                        style={[styles.typeButton, userType === "institution" && styles.selectedType]}
+                        onPress={() => setUserType("institution")}
+                    >
+                        <Text style={[styles.typeText, userType === "institution" && styles.selectedTypeText]}>
+                            Institution
+                        </Text>
                     </TouchableOpacity>
                 </View>
 
@@ -219,7 +243,13 @@ export default function RegisterScreen() {
                 {userType === "coach" ? (
                     <View style={styles.inputContainer}>
                         <Text style={styles.label}>Profession</Text>
-                        <TextInput style={styles.input} placeholder="Entrez votre profession" value={work} onChangeText={setWork} placeholderTextColor={currentTheme.placeholder} />
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Entrez votre profession"
+                            value={work}
+                            onChangeText={setWork}
+                            placeholderTextColor={currentTheme.placeholder}
+                        />
                     </View>
                 ) : (
                     <View style={styles.inputContainer}>
@@ -232,7 +262,9 @@ export default function RegisterScreen() {
                         ) : (
                             <TouchableOpacity style={styles.input} onPress={handleSearchFocus} activeOpacity={0.7}>
                                 <Text style={selectedInstitution ? styles.selectedText : styles.placeholderText}>
-                                    {selectedInstitution ? `${selectedInstitution.name} (${selectedInstitution.id})` : "Sélectionner un établissement"}
+                                    {selectedInstitution
+                                        ? `${selectedInstitution.name} (${selectedInstitution.id})`
+                                        : "Sélectionner un établissement"}
                                 </Text>
                             </TouchableOpacity>
                         )}
@@ -249,7 +281,12 @@ export default function RegisterScreen() {
             </ScrollView>
 
             {/* Modal pour la recherche d'établissements */}
-            <Modal visible={showModal} transparent={true} animationType="slide" onRequestClose={() => setShowModal(false)}>
+            <Modal
+                visible={showModal}
+                transparent={true}
+                animationType="slide"
+                onRequestClose={() => setShowModal(false)}
+            >
                 <View style={styles.modalContainer}>
                     <View style={styles.modalContent}>
                         <View style={styles.modalHeader}>
@@ -270,7 +307,10 @@ export default function RegisterScreen() {
                             data={searchText ? filteredInstitutions : institutions}
                             keyExtractor={(item) => item.id}
                             renderItem={({ item }) => (
-                                <TouchableOpacity style={styles.institutionItem} onPress={() => handleSelectInstitution(item)}>
+                                <TouchableOpacity
+                                    style={styles.institutionItem}
+                                    onPress={() => handleSelectInstitution(item)}
+                                >
                                     <Text style={styles.institutionName}>
                                         {item.name} <Text style={styles.institutionId}>({item.id})</Text>
                                     </Text>

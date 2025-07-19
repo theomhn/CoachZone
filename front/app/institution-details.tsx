@@ -245,7 +245,11 @@ export default function InstitutionDetailsScreen() {
                             <View style={styles.activitiesList}>
                                 {activitesArray.map((activity, index) => (
                                     <View key={index} style={styles.activityItem}>
-                                        <Ionicons name="checkmark-circle-outline" size={16} style={styles.activityIcon} />
+                                        <Ionicons
+                                            name="checkmark-circle-outline"
+                                            size={16}
+                                            style={styles.activityIcon}
+                                        />
                                         <Text style={styles.activityText}>{activity}</Text>
                                     </View>
                                 ))}
@@ -265,7 +269,10 @@ export default function InstitutionDetailsScreen() {
                             {places.map((place) => (
                                 <TouchableOpacity
                                     key={place.id}
-                                    style={[styles.placeCard, selectedPlace?.id === place.id && styles.selectedPlaceCard]}
+                                    style={[
+                                        styles.placeCard,
+                                        selectedPlace?.id === place.id && styles.selectedPlaceCard,
+                                    ]}
                                     onPress={() => setSelectedPlace(place)}
                                 >
                                     {/* Nom de l'équipement */}
@@ -279,15 +286,25 @@ export default function InstitutionDetailsScreen() {
                                     {/* Surface de l'équipement */}
                                     {place.data.equip_surf > 0 && (
                                         <View style={styles.placeInfoRow}>
-                                            <Ionicons name="resize-outline" size={16} style={[styles.placeInfoIcon, styles.icon]} />
-                                            <Text style={styles.placeInfoText}>Surface: {place.data.equip_surf} m²</Text>
+                                            <Ionicons
+                                                name="resize-outline"
+                                                size={16}
+                                                style={[styles.placeInfoIcon, styles.icon]}
+                                            />
+                                            <Text style={styles.placeInfoText}>
+                                                Surface: {place.data.equip_surf} m²
+                                            </Text>
                                         </View>
                                     )}
 
                                     {/* Prix de l'équipement */}
                                     {place.price !== undefined && (
                                         <View style={styles.placeInfoRow}>
-                                            <Ionicons name="pricetag-outline" size={16} style={[styles.placeInfoIcon, styles.icon]} />
+                                            <Ionicons
+                                                name="pricetag-outline"
+                                                size={16}
+                                                style={[styles.placeInfoIcon, styles.icon]}
+                                            />
                                             <Text style={styles.placeInfoText}>Prix: {place.price} € / créneau</Text>
                                         </View>
                                     )}
@@ -296,10 +313,16 @@ export default function InstitutionDetailsScreen() {
                                     {place.data.equip_aps_nom && place.data.equip_aps_nom.length > 0 && (
                                         <View style={styles.placeActivities}>
                                             <View style={styles.placeInfoRow}>
-                                                <Ionicons name="fitness-outline" size={16} style={[styles.placeInfoIcon, styles.icon]} />
+                                                <Ionicons
+                                                    name="fitness-outline"
+                                                    size={16}
+                                                    style={[styles.placeInfoIcon, styles.icon]}
+                                                />
                                                 <Text style={styles.placeActivitiesLabel}>Activités:</Text>
                                             </View>
-                                            <Text style={styles.placeActivitiesText}>{place.data.equip_aps_nom.join(", ")}</Text>
+                                            <Text style={styles.placeActivitiesText}>
+                                                {place.data.equip_aps_nom.join(", ")}
+                                            </Text>
                                         </View>
                                     )}
 
@@ -318,10 +341,19 @@ export default function InstitutionDetailsScreen() {
 
                     {/* Bouton de réservation */}
                     {global.user && places.length > 0 && (
-                        <TouchableOpacity style={styles.bookingButton} onPress={navigateToBooking} disabled={!selectedPlace}>
+                        <TouchableOpacity
+                            style={styles.bookingButton}
+                            onPress={navigateToBooking}
+                            disabled={!selectedPlace}
+                        >
                             <View style={styles.bookingButtonContent}>
                                 <Ionicons name="calendar-outline" size={20} style={styles.iconWhite} />
-                                <Text style={styles.bookingButtonText}>Réserver {selectedPlace ? `(${selectedPlace.data.equip_nom || selectedPlace.inst_name})` : ""}</Text>
+                                <Text style={styles.bookingButtonText}>
+                                    Réserver{" "}
+                                    {selectedPlace
+                                        ? `(${selectedPlace.data.equip_nom || selectedPlace.inst_name})`
+                                        : ""}
+                                </Text>
                             </View>
                         </TouchableOpacity>
                     )}

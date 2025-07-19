@@ -57,7 +57,8 @@ export default function ProfileScreen({ onPriceUpdated }: ProfileScreenProps) {
             // Initialiser l'état des prix avec les valeurs actuelles
             const initialPrices: { [id: string]: string } = {};
             data.forEach((place: Place) => {
-                initialPrices[place.id] = place.price !== null && place.price !== undefined ? place.price.toString() : "";
+                initialPrices[place.id] =
+                    place.price !== null && place.price !== undefined ? place.price.toString() : "";
             });
             setPrices(initialPrices);
         } catch (error) {
@@ -182,7 +183,9 @@ export default function ProfileScreen({ onPriceUpdated }: ProfileScreenProps) {
                         <Text style={styles.sectionTitle}>
                             <Ionicons name="cash-outline" size={20} style={styles.icon} /> Gestion des prix
                         </Text>
-                        <Text style={styles.priceExplanation}>Définissez le tarif par créneau pour chaque équipement</Text>
+                        <Text style={styles.priceExplanation}>
+                            Définissez le tarif par créneau pour chaque équipement
+                        </Text>
 
                         {loading ? (
                             <ActivityIndicator size="large" color={currentTheme.primary} style={styles.loader} />
@@ -206,7 +209,11 @@ export default function ProfileScreen({ onPriceUpdated }: ProfileScreenProps) {
                                             />
                                             <Text style={styles.euroSymbol}>€ / créneau</Text>
                                         </View>
-                                        <TouchableOpacity style={styles.updateButton} onPress={() => updatePlacePrice(place.id)} disabled={updatingPlace === place.id}>
+                                        <TouchableOpacity
+                                            style={styles.updateButton}
+                                            onPress={() => updatePlacePrice(place.id)}
+                                            disabled={updatingPlace === place.id}
+                                        >
                                             {updatingPlace === place.id ? (
                                                 <ActivityIndicator size="small" color={currentTheme.primary} />
                                             ) : (
