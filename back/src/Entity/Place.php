@@ -5,9 +5,12 @@ namespace App\Entity;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Delete;
 use App\DataProvider\PlaceCollectionProvider;
 use App\Repository\PlaceRepository;
+use App\State\PlacePriceUpdateProcessor;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
@@ -19,23 +22,33 @@ use Symfony\Component\Serializer\Annotation\Groups;
     operations: [
         new Get(
             normalizationContext: ['groups' => ['place:read']],
-            security: "is_granted('ROLE_COACH')",
-            securityMessage: "Seuls les coachs peuvent consulter les détails des places."
+            security: "is_granted('ROLE_COACH') or is_granted('ROLE_INSTITUTION')",
+            securityMessage: "Accès restreint aux coachs et institutions."
         ),
         new GetCollection(
             provider: PlaceCollectionProvider::class,
             normalizationContext: ['groups' => ['place:read']],
             security: "is_granted('ROLE_COACH') or is_granted('ROLE_INSTITUTION')",
-            securityMessage: "Seuls les coachs et institutions peuvent consulter la liste des places."
+            securityMessage: "Accès restreint aux coachs et institutions."
+        ),
+        new Post(
+            denormalizationContext: ['groups' => ['place:write']],
+            normalizationContext: ['groups' => ['place:read']],
+            security: "is_granted('ROLE_INSTITUTION')",
+            securityMessage: "Seules les institutions peuvent créer des places."
         ),
         new Patch(
             denormalizationContext: ['groups' => ['price:write']],
-            normalizationContext: ['groups' => ['place:read']],
-            security: "is_granted('ROLE_INSTITUTION') and object.getInstitutionNumero() == user.getInstNumero()",
-            securityMessage: "Seules les institutions peuvent modifier le prix de leurs propres places."
+            processor: PlacePriceUpdateProcessor::class,
+            security: "is_granted('ROLE_INSTITUTION') and object.getInstitution() == user",
+            securityMessage: "Seules les institutions peuvent modifier leurs propres places."
+        ),
+        new Delete(
+            security: "is_granted('ROLE_INSTITUTION') and object.getInstitution() == user",
+            securityMessage: "Seules les institutions peuvent supprimer leurs propres places."
         )
     ],
-    order: ['inst_name', 'inst_numero', 'id']
+    order: ['inst_name', 'id']
 )]
 class Place
 {
@@ -52,9 +65,17 @@ class Place
     #[Groups(['place:read'])]
     private ?string $inst_name = null;
 
-    #[ORM\Column(type: Types::JSON)]
+    #[ORM\Column(length: 255, nullable: true)]
     #[Groups(['place:read'])]
-    private array $data = [];
+    private ?string $equip_nom = null;
+
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    #[Groups(['place:read'])]
+    private ?array $equip_aps_nom = null;
+
+    #[ORM\Column(type: Types::FLOAT, nullable: true)]
+    #[Groups(['place:read'])]
+    private ?float $equip_surf = null;
 
     #[ORM\Column(type: Types::FLOAT, nullable: true)]
     #[Groups(['place:read', 'price:write'])]
@@ -63,6 +84,11 @@ class Place
     #[ORM\Column]
     #[Groups(['place:read'])]
     private ?\DateTimeImmutable $lastUpdate = null;
+
+    #[ORM\ManyToOne(targetEntity: Institution::class, inversedBy: 'places')]
+    #[ORM\JoinColumn(name: 'institution_id', referencedColumnName: 'id')]
+    #[Groups(['place:read'])]
+    private ?Institution $institution = null;
 
     /**
      * @var Collection<int, Booking>
@@ -94,7 +120,6 @@ class Place
     public function setInstitutionName(string $inst_name): static
     {
         $this->inst_name = $inst_name;
-
         return $this;
     }
 
@@ -109,14 +134,36 @@ class Place
         return $this;
     }
 
-    public function getData(): array
+    public function getEquipNom(): ?string
     {
-        return $this->data;
+        return $this->equip_nom;
     }
 
-    public function setData(array $data): static
+    public function setEquipNom(?string $equip_nom): static
     {
-        $this->data = $data;
+        $this->equip_nom = $equip_nom;
+        return $this;
+    }
+
+    public function getEquipApsNom(): ?array
+    {
+        return $this->equip_aps_nom;
+    }
+
+    public function setEquipApsNom(?array $equip_aps_nom): static
+    {
+        $this->equip_aps_nom = $equip_aps_nom;
+        return $this;
+    }
+
+    public function getEquipSurf(): ?float
+    {
+        return $this->equip_surf;
+    }
+
+    public function setEquipSurf(?float $equip_surf): static
+    {
+        $this->equip_surf = $equip_surf;
         return $this;
     }
 
@@ -139,6 +186,17 @@ class Place
     public function setLastUpdate(\DateTimeImmutable $lastUpdate): static
     {
         $this->lastUpdate = $lastUpdate;
+        return $this;
+    }
+
+    public function getInstitution(): ?Institution
+    {
+        return $this->institution;
+    }
+
+    public function setInstitution(?Institution $institution): static
+    {
+        $this->institution = $institution;
         return $this;
     }
 

@@ -13,7 +13,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\InheritanceType('JOINED')]
 #[ORM\DiscriminatorColumn(name: 'type', type: 'string')]
-#[ORM\DiscriminatorMap(['coach' => Coach::class, 'institution' => Institution::class])]
+#[ORM\DiscriminatorMap(['ROLE_COACH' => Coach::class, 'ROLE_INSTITUTION' => Institution::class])]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
 #[ApiResource(operations: [
     new Get(
@@ -44,6 +44,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     #[ORM\Column]
     private array $roles = [];
+
+    /**
+     * @var string The discriminator column for inheritance (managed by Doctrine)
+     */
+    private ?string $type = 'ROLE_USER';
 
     /**
      * @var string The hashed password
@@ -98,8 +103,31 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setRoles(array $roles): static
     {
         $this->roles = $roles;
+        
+        // Synchroniser type avec le rôle principal
+        $this->syncTypeFromRoles();
 
         return $this;
+    }
+
+    /**
+     * Synchronise la colonne type avec le rôle principal depuis roles
+     */
+    private function syncTypeFromRoles(): void
+    {
+        // Trouver le rôle principal (ROLE_COACH ou ROLE_INSTITUTION)
+        if (in_array('ROLE_COACH', $this->roles)) {
+            $this->type = 'ROLE_COACH';
+        } elseif (in_array('ROLE_INSTITUTION', $this->roles)) {
+            $this->type = 'ROLE_INSTITUTION';
+        } else {
+            $this->type = 'ROLE_USER';
+        }
+    }
+
+    public function getType(): ?string
+    {
+        return $this->type;
     }
 
     /**

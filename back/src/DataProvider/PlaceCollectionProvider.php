@@ -18,15 +18,14 @@ class PlaceCollectionProvider implements ProviderInterface
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
     {
         $request = $this->requestStack->getCurrentRequest();
-        $id = $request->query->get('id');
         $instNumero = $request->query->get('inst_numero');
 
-        if ($id !== null) {
-            // Si un id est fourni, on filtre par id
-            return $this->placeRepository->findBy(['id' => $id]);
+        if ($instNumero !== null) {
+            // Si un inst_numero est fourni, on trouve les places de cette institution
+            return $this->placeRepository->findByInstitutionNumero($instNumero);
         } else {
-            // Pour tous les autres cas, on utilise notre méthode combinée
-            return $this->placeRepository->findPlacesWithInstitution($instNumero);
+            // Retourner toutes les places
+            return $this->placeRepository->findAll();
         }
     }
 }

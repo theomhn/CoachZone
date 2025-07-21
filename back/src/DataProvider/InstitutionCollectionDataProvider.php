@@ -6,14 +6,12 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
 use App\Entity\Coach;
 use App\Repository\InstitutionRepository;
-use App\Service\InstitutionEnrichmentService;
 use Symfony\Bundle\SecurityBundle\Security;
 
 class InstitutionCollectionDataProvider implements ProviderInterface
 {
     public function __construct(
         private InstitutionRepository $institutionRepository,
-        private InstitutionEnrichmentService $institutionEnrichmentService,
         private Security $security
     ) {}
 
@@ -21,9 +19,6 @@ class InstitutionCollectionDataProvider implements ProviderInterface
     {
         // Récupérer toutes les institutions
         $institutions = $this->institutionRepository->findAll();
-
-        // Enrichir chaque institution avec les données des places
-        $enrichedInstitutions = $this->institutionEnrichmentService->enrichInstitutions($institutions);
 
         // Récupérer le coach connecté pour marquer les favoris
         $user = $this->security->getUser();
@@ -36,11 +31,11 @@ class InstitutionCollectionDataProvider implements ProviderInterface
             }
 
             // Marquer les institutions favorites
-            foreach ($enrichedInstitutions as $institution) {
+            foreach ($institutions as $institution) {
                 $institution->isFavorite = in_array($institution->getId(), $favoriteInstitutionIds);
             }
         }
 
-        return $enrichedInstitutions;
+        return $institutions;
     }
 }

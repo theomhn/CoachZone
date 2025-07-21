@@ -18,25 +18,16 @@ class PlaceRepository extends ServiceEntityRepository
     }
 
     /**
-     * Récupère tous les inst_numero et inst_name distincts
-     * 
-     * @return array Un tableau associatif avec inst_numero comme clé et inst_name comme valeur
+     * Trouve les places par numéro d'institution
      */
-    public function findDistinctInstitutions(): array
+    public function findByInstitutionNumero(string $instNumero): array
     {
-        $result = $this->createQueryBuilder('p')
-            ->select('p.inst_numero, p.inst_name')
-            ->distinct(true)
+        return $this->createQueryBuilder('p')
+            ->andWhere('p.inst_numero = :instNumero')
+            ->setParameter('instNumero', $instNumero)
+            ->orderBy('p.id', 'ASC')
             ->getQuery()
             ->getResult();
-
-        // Reformate le résultat en tableau associatif
-        $institutions = [];
-        foreach ($result as $row) {
-            $institutions[$row['inst_numero']] = $row['inst_name'];
-        }
-
-        return $institutions;
     }
 
     /**

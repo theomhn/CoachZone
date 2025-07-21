@@ -72,7 +72,7 @@ class Booking
     #[Groups(['booking:details'])]
     public function getInstitutionNumero(): ?string
     {
-        return $this->place->getData()['inst_numero'] ?? '';
+        return $this->place ? $this->place->getInstitutionNumero() : '';
     }
 
     #[Groups(['booking:details'])]
@@ -84,13 +84,12 @@ class Booking
     #[Groups(['booking:details'])]
     public function getPlaceEquipmentName(): ?string
     {
-        if (!$this->place || !$this->place->getData()) {
+        if (!$this->place) {
             return null;
         }
 
-        $data = $this->place->getData();
-        $instName = $data['inst_nom'] ?? '';
-        $equipNom = $data['equip_nom'] ?? '';
+        $instName = $this->place->getInstitutionName() ?? '';
+        $equipNom = $this->place->getEquipNom() ?? '';
 
         if (empty($instName) && empty($equipNom)) {
             return null;
