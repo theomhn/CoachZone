@@ -8,10 +8,10 @@
 ![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white)
 
 ![Version](https://img.shields.io/badge/version-1.0.0-blue?style=for-the-badge)
-![Symfony](https://img.shields.io/badge/symfony-7.1-green?style=for-the-badge)
-![React](https://img.shields.io/badge/react-18.3.1-blue?style=for-the-badge)
-![React Native](https://img.shields.io/badge/react%20native-0.76.9-blue?style=for-the-badge)
-![Expo](https://img.shields.io/badge/expo%20sdk-52.x.x-orange?style=for-the-badge)
+![Symfony](https://img.shields.io/badge/symfony-7.3.1-green?style=for-the-badge)
+![React](https://img.shields.io/badge/react-19.0.0-blue?style=for-the-badge)
+![React Native](https://img.shields.io/badge/react%20native-0.79.5-blue?style=for-the-badge)
+![Expo](https://img.shields.io/badge/expo%20sdk-53.0.0-orange?style=for-the-badge)
 ![PHP](https://img.shields.io/badge/php-8.2%2B-purple?style=for-the-badge)
 ![License](https://img.shields.io/badge/license-proprietary-red?style=for-the-badge)
 
@@ -56,7 +56,7 @@ _Projet réalisé dans le cadre de la fin d'études de Master._
 
 ## Architecture
 
--   **Backend** : Symfony 7.1 avec API Platform
+-   **Backend** : Symfony 7.3.1 avec API Platform
 -   **Frontend** : React Native / Expo
 -   **Base de données** : MySQL
 
@@ -196,7 +196,7 @@ npm run start
 
 > **Note** : L'iOS Simulator est uniquement disponible sur macOS avec Xcode installé. Sur Windows/Linux, utilisez un émulateur Android.
 >
-> **Appareils physiques** : Les tests sur appareils physiques via l'app Expo Go ne sont actuellement pas possibles car l'application utilise SDK 52 tandis que l'app Expo Go fonctionne avec SDK 53. Privilégiez les simulateurs/émulateurs.
+> **Appareils physiques** : Les tests sur appareils physiques sont désormais possibles via l'app Expo Go (SDK 53 compatible).
 
 ## Scripts disponibles
 
@@ -285,14 +285,14 @@ Une fois le backend lancé, la documentation de l'API sera disponible à :
 
 ### Backend
 
--   **Symfony** 7.1
--   **API Platform** 4.0
+-   **Symfony** 7.3.1
+-   **API Platform** 4.1
 -   **Doctrine ORM** 3.3
 
 ### Frontend
 
--   **React Native** 0.76.9
--   **Expo** ~52.0.46
+-   **React Native** 0.79.5
+-   **Expo** ~53.0.0
 -   **React Navigation** 7.x
 -   **React Native Maps**
 -   **React Native Calendars**
@@ -303,7 +303,7 @@ Une fois le backend lancé, la documentation de l'API sera disponible à :
 
 ### Notes importantes du projet
 
--   **Compatibilité SDK** : L'application nécessite Expo SDK 53 pour les appareils physiques, mais le projet utilise actuellement SDK 52.x.x. Certaines bibliothèques ne sont pas encore mises à jour. Privilégiez les simulateurs/émulateurs pour les tests.
+-   **Compatibilité SDK** : L'application utilise maintenant Expo SDK 53.0.0, compatible avec les appareils physiques via l'app Expo Go.
 -   **Problème OpenData** : L'OpenData a récemment supprimé des données essentielles (activités des équipements), impactant les filtres par activités. Une sauvegarde complète de la table `places` est nécessaire pour un fonctionnement optimal.
 
 ### Structure des dossiers Backend
@@ -316,14 +316,15 @@ back/
 ├── src/
 │   ├── ApiResource/    # Ressources API Platform
 │   ├── Command/        # Commandes Symfony (app:sync-places)
-│   ├── Controller/     # Contrôleurs
-│   ├── DataProvider/   # Fournisseurs de données
-│   ├── Entity/         # Entités Doctrine
-│   ├── OpenApi/        # Documentation Swagger API Platform
-│   ├── Repository/     # Repositories
-│   ├── Security/       # Configuration sécurité
-│   ├── Service/        # Services métier
-│   └── Validator/      # Validateurs personnalisés
+│   ├── Controller/     # Contrôleurs REST et actions spécialisées
+│   ├── DataProvider/   # Fournisseurs de données personnalisés
+│   ├── Entity/         # Entités Doctrine (User, Coach, Institution, Place, Booking, OpenData)
+│   ├── OpenApi/        # Documentation Swagger API Platform personnalisée
+│   ├── Repository/     # Repositories Doctrine pour requêtes complexes
+│   ├── Security/       # Authentification par AccessToken personnalisé
+│   ├── Service/        # Services métier (validation réservations, enrichissement)
+│   ├── State/          # State Processors API Platform
+│   └── Validator/      # Validateurs personnalisés et contraintes métier
 ├── var/            # Cache et logs
 └── vendor/         # Dépendances Composer
 ```
