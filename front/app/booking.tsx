@@ -520,7 +520,7 @@ export default function BookingScreen() {
 
             // Succès
             Alert.alert("Réservation confirmée", "Votre réservation a été enregistrée avec succès !", [
-                { text: "OK", onPress: () => router.back() },
+                { text: "OK", onPress: () => router.push("/(coach)/my-bookings" as any) },
             ]);
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : "Une erreur est survenue";

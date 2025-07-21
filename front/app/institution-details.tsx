@@ -56,7 +56,7 @@ export default function InstitutionDetailsScreen() {
                 pathname: "/booking" as any,
                 params: {
                     placeId: selectedPlace.id,
-                    placeName: `${institution.inst_name} - ${selectedPlace.data.equip_nom || selectedPlace.data.lib_bdv}`,
+                    placeName: `${institution.inst_name} - ${selectedPlace.equip_nom || selectedPlace.lib_bdv}`,
                     placePrice: selectedPlace.price ? selectedPlace.price.toString() : "0", // Passer le prix directement
                 },
             });
@@ -113,7 +113,7 @@ export default function InstitutionDetailsScreen() {
     };
 
     const fetchPlaces = async () => {
-        if (!institution) return;
+        if (!institution || !institution.places || institution.places.length === 0) return;
 
         try {
             setIsLoadingPlaces(true);
@@ -121,22 +121,27 @@ export default function InstitutionDetailsScreen() {
             // Ajouter la récupération du token
             const token = await SecureStore.getItemAsync("userToken");
 
-            const response = await fetch(`${API_BASE_URL}/places?inst_numero=${institution.inst_numero}`, {
-                method: "GET",
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    "Content-Type": "application/json",
-                },
+            // Récupérer chaque place individuellement
+            const placesPromises = institution.places.map(async (placeUrl: string) => {
+                const response = await fetch(`${API_BASE_URL}${placeUrl.replace('/api', '')}`, {
+                    method: "GET",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                    },
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Erreur lors de la récupération de l'équipement ${placeUrl}`);
+                }
+
+                return response.json();
             });
 
-            if (!response.ok) {
-                throw new Error("Erreur lors de la récupération des équipements");
-            }
-
-            const data = await response.json();
+            const placesData = await Promise.all(placesPromises);
 
             // Filtrer pour ne garder que les places avec un prix défini (non NULL)
-            const placesWithPrice = data.filter((place: Place) => place.price !== undefined && place.price !== null);
+            const placesWithPrice = placesData.filter((place: Place) => place.price !== undefined && place.price !== null);
             setPlaces(placesWithPrice);
 
             // Sélectionner la première place par défaut s'il y en a
@@ -223,7 +228,7 @@ export default function InstitutionDetailsScreen() {
                         <View style={styles.infoRow}>
                             <Ionicons name="location-outline" size={20} style={styles.infoIcon} />
                             <Text style={styles.infoLabel}>Adresse :</Text>
-                            <Text style={styles.infoValue}>{institution.adresse}</Text>
+                            <Text style={styles.infoValue}>{institution.adresse}, {institution.ville}</Text>
                         </View>
                     </View>
 
@@ -276,15 +281,15 @@ export default function InstitutionDetailsScreen() {
                                     onPress={() => setSelectedPlace(place)}
                                 >
                                     {/* Nom de l'équipement */}
-                                    <Text style={styles.placeCardTitle}>{place.data.equip_nom || "Équipement"}</Text>
+                                    <Text style={styles.placeCardTitle}>{place.equip_nom || "Équipement"}</Text>
 
                                     {/* Localité */}
                                     <Text style={styles.placeCardSubtitle}>
-                                        {place.data.lib_bdv}, {place.data.inst_cp}
+                                        {institution.adresse}, {institution.ville}
                                     </Text>
 
                                     {/* Surface de l'équipement */}
-                                    {place.data.equip_surf > 0 && (
+                                    {place.equip_surf > 0 && (
                                         <View style={styles.placeInfoRow}>
                                             <Ionicons
                                                 name="resize-outline"
@@ -292,7 +297,7 @@ export default function InstitutionDetailsScreen() {
                                                 style={[styles.placeInfoIcon, styles.icon]}
                                             />
                                             <Text style={styles.placeInfoText}>
-                                                Surface: {place.data.equip_surf} m²
+                                                Surface: {place.equip_surf} m²
                                             </Text>
                                         </View>
                                     )}
@@ -310,7 +315,7 @@ export default function InstitutionDetailsScreen() {
                                     )}
 
                                     {/* Activités sportives */}
-                                    {place.data.equip_aps_nom && place.data.equip_aps_nom.length > 0 && (
+                                    {place.equip_aps_nom && place.equip_aps_nom.length > 0 && (
                                         <View style={styles.placeActivities}>
                                             <View style={styles.placeInfoRow}>
                                                 <Ionicons
@@ -321,7 +326,7 @@ export default function InstitutionDetailsScreen() {
                                                 <Text style={styles.placeActivitiesLabel}>Activités:</Text>
                                             </View>
                                             <Text style={styles.placeActivitiesText}>
-                                                {place.data.equip_aps_nom.join(", ")}
+                                                {place.equip_aps_nom.join(", ")}
                                             </Text>
                                         </View>
                                     )}
@@ -351,7 +356,7 @@ export default function InstitutionDetailsScreen() {
                                 <Text style={styles.bookingButtonText}>
                                     Réserver{" "}
                                     {selectedPlace
-                                        ? `(${selectedPlace.data.equip_nom || selectedPlace.inst_name})`
+                                        ? `(${selectedPlace.equip_nom || selectedPlace.inst_name})`
                                         : ""}
                                 </Text>
                             </View>

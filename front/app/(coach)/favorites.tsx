@@ -79,7 +79,7 @@ export default function FavoritesScreen() {
                 <View style={styles.institutionInfo}>
                     <Text style={styles.institutionName}>{item.inst_name}</Text>
                     <Text style={styles.institutionNumber}>N° {item.inst_numero}</Text>
-                    <Text style={styles.institutionAddress}>{item.adresse}</Text>
+                    <Text style={styles.institutionAddress}>{item.adresse}, {item.ville}</Text>
                     {item.coordonnees && (
                         <Text style={styles.coordinates}>
                             📍 {item.coordonnees.lat.toFixed(4)}, {item.coordonnees.lon.toFixed(4)}

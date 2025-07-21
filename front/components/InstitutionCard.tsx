@@ -21,8 +21,8 @@ const InstitutionCard: React.FC<InstitutionCardProps> = ({
     const { currentTheme } = useTheme();
     const styles = getStyles(currentTheme);
 
-    // Convertir l'objet activités en tableau de valeurs
-    const activitesArray = item.activites ? Object.values(item.activites) : [];
+    // Convertir l'objet activités en tableau avec map
+    const activitesArray = item.activites ? Object.entries(item.activites).map(([, value]) => value) : [];
 
     return (
         <TouchableOpacity
@@ -44,7 +44,9 @@ const InstitutionCard: React.FC<InstitutionCardProps> = ({
                 {/* Adresse */}
                 <View style={styles.infoRow}>
                     <Ionicons name="location-outline" size={18} style={[styles.icon, styles.infoIcon]} />
-                    <Text style={styles.infoValue}>{item.adresse}</Text>
+                    <Text style={styles.infoValue}>
+                        {item.adresse}, {item.ville}
+                    </Text>
                 </View>
 
                 {/* Activités (optionnel) */}

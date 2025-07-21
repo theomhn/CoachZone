@@ -216,7 +216,7 @@ export default function MapScreen() {
                 <InstitutionCard
                     item={selectedInstitution}
                     variant="popup"
-                    showActivities={false}
+                    showActivities={true}
                     showDetailsButton={true}
                     onClose={() => setSelectedInstitution(null)}
                     onViewDetails={() => navigateToInstitutionDetails(selectedInstitution.inst_numero)}

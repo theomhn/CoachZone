@@ -7,6 +7,7 @@ export interface Institution {
     inst_numero: string;
     inst_name: string;
     adresse: string;
+    ville: string;
     activites: {
         [key: string]: string;
     };
@@ -18,6 +19,7 @@ export interface Institution {
         lat: number;
         lon: number;
     };
+    places: string[];
 }
 
 /**
@@ -56,22 +58,16 @@ export interface ApiError {
  */
 export interface Place {
     id: string;
-    inst_numero: string;
-    inst_name: string;
-    data: {
-        aca_nom: string;
-        dep_nom: string;
-        equip_x: number;
-        equip_y: number;
-        equip_nom: string; // Nom de l'équipement
-        equip_aps_nom: string[]; // Activités sportives
-        equip_surf: number; // Surface de l'équipement
-        inst_cp: number;
-        lib_bdv: string;
-        reg_nom: string;
-    };
+    equip_nom: string; // Nom de l'équipement
+    equip_aps_nom: string[]; // Activités sportives
+    equip_surf: number; // Surface de l'équipement
     price?: number | null;
     lastUpdate: string;
+    institution: string;
+    upcomingBookings: any[];
+    inst_cp?: number;
+    lib_bdv?: string;
+    inst_name?: string;
 }
 
 /**

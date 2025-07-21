@@ -192,7 +192,7 @@ export default function ProfileScreen({ onPriceUpdated }: ProfileScreenProps) {
                         ) : places.length > 0 ? (
                             places.map((place) => (
                                 <View key={place.id} style={styles.placeItem}>
-                                    <Text style={styles.placeName}>{place.data.equip_nom || place.data.lib_bdv}</Text>
+                                    <Text style={styles.placeName}>{place.equip_nom || place.lib_bdv}</Text>
                                     <View style={styles.priceInputContainer}>
                                         <View style={styles.priceInputWrapper}>
                                             <TextInput
