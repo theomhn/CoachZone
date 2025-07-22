@@ -41,6 +41,7 @@ security:
         - { path: ^/api/login, roles: PUBLIC_ACCESS }
         - { path: ^/api/logout, roles: PUBLIC_ACCESS }
         - { path: ^/api/register, roles: PUBLIC_ACCESS }
+        - { path: ^/api/password, roles: PUBLIC_ACCESS }
 
         # Routes publiques - Données ouvertes
         - { path: ^/api/opendata, roles: PUBLIC_ACCESS }
