@@ -23,8 +23,12 @@ class LoginController extends AbstractController
         $data = json_decode($request->getContent(), true);
 
         if (!isset($data['email']) || !isset($data['password'])) {
+            $missing = [];
+            if (!isset($data['email'])) $missing[] = 'email';
+            if (!isset($data['password'])) $missing[] = 'mot de passe';
+
             return $this->json([
-                'message' => 'missing credentials',
+                'message' => 'champ(s) manquant(s): ' . implode(', ', $missing),
             ], Response::HTTP_UNAUTHORIZED);
         }
 
@@ -33,14 +37,14 @@ class LoginController extends AbstractController
 
         if (!$user) {
             return $this->json([
-                'message' => 'missing credentials',
+                'message' => 'aucun compte avec cette adresse mail',
             ], Response::HTTP_UNAUTHORIZED);
         }
 
         // Vérifier le mot de passe
         if (!$passwordHasher->isPasswordValid($user, $data['password'])) {
             return $this->json([
-                'message' => 'missing credentials',
+                'message' => 'mot de passe incorrect',
             ], Response::HTTP_UNAUTHORIZED);
         }
 
