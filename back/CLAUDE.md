@@ -72,6 +72,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - **NEVER include Claude attributions**: Do not add any mentions of Claude, Claude Code, or Anthropic in commits, comments, documentation, or any code output.
 - **No AI attribution**: Keep all work anonymous without any AI tool references.
+- **Commit messages**: Focus only on the final result and permanent changes. Do not mention temporary files, intermediate steps, or files that were created and later removed during development.
 
 ## Data Architecture & Sources
 

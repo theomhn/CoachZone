@@ -52,21 +52,37 @@ use Symfony\Component\Serializer\Annotation\Groups;
 )]
 class Place
 {
+    /**
+     * @var string|null Identifiant unique de l'équipement
+     * @example "EQ12345"
+     */
     #[ORM\Id]
     #[ORM\Column(length: 255)]
-    #[Groups(['place:read'])]
+    #[Groups(['place:read', 'place:write'])]
     private ?string $id = null;  // Utilisation de equip_numero comme ID
 
+    /**
+     * @var string|null Numéro de l'institution
+     * @example "INST001"
+     */
     #[ORM\Column(length: 255)]
-    #[Groups(['place:read'])]
+    #[Groups(['place:read', 'place:write'])]
     private ?string $inst_numero = null;
 
+    /**
+     * @var string|null Nom de l'institution
+     * @example "Centre Sportif Municipal"
+     */
     #[ORM\Column(length: 255)]
-    #[Groups(['place:read'])]
+    #[Groups(['place:read', 'place:write'])]
     private ?string $inst_name = null;
 
+    /**
+     * @var string|null Nom de l'équipement
+     * @example "Terrain de football principal"
+     */
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['place:read'])]
+    #[Groups(['place:read', 'place:write'])]
     private ?string $equip_nom = null;
 
     #[ORM\Column(type: Types::JSON, nullable: true)]
@@ -77,17 +93,25 @@ class Place
     #[Groups(['place:read'])]
     private ?float $equip_surf = null;
 
+    /**
+     * @var float|null Prix de location par heure en euros
+     * @example 25.50
+     */
     #[ORM\Column(type: Types::FLOAT, nullable: true)]
-    #[Groups(['place:read', 'price:write'])]
+    #[Groups(['place:read', 'price:write', 'place:write'])]
     private ?float $price = null;
 
     #[ORM\Column]
     #[Groups(['place:read'])]
     private ?\DateTimeImmutable $lastUpdate = null;
 
+    /**
+     * @var Institution|null Institution propriétaire de la place
+     * @example "/api/institutions/1"
+     */
     #[ORM\ManyToOne(targetEntity: Institution::class, inversedBy: 'places')]
     #[ORM\JoinColumn(name: 'institution_id', referencedColumnName: 'id')]
-    #[Groups(['place:read'])]
+    #[Groups(['place:read', 'place:write'])]
     private ?Institution $institution = null;
 
     /**

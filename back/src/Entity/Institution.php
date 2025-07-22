@@ -54,24 +54,44 @@ class Institution extends User
     #[Groups(['institution:read'])]
     private ?string $inst_name = null;
 
+    /**
+     * @var string|null Adresse de l'institution
+     * @example "123 Avenue du Sport, 75001 Paris"
+     */
     #[ORM\Column(length: 500, nullable: true)]
-    #[Groups(['institution:read'])]
+    #[Groups(['institution:read', 'institution:write'])]
     private ?string $adresse = null;
 
+    /**
+     * @var string|null Ville de l'institution
+     * @example "Paris"
+     */
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['institution:read'])]
+    #[Groups(['institution:read', 'institution:write'])]
     private ?string $ville = null;
 
+    /**
+     * @var array|null Coordonnées GPS [latitude, longitude]
+     * @example {"latitude": 48.8566, "longitude": 2.3522}
+     */
     #[ORM\Column(type: Types::JSON, nullable: true)]
-    #[Groups(['institution:read'])]
+    #[Groups(['institution:read', 'institution:write'])]
     private ?array $coordonnees = null;
 
+    /**
+     * @var array|null Liste des activités proposées
+     * @example ["Football", "Basketball", "Tennis"]
+     */
     #[ORM\Column(type: Types::JSON, nullable: true)]
-    #[Groups(['institution:read'])]
+    #[Groups(['institution:read', 'institution:write'])]
     private ?array $activites = null;
 
+    /**
+     * @var array|null Liste des équipements disponibles
+     * @example ["Terrain de football", "Gymnase", "Court de tennis"]
+     */
     #[ORM\Column(type: Types::JSON, nullable: true)]
-    #[Groups(['institution:read'])]
+    #[Groups(['institution:read', 'institution:write'])]
     private ?array $equipements = null;
 
     /**

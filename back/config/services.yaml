@@ -20,10 +20,15 @@ services:
             - "../src/Entity/"
             - "../src/Kernel.php"
 
+    # Décorateur OpenAPI pour les schémas d'exemples
+    'App\OpenApi\OpenApiSchemaDecorator':
+        decorates: 'api_platform.openapi.factory'
+        arguments: ['@.inner']
+
     # Décorateur OpenAPI pour la configuration de sécurité Swagger
-    App\OpenApi\OpenApiFactory:
-        decorates: "api_platform.openapi.factory"
-        arguments: ['@App\OpenApi\OpenApiFactory.inner']
+    'App\OpenApi\OpenApiFactory':
+        decorates: 'App\OpenApi\OpenApiSchemaDecorator'
+        arguments: ['@.inner']
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

@@ -46,23 +46,43 @@ class Booking
     #[ORM\Column]
     private ?int $id = null;
 
+    /**
+     * @var \DateTimeInterface|null Date et heure de début de la réservation
+     * @example "2024-07-25T14:00:00"
+     */
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     #[Groups(['booking:read', 'booking:write', 'place:read'])]
     private ?\DateTimeInterface $dateStart = null;
 
+    /**
+     * @var \DateTimeInterface|null Date et heure de fin de la réservation
+     * @example "2024-07-25T16:00:00"
+     */
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     #[Groups(['booking:read', 'booking:write', 'place:read'])]
     private ?\DateTimeInterface $dateEnd = null;
 
+    /**
+     * @var float|null Prix de la réservation en euros
+     * @example 25.50
+     */
     #[ORM\Column]
     #[Groups(['booking:read', 'booking:write', 'place:read'])]
     private ?float $price = null;
 
+    /**
+     * @var Place|null Place à réserver (utiliser l'URI de la place)
+     * @example "/api/places/EQ12345"
+     */
     #[ORM\ManyToOne(inversedBy: 'bookings')]
     #[ORM\JoinColumn(nullable: false)]
     #[Groups(['booking:read', 'booking:write'])]
     private ?Place $place = null;
 
+    /**
+     * @var Coach|null Coach qui fait la réservation (automatiquement défini)
+     * @example "/api/coaches/1"
+     */
     #[ORM\ManyToOne(inversedBy: 'bookings')]
     #[Groups(['booking:read', 'booking:write'])]
     private ?Coach $coach = null;
