@@ -6,7 +6,10 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Delete;
 use App\Controller\BookingController;
+use App\Controller\BookingCancelController;
 use App\Repository\BookingRepository;
 use App\Validator\Constraint\BookingConstraint;
 use Doctrine\DBAL\Types\Types;
@@ -33,6 +36,18 @@ use Symfony\Component\Serializer\Annotation\Groups;
             normalizationContext: ['groups' => ['booking:read', 'booking:details']],
             security: "is_granted('ROLE_COACH') or is_granted('ROLE_INSTITUTION')",
             securityMessage: "Seuls les coachs et institutions peuvent accéder aux réservations."
+        ),
+        new Patch(
+            requirements: ['id' => '\d+'],
+            security: "is_granted('ROLE_COACH') and object.getCoach() == user and object.getStatus() == 'confirmed'",
+            securityMessage: "Seuls les coachs peuvent modifier leurs propres réservations confirmées.",
+            denormalizationContext: ['groups' => ['booking:write']]
+        ),
+        new Delete(
+            requirements: ['id' => '\d+'],
+            controller: BookingCancelController::class,
+            security: "is_granted('ROLE_COACH') and object.getCoach() == user and object.getStatus() == 'confirmed'",
+            securityMessage: "Seuls les coachs peuvent annuler leurs propres réservations confirmées."
         )
     ],
     normalizationContext: ['groups' => ['booking:read']],
@@ -44,6 +59,7 @@ class Booking
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['booking:read', 'place:read'])]
     private ?int $id = null;
 
     /**
@@ -84,8 +100,23 @@ class Booking
      * @example "/api/coaches/1"
      */
     #[ORM\ManyToOne(inversedBy: 'bookings')]
-    #[Groups(['booking:read', 'booking:write'])]
+    #[Groups(['booking:write'])]
     private ?Coach $coach = null;
+
+    /**
+     * @var string|null Statut de la réservation
+     * @example "confirmed"
+     */
+    #[ORM\Column(length: 20, options: ['default' => 'confirmed'])]
+    #[Groups(['booking:read', 'booking:write', 'place:read'])]
+    private ?string $status = 'confirmed';
+
+    /**
+     * @var \DateTimeInterface|null Date d'annulation de la réservation
+     */
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    #[Groups(['booking:read'])]
+    private ?\DateTimeInterface $cancelledAt = null;
 
     // Propriétés virtuelles pour exposer les données supplémentaires
 
@@ -95,10 +126,16 @@ class Booking
         return $this->place ? $this->place->getInstitutionNumero() : '';
     }
 
-    #[Groups(['booking:details'])]
+    #[Groups(['booking:details', 'place:read'])]
     public function getCoachFullName(): string
     {
         return $this->coach ? $this->coach->getFirstName() . ' ' . $this->coach->getLastName() : '';
+    }
+
+    #[Groups(['booking:read', 'booking:details', 'place:read'])]
+    public function getCoachId(): ?int
+    {
+        return $this->coach ? $this->coach->getId() : null;
     }
 
     #[Groups(['booking:details'])]
@@ -188,5 +225,55 @@ class Booking
         $this->coach = $coach;
 
         return $this;
+    }
+
+    public function getStatus(): ?string
+    {
+        return $this->status;
+    }
+
+    public function setStatus(string $status): static
+    {
+        $this->status = $status;
+
+        return $this;
+    }
+
+    public function getCancelledAt(): ?\DateTimeInterface
+    {
+        return $this->cancelledAt;
+    }
+
+    public function setCancelledAt(?\DateTimeInterface $cancelledAt): static
+    {
+        $this->cancelledAt = $cancelledAt;
+
+        return $this;
+    }
+
+    public function canBeModified(): bool
+    {
+        if ($this->status !== 'confirmed') {
+            return false;
+        }
+
+        if (!$this->dateStart) {
+            return false;
+        }
+
+        $now = new \DateTime('now');
+
+        // Créer un timestamp 24h avant la date de début
+        $bookingTimestamp = $this->dateStart->getTimestamp();
+        $deadlineTimestamp = $bookingTimestamp - (24 * 60 * 60); // 24h en secondes
+        $deadlineTime = new \DateTime('now');
+        $deadlineTime->setTimestamp($deadlineTimestamp);
+
+        return $now < $deadlineTime;
+    }
+
+    public function canBeCancelled(): bool
+    {
+        return $this->canBeModified();
     }
 }

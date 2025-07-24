@@ -79,6 +79,7 @@ class BookingRepository extends ServiceEntityRepository
     {
         $qb = $this->createQueryBuilder('b')
             ->where('b.coach = :coachId')
+            ->andWhere('b.status = :status')
             ->andWhere(
                 // Vérifie si la nouvelle réservation chevauche une réservation existante
                 // Cas 1: La nouvelle réservation commence pendant une réservation existante
@@ -89,6 +90,7 @@ class BookingRepository extends ServiceEntityRepository
                     '(:dateStart <= b.dateStart AND :dateEnd >= b.dateEnd)'
             )
             ->setParameter('coachId', $coachId)
+            ->setParameter('status', 'confirmed')
             ->setParameter('dateStart', $dateStart)
             ->setParameter('dateEnd', $dateEnd);
 
@@ -108,6 +110,7 @@ class BookingRepository extends ServiceEntityRepository
     {
         $qb = $this->createQueryBuilder('b')
             ->where('b.place = :placeId')
+            ->andWhere('b.status = :status')
             ->andWhere(
                 // Vérifie si la nouvelle réservation chevauche une réservation existante
                 // Cas 1: La nouvelle réservation commence pendant une réservation existante
@@ -118,6 +121,7 @@ class BookingRepository extends ServiceEntityRepository
                     '(:dateStart <= b.dateStart AND :dateEnd >= b.dateEnd)'
             )
             ->setParameter('placeId', $placeId)
+            ->setParameter('status', 'confirmed')
             ->setParameter('dateStart', $dateStart)
             ->setParameter('dateEnd', $dateEnd);
 

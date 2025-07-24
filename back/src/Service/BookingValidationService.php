@@ -84,6 +84,36 @@ class BookingValidationService
     }
 
     /**
+     * Vérifie si une réservation peut être modifiée
+     */
+    public function canModifyBooking(Booking $booking): bool
+    {
+        if (!$booking->canBeModified()) {
+            return false;
+        }
+
+        $user = $this->security->getUser();
+        return $user instanceof Coach && 
+               $user === $booking->getCoach() && 
+               $this->security->isGranted('ROLE_COACH');
+    }
+
+    /**
+     * Vérifie si une réservation peut être annulée
+     */
+    public function canCancelBooking(Booking $booking): bool
+    {
+        if (!$booking->canBeCancelled()) {
+            return false;
+        }
+
+        $user = $this->security->getUser();
+        return $user instanceof Coach && 
+               $user === $booking->getCoach() && 
+               $this->security->isGranted('ROLE_COACH');
+    }
+
+    /**
      * Valide complètement une réservation
      * 
      * @return array Liste des erreurs, tableau vide si aucune erreur
@@ -102,6 +132,30 @@ class BookingValidationService
 
         if (!$this->isPlaceAvailable($booking)) {
             $errors[] = 'Un autre coach a déjà une réservation sur ce créneau.';
+        }
+
+        return $errors;
+    }
+
+    /**
+     * Valide une modification de réservation
+     * 
+     * @return array Liste des erreurs, tableau vide si aucune erreur
+     */
+    public function validateBookingModification(Booking $booking): array
+    {
+        $errors = [];
+
+        if (!$this->canModifyBooking($booking)) {
+            $errors[] = 'Cette réservation ne peut plus être modifiée. Les modifications doivent se faire au moins 24 heures avant le début.';
+        }
+
+        if (!$this->hasNoOverlappingBookings($booking)) {
+            $errors[] = 'Vous avez déjà une réservation qui chevauche cette nouvelle période.';
+        }
+
+        if (!$this->isPlaceAvailable($booking)) {
+            $errors[] = 'Un autre coach a déjà une réservation sur ce nouveau créneau.';
         }
 
         return $errors;
