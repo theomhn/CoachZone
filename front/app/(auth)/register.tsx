@@ -224,6 +224,8 @@ export default function RegisterScreen() {
                         onChangeText={setEmail}
                         keyboardType="email-address"
                         autoCapitalize="none"
+                        autoCorrect={false}
+                        spellCheck={false}
                         placeholderTextColor={currentTheme.placeholder}
                     />
                 </View>

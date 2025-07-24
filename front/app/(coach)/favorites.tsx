@@ -1,14 +1,14 @@
 import getStyles from "@/assets/styles/favoritesScreen";
-import Badge from "@/components/Badge";
 import FavoriteButton from "@/components/FavoriteButton";
+import InstitutionCard from "@/components/InstitutionCard";
 import { API_BASE_URL } from "@/config";
 import { useTheme } from "@/hooks/useTheme";
 import { Institution } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
-import { useFocusEffect } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import React, { useCallback, useEffect, useState } from "react";
-import { ActivityIndicator, Alert, FlatList, RefreshControl, Text, View } from "react-native";
+import { ActivityIndicator, Alert, FlatList, RefreshControl, Text, TouchableOpacity, View } from "react-native";
 
 export default function FavoritesScreen() {
     const [favorites, setFavorites] = useState<Institution[]>([]);
@@ -73,58 +73,37 @@ export default function FavoritesScreen() {
         }
     };
 
+    const navigateToInstitutions = () => {
+        router.push("/(coach)/institutions");
+    };
+
+    const navigateToInstitutionDetails = (institutionId: string) => {
+        router.push({
+            pathname: "/institution-details" as any,
+            params: {
+                id: institutionId,
+                source: "favorites", // Indiquer que l'on vient des favoris
+            },
+        });
+    };
+
     const renderInstitution = ({ item }: { item: Institution }) => (
-        <View style={styles.institutionCard}>
-            <View style={styles.institutionHeader}>
-                <View style={styles.institutionInfo}>
-                    <Text style={styles.institutionName}>{item.inst_name}</Text>
-                    <Text style={styles.institutionNumber}>N° {item.inst_numero}</Text>
-                    <Text style={styles.institutionAddress}>{item.adresse}, {item.ville}</Text>
-                    {item.coordonnees && (
-                        <Text style={styles.coordinates}>
-                            📍 {item.coordonnees.lat.toFixed(4)}, {item.coordonnees.lon.toFixed(4)}
-                        </Text>
-                    )}
-                </View>
+        <View style={styles.cardContainer}>
+            <InstitutionCard
+                item={item}
+                variant="card"
+                showActivities={true}
+                showDetailsButton={true}
+                onViewDetails={() => navigateToInstitutionDetails(item.inst_numero)}
+            />
+            {/* Bouton favori positionné en overlay sur la carte */}
+            <View style={styles.favoriteButtonOverlay}>
                 <FavoriteButton
                     instNumero={item.inst_numero}
-                    size={24}
+                    size={22}
                     onFavoriteChange={(isFavorite) => handleFavoriteRemoved(item.inst_numero, isFavorite)}
                     style={styles.favoriteButton}
                 />
-            </View>
-
-            {Object.keys(item.activites).length > 0 && (
-                <View style={styles.activitiesContainer}>
-                    <Text style={styles.sectionTitle}>Activités disponibles</Text>
-                    <View style={styles.activitiesList}>
-                        {Object.entries(item.activites).map(([key, value]) => (
-                            <Badge key={key} text={value} />
-                        ))}
-                    </View>
-                </View>
-            )}
-
-            <View style={styles.equipmentsContainer}>
-                <Text style={styles.sectionTitle}>Équipements</Text>
-                <View style={styles.equipmentsList}>
-                    <View style={styles.equipmentItem}>
-                        <Ionicons
-                            name={item.equipements.douches ? "checkmark-circle" : "close-circle"}
-                            size={20}
-                            color={item.equipements.douches ? styles.successIcon.color : styles.errorIcon.color}
-                        />
-                        <Text style={styles.equipmentText}>Douches</Text>
-                    </View>
-                    <View style={styles.equipmentItem}>
-                        <Ionicons
-                            name={item.equipements.sanitaires ? "checkmark-circle" : "close-circle"}
-                            size={20}
-                            color={item.equipements.sanitaires ? styles.successIcon.color : styles.errorIcon.color}
-                        />
-                        <Text style={styles.equipmentText}>Sanitaires</Text>
-                    </View>
-                </View>
             </View>
         </View>
     );
@@ -145,6 +124,9 @@ export default function FavoritesScreen() {
                     <Ionicons name="heart-outline" size={64} color={styles.emptyIcon.color} />
                     <Text style={styles.emptyTitle}>Aucun favori</Text>
                     <Text style={styles.emptySubtitle}>Vous n'avez pas encore ajouté d'institutions en favoris</Text>
+                    <TouchableOpacity style={styles.reservationButton} onPress={navigateToInstitutions}>
+                        <Text style={styles.reservationButtonText}>Réserver maintenant une séance</Text>
+                    </TouchableOpacity>
                 </View>
             ) : (
                 <FlatList

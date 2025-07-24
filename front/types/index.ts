@@ -80,9 +80,12 @@ export interface Booking {
     price: number;
     place: string;
     coach: string;
+    coachId: number; // ID numérique du coach
     coachFullName: string;
     placeEquipmentName: string;
     institutionNumero: string;
+    status?: string; // Statut de la réservation (ex: "cancelled", "active", etc.)
+    cancelledAt?: string; // Date d'annulation si applicable
 }
 
 /**

@@ -123,7 +123,7 @@ export default function InstitutionDetailsScreen() {
 
             // Récupérer chaque place individuellement
             const placesPromises = institution.places.map(async (placeUrl: string) => {
-                const response = await fetch(`${API_BASE_URL}${placeUrl.replace('/api', '')}`, {
+                const response = await fetch(`${API_BASE_URL}${placeUrl.replace("/api", "")}`, {
                     method: "GET",
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -141,7 +141,9 @@ export default function InstitutionDetailsScreen() {
             const placesData = await Promise.all(placesPromises);
 
             // Filtrer pour ne garder que les places avec un prix défini (non NULL)
-            const placesWithPrice = placesData.filter((place: Place) => place.price !== undefined && place.price !== null);
+            const placesWithPrice = placesData.filter(
+                (place: Place) => place.price !== undefined && place.price !== null
+            );
             setPlaces(placesWithPrice);
 
             // Sélectionner la première place par défaut s'il y en a
@@ -228,7 +230,9 @@ export default function InstitutionDetailsScreen() {
                         <View style={styles.infoRow}>
                             <Ionicons name="location-outline" size={20} style={styles.infoIcon} />
                             <Text style={styles.infoLabel}>Adresse :</Text>
-                            <Text style={styles.infoValue}>{institution.adresse}, {institution.ville}</Text>
+                            <Text style={styles.infoValue}>
+                                {institution.adresse}, {institution.ville}
+                            </Text>
                         </View>
                     </View>
 
@@ -296,9 +300,7 @@ export default function InstitutionDetailsScreen() {
                                                 size={16}
                                                 style={[styles.placeInfoIcon, styles.icon]}
                                             />
-                                            <Text style={styles.placeInfoText}>
-                                                Surface: {place.equip_surf} m²
-                                            </Text>
+                                            <Text style={styles.placeInfoText}>Surface: {place.equip_surf} m²</Text>
                                         </View>
                                     )}
 
@@ -353,12 +355,7 @@ export default function InstitutionDetailsScreen() {
                         >
                             <View style={styles.bookingButtonContent}>
                                 <Ionicons name="calendar-outline" size={20} style={styles.iconWhite} />
-                                <Text style={styles.bookingButtonText}>
-                                    Réserver{" "}
-                                    {selectedPlace
-                                        ? `(${selectedPlace.equip_nom || selectedPlace.inst_name})`
-                                        : ""}
-                                </Text>
+                                <Text style={styles.bookingButtonText}>Voir les disponibilités</Text>
                             </View>
                         </TouchableOpacity>
                     )}

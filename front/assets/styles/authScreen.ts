@@ -91,6 +91,23 @@ export default function (currentTheme: any) {
         selectedTypeText: {
             color: currentTheme.black,
         },
+        titleContainer: {
+            marginBottom: 30,
+            alignItems: "center",
+        },
+        title: {
+            fontSize: 24,
+            fontWeight: "bold",
+            color: currentTheme.text,
+            marginBottom: 10,
+            textAlign: "center",
+        },
+        subtitle: {
+            fontSize: 16,
+            color: currentTheme.secondaryText,
+            textAlign: "center",
+            lineHeight: 22,
+        },
         loadingContainer: {
             flexDirection: "row",
             alignItems: "center",

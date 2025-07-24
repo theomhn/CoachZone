@@ -126,8 +126,37 @@ export default function (currentTheme: any) {
             lineHeight: 24,
             color: currentTheme.secondaryText,
         },
+        reservationButton: {
+            backgroundColor: currentTheme.primary,
+            borderRadius: 25,
+            paddingVertical: 14,
+            paddingHorizontal: 24,
+            marginTop: 24,
+            alignItems: "center",
+            justifyContent: "center",
+            shadowColor: currentTheme.shadow,
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.15,
+            shadowRadius: 4,
+            elevation: 3,
+        },
+        reservationButtonText: {
+            color: "#FFFFFF",
+            fontSize: 16,
+            fontWeight: "600",
+        },
         refreshControl: {
             tintColor: currentTheme.primary,
+        },
+        cardContainer: {
+            position: "relative",
+            marginBottom: 12,
+        },
+        favoriteButtonOverlay: {
+            position: "absolute",
+            top: 12,
+            right: 12,
+            zIndex: 1,
         },
     });
 }

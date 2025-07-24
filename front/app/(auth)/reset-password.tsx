@@ -1,9 +1,8 @@
 import getStyles from "@/assets/styles/authScreen";
 import { API_BASE_URL } from "@/config";
 import { useTheme } from "@/hooks/useTheme";
-import { router } from "expo-router";
-import * as SecureStore from "expo-secure-store";
-import React, { useState } from "react";
+import { router, useLocalSearchParams } from "expo-router";
+import React, { useEffect, useState } from "react";
 import {
     Alert,
     Image,
@@ -16,31 +15,35 @@ import {
     View,
 } from "react-native";
 
-export default function LoginScreen() {
-    const [email, setEmail] = useState("coach@test.com");
-    const [password, setPassword] = useState("test123");
+export default function ResetPasswordScreen() {
+    const { email: prefilledEmail } = useLocalSearchParams();
+    const [email, setEmail] = useState("");
     const [isLoading, setIsLoading] = useState(false);
 
-    // Récupérer le thème actuel et les couleurs associées
     const { currentTheme } = useTheme();
     const styles = getStyles(currentTheme);
 
-    const handleLogin = async () => {
-        if (!email || !password) {
-            Alert.alert("Erreur", "Veuillez remplir tous les champs");
+    useEffect(() => {
+        if (prefilledEmail && typeof prefilledEmail === "string") {
+            setEmail(prefilledEmail);
+        }
+    }, [prefilledEmail]);
+
+    const handleResetPassword = async () => {
+        if (!email) {
+            Alert.alert("Erreur", "Veuillez entrer votre adresse email");
             return;
         }
 
         setIsLoading(true);
         try {
-            const response = await fetch(`${API_BASE_URL}/login`, {
+            const response = await fetch(`${API_BASE_URL}/password/forgot`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
                     email,
-                    password,
                 }),
             });
 
@@ -50,10 +53,16 @@ export default function LoginScreen() {
                 throw new Error(data.message || "Une erreur est survenue");
             }
 
-            await SecureStore.setItemAsync("userToken", data);
-
-            // Rediriger vers la racine, le layout principal gérera la redirection selon le type d'utilisateur
-            router.replace("/");
+            Alert.alert(
+                "Email envoyé",
+                "Si cette adresse email existe dans notre système, vous recevrez un lien de réinitialisation.",
+                [
+                    {
+                        text: "OK",
+                        onPress: () => router.replace("/(auth)/login"),
+                    },
+                ]
+            );
         } catch (error: unknown) {
             const errorMessage = error instanceof Error ? error.message : "Une erreur est survenue";
             Alert.alert("Erreur", errorMessage);
@@ -73,6 +82,13 @@ export default function LoginScreen() {
                     <Image source={require("@/assets/images/logo.png")} style={styles.logo} resizeMode="contain" />
                 </View>
 
+                <View style={styles.titleContainer}>
+                    <Text style={styles.title}>Réinitialiser le mot de passe</Text>
+                    <Text style={styles.subtitle}>
+                        Entrez votre adresse email pour recevoir un lien de réinitialisation
+                    </Text>
+                </View>
+
                 <View style={styles.inputContainer}>
                     <Text style={styles.label}>Email</Text>
                     <TextInput
@@ -88,31 +104,12 @@ export default function LoginScreen() {
                     />
                 </View>
 
-                <View style={styles.inputContainer}>
-                    <Text style={styles.label}>Mot de passe</Text>
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Entrez votre mot de passe"
-                        value={password}
-                        onChangeText={setPassword}
-                        secureTextEntry
-                        placeholderTextColor={currentTheme.placeholder}
-                    />
-                </View>
-
-                <TouchableOpacity style={styles.button} onPress={handleLogin} disabled={isLoading}>
-                    <Text style={styles.buttonText}>{isLoading ? "Chargement..." : "Se connecter"}</Text>
+                <TouchableOpacity style={styles.button} onPress={handleResetPassword} disabled={isLoading}>
+                    <Text style={styles.buttonText}>{isLoading ? "Envoi en cours..." : "Envoyer le lien"}</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity
-                    style={styles.linkButton}
-                    onPress={() => router.push({ pathname: "/(auth)/reset-password", params: { email } })}
-                >
-                    <Text style={styles.linkText}>Mot de passe oublié ?</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity style={styles.linkButton} onPress={() => router.replace("/(auth)/register")}>
-                    <Text style={styles.linkText}>Pas encore de compte ? S'inscrire</Text>
+                <TouchableOpacity style={styles.linkButton} onPress={() => router.replace("/(auth)/login")}>
+                    <Text style={styles.linkText}>Retour à la connexion</Text>
                 </TouchableOpacity>
             </ScrollView>
         </KeyboardAvoidingView>

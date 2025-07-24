@@ -29,11 +29,27 @@ export default function BookingScreen() {
         }, [])
     );
 
-    const { placeId, placeName, placePrice } = useLocalSearchParams<{
+    // Paramètres pour création ET modification
+    const {
+        placeId,
+        placeName,
+        placePrice,
+        // Paramètres spécifiques à la modification
+        bookingId,
+        currentStartDate,
+        currentEndDate,
+    } = useLocalSearchParams<{
         placeId: string;
         placeName: string;
         placePrice: string;
+        // Paramètres optionnels pour l'édition
+        bookingId?: string;
+        currentStartDate?: string;
+        currentEndDate?: string;
     }>();
+
+    // Déterminer le mode : édition si bookingId est présent
+    const isEditMode = !!bookingId;
     const router = useRouter();
 
     // Récupérer le thème actuel et les couleurs associées
@@ -59,6 +75,34 @@ export default function BookingScreen() {
     const [placeBookings, setPlaceBookings] = useState<Booking[]>([]);
     const [coachBookings, setCoachBookings] = useState<Booking[]>([]);
     const [isLoadingBookings, setIsLoadingBookings] = useState(false);
+
+    // En mode édition, pré-remplir les données
+    useEffect(() => {
+        if (isEditMode && currentStartDate && currentEndDate) {
+            // Parser manuellement les dates ISO pour éviter la conversion de fuseau horaire
+            const startMatch = currentStartDate.match(/(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})/);
+            const endMatch = currentEndDate.match(/(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})/);
+
+            if (startMatch && endMatch) {
+                const [, year, month, day, startHour] = startMatch;
+                const [, , , , endHour] = endMatch;
+
+                // Définir la date sélectionnée en format YYYY-MM-DD
+                const dateString = `${year}-${month}-${day}`;
+                setSelectedDate(dateString);
+
+                // Calculer les créneaux horaires
+                const timeSlots = [];
+                const currentHour = parseInt(startHour, 10);
+                const finalHour = parseInt(endHour, 10);
+
+                for (let hour = currentHour; hour < finalHour; hour++) {
+                    timeSlots.push(`${hour.toString().padStart(2, "0")}:00`);
+                }
+                setSelectedTimeSlots(timeSlots);
+            }
+        }
+    }, [isEditMode, currentStartDate, currentEndDate]);
 
     // Mise à jour du prix lorsque les créneaux changent
     useEffect(() => {
@@ -101,9 +145,10 @@ export default function BookingScreen() {
 
             const data = await response.json();
 
-            // Les données sont directement un tableau de réservations
+            // Les données sont directement un tableau de réservations - filtrer les annulées
             const bookings = Array.isArray(data) ? data : [];
-            setCoachBookings(bookings);
+            const activeBookings = bookings.filter((booking: any) => booking && booking.status !== "cancelled");
+            setCoachBookings(activeBookings);
         } catch (error) {
             console.error("Erreur lors de la récupération des réservations du coach:", error);
             setCoachBookings([]);
@@ -137,9 +182,12 @@ export default function BookingScreen() {
 
             const data = await response.json();
 
-            // S'assurer que upcomingBookings est bien un tableau
+            // S'assurer que upcomingBookings est bien un tableau et filtrer les réservations annulées
             const bookings = Array.isArray(data.upcomingBookings) ? data.upcomingBookings : [];
-            setPlaceBookings(bookings);
+
+            // Garder toutes les réservations (actives ET annulées) pour un affichage correct
+            const allBookings = bookings.filter((booking: any) => booking);
+            setPlaceBookings(allBookings);
         } catch (error) {
             console.error("Erreur lors de la récupération des réservations:", error);
             // On ne montre pas d'alerte à l'utilisateur pour ne pas être intrusif
@@ -155,6 +203,14 @@ export default function BookingScreen() {
         fetchCoachBookings();
     }, [placeId]);
 
+    // Recharger les données quand l'écran reprend le focus
+    useFocusEffect(
+        useCallback(() => {
+            fetchPlaceBookings();
+            fetchCoachBookings();
+        }, [placeId])
+    );
+
     // Fonction pour trouver la réservation conflictuelle du coach
     const findConflictingCoachBooking = (date: string, timeSlot: string): Booking | null => {
         if (!Array.isArray(coachBookings) || coachBookings.length === 0) {
@@ -162,16 +218,39 @@ export default function BookingScreen() {
         }
 
         const [hours] = timeSlot.split(":").map(Number);
-        const slotStart = new Date(date);
-        slotStart.setHours(hours, 0, 0, 0);
-
-        const slotEnd = new Date(date);
-        slotEnd.setHours(hours + 1, 0, 0, 0);
+        const [year, month, day] = date.split("-").map(Number);
+        const slotStart = new Date(year, month - 1, day, hours, 0, 0, 0);
+        const slotEnd = new Date(year, month - 1, day, hours + 1, 0, 0, 0);
 
         return (
             coachBookings.find((booking) => {
-                const bookingStart = new Date(booking.dateStart);
-                const bookingEnd = new Date(booking.dateEnd);
+                // Parser manuellement les dates de réservation pour éviter les conversions de fuseau
+                const startMatch = booking.dateStart.match(/(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})/);
+                const endMatch = booking.dateEnd.match(/(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})/);
+
+                if (!startMatch || !endMatch) return false;
+
+                const [, bYear, bMonth, bDay, bStartHour, bStartMin] = startMatch;
+                const [, , , , bEndHour, bEndMin] = endMatch;
+
+                const bookingStart = new Date(
+                    parseInt(bYear),
+                    parseInt(bMonth) - 1,
+                    parseInt(bDay),
+                    parseInt(bStartHour),
+                    parseInt(bStartMin),
+                    0,
+                    0
+                );
+                const bookingEnd = new Date(
+                    parseInt(bYear),
+                    parseInt(bMonth) - 1,
+                    parseInt(bDay),
+                    parseInt(bEndHour),
+                    parseInt(bEndMin),
+                    0,
+                    0
+                );
 
                 // Vérifier si les dates sont le même jour
                 const isSameDay = bookingStart.toDateString() === slotStart.toDateString();
@@ -197,34 +276,77 @@ export default function BookingScreen() {
         }
 
         const [hours] = timeSlot.split(":").map(Number);
-        const slotStart = new Date(date);
-        slotStart.setHours(hours, 0, 0, 0);
-
-        const slotEnd = new Date(date);
-        slotEnd.setHours(hours + 1, 0, 0, 0);
+        const [year, month, day] = date.split("-").map(Number);
+        const slotStart = new Date(year, month - 1, day, hours, 0, 0, 0);
+        const slotEnd = new Date(year, month - 1, day, hours + 1, 0, 0, 0);
 
         // PRIORITÉ 1: Vérifier conflit avec réservations du coach connecté
         const conflictingBooking = findConflictingCoachBooking(date, timeSlot);
         if (conflictingBooking) {
-            return { reason: "coach-booked", conflictingBooking };
+            // En mode édition, exclure la réservation actuelle du conflit
+            if (isEditMode && conflictingBooking.id?.toString() === bookingId) {
+                // C'est la réservation qu'on est en train de modifier, pas un conflit
+            } else {
+                return { reason: "coach-booked", conflictingBooking };
+            }
         }
 
         // PRIORITÉ 2: Vérifier conflit avec autres réservations de la place
         if (
             Array.isArray(placeBookings) &&
             placeBookings.some((booking) => {
-                const bookingStart = new Date(booking.dateStart);
-                const bookingEnd = new Date(booking.dateEnd);
+                // En mode édition, exclure la réservation actuelle
+                if (isEditMode && booking.id?.toString() === bookingId) {
+                    return false;
+                }
+
+                // Parser manuellement les dates de réservation pour éviter les conversions de fuseau
+                const startMatch = booking.dateStart.match(/(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})/);
+                const endMatch = booking.dateEnd.match(/(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})/);
+
+                if (!startMatch || !endMatch) return false;
+
+                const [, bYear, bMonth, bDay, bStartHour, bStartMin] = startMatch;
+                const [, , , , bEndHour, bEndMin] = endMatch;
+
+                const bookingStart = new Date(
+                    parseInt(bYear),
+                    parseInt(bMonth) - 1,
+                    parseInt(bDay),
+                    parseInt(bStartHour),
+                    parseInt(bStartMin),
+                    0,
+                    0
+                );
+                const bookingEnd = new Date(
+                    parseInt(bYear),
+                    parseInt(bMonth) - 1,
+                    parseInt(bDay),
+                    parseInt(bEndHour),
+                    parseInt(bEndMin),
+                    0,
+                    0
+                );
                 const isSameDay = bookingStart.toDateString() === slotStart.toDateString();
 
                 /**
-                 * S'assurer que ce n'est pas une réservation du coach connecté
-                 * (au cas où elle serait incluse dans placeBookings)
+                 * Ignorer les réservations annulées pour les conflits avec d'autres coachs
+                 * SAUF si c'est le coach connecté (il doit voir ses propres réservations annulées)
                  */
                 const isCurrentCoachBooking =
                     global.user &&
-                    booking.coach &&
-                    (booking.coach === global.user.id.toString() || booking.coach === `/api/users/${global.user.id}`);
+                    (booking.coachId === parseInt(global.user.id) ||
+                        booking.coach === global.user.id.toString() ||
+                        booking.coach === `/api/users/${global.user.id}`);
+
+                // Si la réservation est annulée ET que ce n'est pas celle du coach connecté,
+                // ne pas la considérer comme un conflit
+                const isCancelledByOther =
+                    (booking.status === "cancelled" || booking.status === "canceled") && !isCurrentCoachBooking;
+
+                if (isCancelledByOther) {
+                    return false;
+                }
 
                 return isSameDay && slotStart < bookingEnd && slotEnd > bookingStart && !isCurrentCoachBooking;
             })
@@ -243,8 +365,9 @@ export default function BookingScreen() {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
-        const selectedDate = new Date(date);
-        selectedDate.setHours(0, 0, 0, 0);
+        // Parser manuellement la date pour éviter les conversions de fuseau
+        const [year, month, day] = date.split("-").map(Number);
+        const selectedDate = new Date(year, month - 1, day, 0, 0, 0, 0);
 
         // Seulement pour aujourd'hui
         if (selectedDate.getTime() !== today.getTime()) {
@@ -252,8 +375,7 @@ export default function BookingScreen() {
         }
 
         const [hours] = timeSlot.split(":").map(Number);
-        const slotStart = new Date(date);
-        slotStart.setHours(hours, 0, 0, 0);
+        const slotStart = new Date(year, month - 1, day, hours, 0, 0, 0);
 
         return slotStart <= now;
     };
@@ -262,20 +384,22 @@ export default function BookingScreen() {
     const isTimeSlotAvailable = (date: string, timeSlot: string): boolean => {
         if (!date) return true;
 
-        const [hours] = timeSlot.split(":").map(Number);
-        const slotStart = new Date(date);
-        slotStart.setHours(hours, 0, 0, 0);
+        // EN MODE ÉDITION: Seuls les créneaux passés sont indisponibles
+        if (isEditMode) {
+            return !isTimeSlotInPast(date, timeSlot);
+        }
 
-        const slotEnd = new Date(date);
-        slotEnd.setHours(hours + 1, 0, 0, 0);
+        const [hours] = timeSlot.split(":").map(Number);
+        const [year, month, day] = date.split("-").map(Number);
+        const slotStart = new Date(year, month - 1, day, hours, 0, 0, 0);
+        const slotEnd = new Date(year, month - 1, day, hours + 1, 0, 0, 0);
 
         // Vérifier si le créneau est dans le passé pour aujourd'hui
         const now = new Date();
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
-        const selectedDate = new Date(date);
-        selectedDate.setHours(0, 0, 0, 0);
+        const selectedDate = new Date(year, month - 1, day, 0, 0, 0, 0);
 
         // Si c'est aujourd'hui et que le créneau est dans le passé
         if (selectedDate.getTime() === today.getTime()) {
@@ -291,8 +415,47 @@ export default function BookingScreen() {
             }
 
             return bookings.some((booking) => {
-                const bookingStart = new Date(booking.dateStart);
-                const bookingEnd = new Date(booking.dateEnd);
+                // Ignorer les réservations annulées par d'autres coachs
+                const isCurrentCoachBooking =
+                    global.user &&
+                    (booking.coachId === parseInt(global.user.id) ||
+                        booking.coach === global.user.id.toString() ||
+                        booking.coach === `/api/users/${global.user.id}`);
+
+                const isCancelledByOther =
+                    (booking.status === "cancelled" || booking.status === "canceled") && !isCurrentCoachBooking;
+
+                if (isCancelledByOther) {
+                    return false;
+                }
+
+                // Parser manuellement les dates de réservation pour éviter les conversions de fuseau
+                const startMatch = booking.dateStart.match(/(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})/);
+                const endMatch = booking.dateEnd.match(/(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})/);
+
+                if (!startMatch || !endMatch) return false;
+
+                const [, bYear, bMonth, bDay, bStartHour, bStartMin] = startMatch;
+                const [, , , , bEndHour, bEndMin] = endMatch;
+
+                const bookingStart = new Date(
+                    parseInt(bYear),
+                    parseInt(bMonth) - 1,
+                    parseInt(bDay),
+                    parseInt(bStartHour),
+                    parseInt(bStartMin),
+                    0,
+                    0
+                );
+                const bookingEnd = new Date(
+                    parseInt(bYear),
+                    parseInt(bMonth) - 1,
+                    parseInt(bDay),
+                    parseInt(bEndHour),
+                    parseInt(bEndMin),
+                    0,
+                    0
+                );
 
                 // Vérifier si les dates sont le même jour
                 const isSameDay = bookingStart.toDateString() === slotStart.toDateString();
@@ -326,41 +489,10 @@ export default function BookingScreen() {
 
     // Gestion de la sélection des créneaux horaires
     const handleTimeSlotPress = (timeSlot: string): void => {
-        // Vérifier si le créneau est disponible
-        if (!isTimeSlotAvailable(selectedDate, timeSlot)) {
-            const unavailabilityInfo = getUnavailabilityReason(selectedDate, timeSlot);
-            let title = "Créneau indisponible";
-            let message = "Ce créneau horaire n'est pas disponible";
+        const isAvailable = isTimeSlotAvailable(selectedDate, timeSlot);
 
-            switch (unavailabilityInfo.reason) {
-                case "past":
-                    title = "Créneau passé";
-                    message = "Ce créneau est dans le passé";
-                    break;
-                case "place-booked":
-                    title = "Installation occupée";
-                    message = "Ce créneau est déjà réservé sur cette installation";
-                    break;
-                case "coach-booked":
-                    title = "Vous avez déjà une réservation";
-                    if (unavailabilityInfo.conflictingBooking) {
-                        const booking = unavailabilityInfo.conflictingBooking;
-                        const startTime = new Date(booking.dateStart).toLocaleTimeString("fr-FR", {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                        });
-                        const endTime = new Date(booking.dateEnd).toLocaleTimeString("fr-FR", {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                        });
-                        message = `Vous avez déjà une réservation de ${startTime} à ${endTime} sur :\n\n${booking.placeEquipmentName}`;
-                    } else {
-                        message = "Vous avez déjà une réservation à ce moment-là";
-                    }
-                    break;
-            }
-
-            Alert.alert(title, message);
+        // Si le créneau n'est pas disponible, ne rien faire (pas d'alerte)
+        if (!isAvailable) {
             return;
         }
 
@@ -412,31 +544,51 @@ export default function BookingScreen() {
                 if (allAvailable) {
                     setSelectedTimeSlots([...selectedTimeSlots, timeSlot]);
                 } else {
-                    Alert.alert("Créneau indisponible", "Un ou plusieurs créneaux dans cette plage sont déjà réservés");
+                    Alert.alert(
+                        "🚫 Plage indisponible",
+                        `Impossible d'étendre votre sélection jusqu'à ${timeSlot}.\n\nUn ou plusieurs créneaux dans cette plage horaire sont déjà réservés.\n\n💡 Conseil : Sélectionnez des créneaux disponibles individuellement.`
+                    );
                 }
             } else {
-                Alert.alert("Erreur", "Vous devez sélectionner des créneaux consécutifs");
+                Alert.alert(
+                    "⚠️ Sélection non consécutive",
+                    `Le créneau ${timeSlot} n'est pas adjacent à votre sélection actuelle.\n\nVous devez sélectionner des créneaux horaires consécutifs pour former une réservation continue.\n\n💡 Conseil : Choisissez un créneau juste avant ou après votre sélection.`
+                );
             }
         }
     };
 
-    // Convertir les créneaux en objets Date pour l'API
+    // Convertir les créneaux en objets Date pour l'API (en tenant compte du fuseau horaire local)
     const getTimeFromSlot = (dateString: string, timeSlot: string): Date | null => {
         if (!dateString) return null;
 
         const [hours, minutes] = timeSlot.split(":").map(Number);
-        const date = new Date(dateString);
-        date.setHours(hours, minutes, 0, 0);
+
+        // Créer la date en utilisant les composants individuels pour éviter les problèmes de fuseau horaire
+        const [year, month, day] = dateString.split("-").map(Number);
+        const date = new Date(year, month - 1, day, hours, minutes, 0, 0);
 
         return date;
     };
 
-    // Fonction pour combiner la date et l'heure en ISO string
+    // Fonction pour combiner la date et l'heure en ISO string (avec gestion du fuseau horaire)
     const combineDateAndTime = (dateString: string, timeSlot: string): string | null => {
         if (!dateString) return null;
 
         const dateTime = getTimeFromSlot(dateString, timeSlot);
-        return dateTime ? dateTime.toISOString() : null;
+        if (!dateTime) return null;
+
+        // Créer une ISO string en gardant le fuseau horaire local
+        // Utiliser la méthode qui préserve le fuseau horaire local
+        const year = dateTime.getFullYear();
+        const month = String(dateTime.getMonth() + 1).padStart(2, "0");
+        const day = String(dateTime.getDate()).padStart(2, "0");
+        const hour = String(dateTime.getHours()).padStart(2, "0");
+        const minute = String(dateTime.getMinutes()).padStart(2, "0");
+        const second = String(dateTime.getSeconds()).padStart(2, "0");
+
+        // Format ISO avec fuseau horaire local (+00:00 sera ajusté par le serveur)
+        return `${year}-${month}-${day}T${hour}:${minute}:${second}+00:00`;
     };
 
     // Soumission du formulaire
@@ -502,9 +654,12 @@ export default function BookingScreen() {
                 return;
             }
 
-            // Envoyer la demande à l'API
-            const response = await fetch(`${API_BASE_URL}/bookings`, {
-                method: "POST",
+            // Envoyer la demande à l'API - POST pour création, PATCH pour modification
+            const url = isEditMode ? `${API_BASE_URL}/bookings/${bookingId}` : `${API_BASE_URL}/bookings`;
+            const method = isEditMode ? "PATCH" : "POST";
+
+            const response = await fetch(url, {
+                method,
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
@@ -515,11 +670,19 @@ export default function BookingScreen() {
             const data = await response.json();
 
             if (!response.ok) {
-                throw new Error(data.message || "Erreur lors de la création de la réservation");
+                const errorMsg = isEditMode
+                    ? "Erreur lors de la modification de la réservation"
+                    : "Erreur lors de la création de la réservation";
+                throw new Error(data.message || errorMsg);
             }
 
             // Succès
-            Alert.alert("Réservation confirmée", "Votre réservation a été enregistrée avec succès !", [
+            const successTitle = isEditMode ? "Réservation modifiée" : "Réservation confirmée";
+            const successMessage = isEditMode
+                ? "Votre réservation a été modifiée avec succès !"
+                : "Votre réservation a été enregistrée avec succès !";
+
+            Alert.alert(successTitle, successMessage, [
                 { text: "OK", onPress: () => router.push("/(coach)/my-bookings" as any) },
             ]);
         } catch (error) {
@@ -551,6 +714,14 @@ export default function BookingScreen() {
             keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 20}
         >
             <ScrollView style={styles.scrollView}>
+                {/* Bandeau d'information en mode édition */}
+                {isEditMode && (
+                    <View style={styles.editModeHeader}>
+                        <Ionicons name="create-outline" size={20} style={styles.editModeIcon} />
+                        <Text style={styles.editModeText}>✏️ Modification d'une réservation existante</Text>
+                    </View>
+                )}
+
                 {/* Informations sur l'installation */}
                 <View style={styles.placeInfo}>
                     <Ionicons name="business-outline" size={24} style={styles.placeInfoIcon} />
@@ -559,7 +730,7 @@ export default function BookingScreen() {
 
                 {/* Sélecteur de date */}
                 <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>Sélectionnez une date</Text>
+                    <Text style={styles.sectionTitle}>{isEditMode ? "Modifier la date" : "Sélectionnez une date"}</Text>
                     <Calendar
                         onDayPress={handleDayPress}
                         markedDates={markedDates}
@@ -584,7 +755,9 @@ export default function BookingScreen() {
 
                 {/* Sélection de l'heure */}
                 <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>Sélectionnez les horaires</Text>
+                    <Text style={styles.sectionTitle}>
+                        {isEditMode ? "Modifier les horaires" : "Sélectionnez les horaires"}
+                    </Text>
 
                     {selectedDate ? (
                         <>
@@ -698,7 +871,9 @@ export default function BookingScreen() {
                 {/* Résumé de la réservation */}
                 {selectedDate && selectedTimeSlots.length > 0 && (
                     <View style={styles.summaryContainer}>
-                        <Text style={styles.summaryTitle}>Résumé de votre réservation</Text>
+                        <Text style={styles.summaryTitle}>
+                            {isEditMode ? "Résumé des modifications" : "Résumé de votre réservation"}
+                        </Text>
                         <View style={styles.summaryItem}>
                             <Text style={styles.summaryLabel}>Date:</Text>
                             <Text style={styles.summaryValue}>
@@ -755,7 +930,9 @@ export default function BookingScreen() {
                     {isSubmitting ? (
                         <ActivityIndicator color={currentTheme.white} size="small" />
                     ) : (
-                        <Text style={styles.submitButtonText}>Confirmer la réservation</Text>
+                        <Text style={styles.submitButtonText}>
+                            {isEditMode ? "Confirmer les modifications" : "Confirmer la réservation"}
+                        </Text>
                     )}
                 </TouchableOpacity>
             </ScrollView>

@@ -48,6 +48,24 @@ export default function (currentTheme: any) {
             marginRight: 10,
             color: currentTheme.text,
         },
+        editModeHeader: {
+            flexDirection: "row",
+            alignItems: "center",
+            backgroundColor: currentTheme.warning + "20", // Couleur warning avec opacité
+            padding: 12,
+            marginBottom: 16,
+            borderLeftWidth: 4,
+            borderLeftColor: currentTheme.warning,
+        },
+        editModeIcon: {
+            color: currentTheme.warning,
+            marginRight: 8,
+        },
+        editModeText: {
+            fontSize: 14,
+            fontWeight: "500",
+            color: currentTheme.warning,
+        },
         section: {
             backgroundColor: currentTheme.lightBackground,
             borderRadius: 12,

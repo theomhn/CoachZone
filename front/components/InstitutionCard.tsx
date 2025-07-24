@@ -2,6 +2,7 @@ import getStyles from "@/assets/styles/institutionCard";
 import { useTheme } from "@/hooks/useTheme";
 import { InstitutionCardProps } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
 import React from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 import Badge from "./Badge";
@@ -71,11 +72,11 @@ const InstitutionCard: React.FC<InstitutionCardProps> = ({
                     </View>
                 )}
 
-                {/* Bouton "Voir plus" (optionnel) */}
+                {/* Bouton de réservation */}
                 {showDetailsButton && onViewDetails && (
-                    <TouchableOpacity style={styles.detailsButton} onPress={onViewDetails} activeOpacity={0.7}>
-                        <Text style={styles.detailsButtonText}>Voir plus de détails</Text>
-                        <Ionicons name="chevron-forward" size={18} style={styles.icon} />
+                    <TouchableOpacity style={styles.reservationButton} onPress={onViewDetails} activeOpacity={0.7}>
+                        <Ionicons name="calendar" size={16} style={[styles.icon, { marginRight: 4 }]} />
+                        <Text style={styles.reservationButtonText}>Réserver maintenant une séance</Text>
                     </TouchableOpacity>
                 )}
             </View>

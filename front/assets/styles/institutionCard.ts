@@ -98,5 +98,21 @@ export default function (currentTheme: any) {
             fontWeight: "600",
             marginRight: 4,
         },
+        reservationButton: {
+            backgroundColor: currentTheme.success,
+            borderRadius: 8,
+            paddingVertical: 10,
+            paddingHorizontal: 16,
+            marginTop: 8,
+            flexDirection: "row",
+            justifyContent: "center",
+            alignItems: "center",
+        },
+        reservationButtonText: {
+            color: currentTheme.white,
+            fontSize: 14,
+            fontWeight: "600",
+            marginRight: 4,
+        },
     });
 }

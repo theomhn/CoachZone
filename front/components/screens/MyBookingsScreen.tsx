@@ -5,6 +5,7 @@ import { Booking } from "@/types";
 import { formatDate } from "@/utils/date";
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
+import { router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import React, { useCallback, useEffect, useState } from "react";
 import { ActivityIndicator, Alert, FlatList, RefreshControl, Text, TouchableOpacity, View } from "react-native";
@@ -115,8 +116,17 @@ export default function MyBookingsScreen() {
         }, [fetchBookings])
     );
 
-    // Fonction pour formater l'heure
+    // Fonction pour formater l'heure (sans conversion de fuseau horaire)
     const formatTime = (dateString: string): string => {
+        // Parser manuellement la date ISO pour éviter la conversion de fuseau horaire
+        // Format: YYYY-MM-DDTHH:MM:SS
+        const isoMatch = dateString.match(/(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})/);
+        if (isoMatch) {
+            const [, year, month, day, hour, minute, second] = isoMatch;
+            return `${hour}:${minute}`;
+        }
+
+        // Fallback vers l'ancienne méthode si le format n'est pas reconnu
         const date = new Date(dateString);
         return date.toLocaleTimeString("fr-FR", {
             hour: "2-digit",
@@ -124,35 +134,199 @@ export default function MyBookingsScreen() {
         });
     };
 
+    // Fonction pour annuler une réservation
+    const cancelBooking = useCallback(
+        async (booking: Booking) => {
+            Alert.alert(
+                "Confirmer l'annulation",
+                `Êtes-vous sûr de vouloir annuler cette réservation du ${formatDate(booking.dateStart)} ?`,
+                [
+                    {
+                        text: "Annuler",
+                        style: "cancel",
+                    },
+                    {
+                        text: "Confirmer l'annulation",
+                        style: "destructive",
+                        onPress: async () => {
+                            try {
+                                const token = await SecureStore.getItemAsync("userToken");
+                                if (!token) {
+                                    Alert.alert("Erreur", "Token d'authentification manquant");
+                                    return;
+                                }
+
+                                const response = await fetch(`${API_BASE_URL}/bookings/${booking.id}`, {
+                                    method: "DELETE",
+                                    headers: {
+                                        Authorization: `Bearer ${token}`,
+                                        "Content-Type": "application/json",
+                                    },
+                                });
+
+                                if (!response.ok) {
+                                    throw new Error("Erreur lors de l'annulation de la réservation");
+                                }
+
+                                Alert.alert("Succès", "Votre réservation a été annulée avec succès");
+                                fetchBookings(); // Recharger la liste
+                            } catch (error) {
+                                console.error("Erreur annulation:", error);
+                                Alert.alert("Erreur", "Impossible d'annuler la réservation");
+                            }
+                        },
+                    },
+                ]
+            );
+        },
+        [fetchBookings]
+    );
+
+    // Fonction pour modifier une réservation
+    const modifyBooking = useCallback((booking: Booking) => {
+        // Vérifier que les données nécessaires sont présentes
+        if (!booking.place) {
+            Alert.alert("Erreur", "Impossible de modifier cette réservation : informations de la place manquantes");
+            return;
+        }
+
+        if (!booking.id) {
+            Alert.alert("Erreur", "Impossible de modifier cette réservation : ID de réservation manquant");
+            return;
+        }
+
+        // Extraire l'ID de la place depuis l'URL (ex: "/api/places/123" -> "123")
+        let placeId;
+        try {
+            placeId = booking.place.toString().split("/").pop() || booking.place.toString();
+        } catch (error) {
+            Alert.alert("Erreur", "Impossible d'extraire l'ID de la place");
+            return;
+        }
+
+        // Construire les paramètres de façon sécurisée
+        const params = {
+            placeId: placeId,
+            placeName: booking.placeEquipmentName || "Équipement",
+            placePrice: booking.price?.toString() || "0",
+            editMode: "true",
+            bookingId: booking.id?.toString() || "",
+            currentStartDate: booking.dateStart || "",
+            currentEndDate: booking.dateEnd || "",
+        };
+
+        // Naviguer vers l'écran de modification de réservation
+        try {
+            router.push({
+                pathname: "/booking",
+                params: params,
+            });
+        } catch (error) {
+            Alert.alert("Erreur", "Impossible de naviguer vers l'écran de modification");
+        }
+    }, []);
+
     // Rendu d'une réservation
     const renderBookingItem = ({ item }: { item: Booking }) => {
         const currentUser = global.user;
+        const now = new Date();
+        const bookingEndDate = new Date(item.dateEnd);
+        const isUpcoming = bookingEndDate >= now;
+        const isCancelled = item.status === "cancelled";
 
         return (
-            <View style={styles.bookingCard}>
+            <View style={[styles.bookingCard, isCancelled && styles.cancelledBookingCard]}>
+                {/* Badge "ANNULÉE" pour les réservations annulées */}
+                {isCancelled && (
+                    <View style={styles.cancelledBadge}>
+                        <Text style={styles.cancelledBadgeText}>ANNULÉE</Text>
+                    </View>
+                )}
+
                 <View style={styles.bookingHeader}>
                     <View style={styles.dateContainer}>
-                        <Text style={styles.dateText}>{formatDate(item.dateStart).split(" à ")[0]}</Text>
-                        <Text style={styles.timeText}>
+                        <Text style={[styles.dateText, isCancelled && styles.cancelledText]}>
+                            {formatDate(item.dateStart).split(" à ")[0]}
+                        </Text>
+                        <Text style={[styles.timeText, isCancelled && styles.cancelledText]}>
                             {formatTime(item.dateStart)} - {formatTime(item.dateEnd)}
+                        </Text>
+                    </View>
+
+                    {/* Prix de la réservation */}
+                    <View style={styles.priceContainer}>
+                        <Text style={[styles.priceText, isCancelled && styles.cancelledPriceText]}>
+                            {isCancelled ? (
+                                <>
+                                    <Text style={styles.strikethrough}>{item.price} €</Text>
+                                    <Text style={styles.refundText}> • Remboursée</Text>
+                                </>
+                            ) : (
+                                `${item.price} €`
+                            )}
                         </Text>
                     </View>
                 </View>
 
                 <View style={styles.bookingDetails}>
                     <View style={styles.detailRow}>
-                        <Ionicons name="location-outline" size={18} style={styles.icon} />
-                        <Text style={styles.detailText}>{item.placeEquipmentName || "Lieu non disponible"}</Text>
+                        <Ionicons
+                            name="location-outline"
+                            size={18}
+                            style={[styles.icon, isCancelled && styles.cancelledIcon]}
+                        />
+                        <Text style={[styles.detailText, isCancelled && styles.cancelledText]}>
+                            {item.placeEquipmentName || "Lieu non disponible"}
+                        </Text>
                     </View>
 
                     {/* Afficher le nom du coach pour les institutions */}
                     {currentUser && currentUser.type === "institution" && item.coachFullName && (
                         <View style={styles.detailRow}>
-                            <Ionicons name="person-outline" size={18} style={styles.icon} />
-                            <Text style={styles.detailText}>{item.coachFullName}</Text>
+                            <Ionicons
+                                name="person-outline"
+                                size={18}
+                                style={[styles.icon, isCancelled && styles.cancelledIcon]}
+                            />
+                            <Text style={[styles.detailText, isCancelled && styles.cancelledText]}>
+                                {item.coachFullName}
+                            </Text>
+                        </View>
+                    )}
+
+                    {/* Afficher la date d'annulation si applicable */}
+                    {isCancelled && item.cancelledAt && (
+                        <View style={styles.detailRow}>
+                            <Ionicons name="close-circle-outline" size={18} style={styles.cancelledIcon} />
+                            <Text style={styles.cancelledDateText}>
+                                Annulée le {new Date(item.cancelledAt).toLocaleDateString("fr-FR")}
+                            </Text>
                         </View>
                     )}
                 </View>
+
+                {/* Boutons d'action pour les réservations à venir NON ANNULÉES */}
+                {isUpcoming && showUpcoming && !isCancelled && (
+                    <View style={styles.actionsContainer}>
+                        <TouchableOpacity
+                            style={[styles.actionButton, styles.modifyButton]}
+                            onPress={() => modifyBooking(item)}
+                            activeOpacity={0.7}
+                        >
+                            <Ionicons name="create-outline" size={18} style={styles.actionIcon} />
+                            <Text style={styles.actionText}>Modifier</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                            style={[styles.actionButton, styles.cancelButton]}
+                            onPress={() => cancelBooking(item)}
+                            activeOpacity={0.7}
+                        >
+                            <Ionicons name="trash-outline" size={18} style={styles.actionIconCancel} />
+                            <Text style={styles.actionTextCancel}>Annuler</Text>
+                        </TouchableOpacity>
+                    </View>
+                )}
             </View>
         );
     };
