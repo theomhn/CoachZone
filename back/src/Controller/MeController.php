@@ -28,11 +28,11 @@ class MeController extends AbstractController
             $userData['firstName'] = $user->getFirstName();
             $userData['lastName'] = $user->getLastName();
             $userData['work'] = $user->getWork();
-            $userData['type'] = 'coach';
+            $userData['type'] = 'ROLE_COACH';
         } elseif ($user instanceof \App\Entity\Institution) {
             $userData['inst_numero'] = $user->getInstNumero();
             $userData['inst_name'] = $user->getInstName();
-            $userData['type'] = 'institution';
+            $userData['type'] = 'ROLE_INSTITUTION';
         }
 
         return $this->json($userData);

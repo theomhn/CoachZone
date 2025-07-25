@@ -333,9 +333,9 @@ final class OpenApiSchemaDecorator implements OpenApiFactoryInterface
                                     ],
                                     'type' => [
                                         'type' => 'string',
-                                        'enum' => ['coach', 'institution'],
+                                        'enum' => ['ROLE_COACH', 'ROLE_INSTITUTION'],
                                         'description' => 'Type d\'utilisateur',
-                                        'example' => 'coach'
+                                        'example' => 'ROLE_COACH'
                                     ],
                                     'firstName' => [
                                         'type' => 'string',
@@ -367,7 +367,7 @@ final class OpenApiSchemaDecorator implements OpenApiFactoryInterface
                                     'value' => [
                                         'email' => 'jean.dupont@gmail.com',
                                         'password' => 'MotDePasseCoach123',
-                                        'type' => 'coach',
+                                        'type' => 'ROLE_COACH',
                                         'firstName' => 'Jean',
                                         'lastName' => 'Dupont',
                                         'work' => 'Entraîneur de football'
@@ -379,7 +379,7 @@ final class OpenApiSchemaDecorator implements OpenApiFactoryInterface
                                     'value' => [
                                         'email' => 'contact@centresportif.com',
                                         'password' => 'MotDePasseInstitution123',
-                                        'type' => 'institution',
+                                        'type' => 'ROLE_INSTITUTION',
                                         'inst_numero' => 'INST001'
                                     ]
                                 ]

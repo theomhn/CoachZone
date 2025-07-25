@@ -28,8 +28,8 @@ class RegistrationController extends AbstractController
         try {
             // Vérifier le type d'utilisateur
             $user = match ($data['type']) {
-                'coach' => new Coach(),
-                'institution' => new Institution(),
+                'ROLE_COACH' => new Coach(),
+                'ROLE_INSTITUTION' => new Institution(),
                 default => throw new \InvalidArgumentException('Invalid user type')
             };
 
