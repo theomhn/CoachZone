@@ -28,7 +28,7 @@ export interface Institution {
 export interface User {
     id: string;
     email: string;
-    type: "coach" | "institution";
+    type: "ROLE_COACH" | "ROLE_INSTITUTION";
     firstName?: string;
     lastName?: string;
     work?: string;

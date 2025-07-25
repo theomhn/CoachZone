@@ -17,7 +17,7 @@ export default function MapScreen() {
     // Protection : Rediriger si pas coach
     useFocusEffect(
         useCallback(() => {
-            if (!global.user || global.user.type !== "coach") {
+            if (!global.user || global.user.type !== "ROLE_COACH") {
                 router.replace("/(auth)/login" as any);
                 return;
             }
@@ -50,7 +50,7 @@ export default function MapScreen() {
     } = useInstitutionFiltersContext();
 
     // Si pas coach, ne pas afficher l'écran
-    if (!global.user || global.user.type !== "coach") {
+    if (!global.user || global.user.type !== "ROLE_COACH") {
         return null;
     }
 

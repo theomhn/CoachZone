@@ -17,7 +17,7 @@ export default function IndexScreen() {
     }, []);
 
     const checkPriceStatus = async (userData: User) => {
-        if (userData.type !== "institution") {
+        if (userData.type !== "ROLE_INSTITUTION") {
             setHasConfiguredPrices(true);
             return;
         }
@@ -73,7 +73,7 @@ export default function IndexScreen() {
                 global.user = userData;
 
                 // Vérifier les prix seulement pour les institutions
-                if (userData.type === "institution") {
+                if (userData.type === "ROLE_INSTITUTION") {
                     await checkPriceStatus(userData);
                 }
             } else {
@@ -88,7 +88,7 @@ export default function IndexScreen() {
     };
 
     // Afficher un loader pendant la vérification
-    if (isLoading || (user?.type === "institution" && hasConfiguredPrices === null)) {
+    if (isLoading || (user?.type === "ROLE_INSTITUTION" && hasConfiguredPrices === null)) {
         return (
             <View
                 style={{
@@ -108,11 +108,11 @@ export default function IndexScreen() {
         return <Redirect href="/(auth)/login" />;
     }
 
-    if (user.type === "coach") {
+    if (user.type === "ROLE_COACH") {
         return <Redirect href="/(coach)/institutions" />;
     }
 
-    if (user.type === "institution") {
+    if (user.type === "ROLE_INSTITUTION") {
         // Vérifier si l'institution a configuré au moins un prix
         if (hasConfiguredPrices === false) {
             return <Redirect href="/(institution)/profile" />;

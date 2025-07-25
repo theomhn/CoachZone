@@ -19,11 +19,11 @@ import {
     View,
 } from "react-native";
 
-type UserType = "coach" | "institution";
+type UserType = "ROLE_COACH" | "ROLE_INSTITUTION";
 
 export default function RegisterScreen() {
     // Pour les coach
-    const [userType, setUserType] = useState<UserType>("coach");
+    const [userType, setUserType] = useState<UserType>("ROLE_COACH");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [firstName, setFirstName] = useState("");
@@ -46,7 +46,7 @@ export default function RegisterScreen() {
 
     // Charger la liste des institutions
     useEffect(() => {
-        if (userType === "institution") {
+        if (userType === "ROLE_INSTITUTION") {
             fetchInstitutions();
         }
     }, [userType]);
@@ -100,7 +100,7 @@ export default function RegisterScreen() {
         }
 
         let body;
-        if (userType === "coach") {
+        if (userType === "ROLE_COACH") {
             if (!firstName || !lastName || !work) {
                 Alert.alert("Erreur", "Veuillez remplir tous les champs");
                 return;
@@ -153,7 +153,7 @@ export default function RegisterScreen() {
     };
 
     const handleSearchFocus = () => {
-        if (userType === "institution" && !isLoadingInstitutions) {
+        if (userType === "ROLE_INSTITUTION" && !isLoadingInstitutions) {
             setShowModal(true);
         }
     };
@@ -171,26 +171,26 @@ export default function RegisterScreen() {
 
                 <View style={styles.typeSelector}>
                     <TouchableOpacity
-                        style={[styles.typeButton, userType === "coach" && styles.selectedType]}
+                        style={[styles.typeButton, userType === "ROLE_COACH" && styles.selectedType]}
                         onPress={() => {
-                            setUserType("coach");
+                            setUserType("ROLE_COACH");
                             setSelectedInstitution(null);
                             setSearchText("");
                         }}
                     >
-                        <Text style={[styles.typeText, userType === "coach" && styles.selectedTypeText]}>Coach</Text>
+                        <Text style={[styles.typeText, userType === "ROLE_COACH" && styles.selectedTypeText]}>Coach</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
-                        style={[styles.typeButton, userType === "institution" && styles.selectedType]}
-                        onPress={() => setUserType("institution")}
+                        style={[styles.typeButton, userType === "ROLE_INSTITUTION" && styles.selectedType]}
+                        onPress={() => setUserType("ROLE_INSTITUTION")}
                     >
-                        <Text style={[styles.typeText, userType === "institution" && styles.selectedTypeText]}>
+                        <Text style={[styles.typeText, userType === "ROLE_INSTITUTION" && styles.selectedTypeText]}>
                             Institution
                         </Text>
                     </TouchableOpacity>
                 </View>
 
-                {userType === "coach" && (
+                {userType === "ROLE_COACH" && (
                     <>
                         <View style={styles.inputContainer}>
                             <Text style={styles.label}>Prénom</Text>
@@ -242,7 +242,7 @@ export default function RegisterScreen() {
                     />
                 </View>
 
-                {userType === "coach" ? (
+                {userType === "ROLE_COACH" ? (
                     <View style={styles.inputContainer}>
                         <Text style={styles.label}>Profession</Text>
                         <TextInput

@@ -22,7 +22,7 @@ export default function BookingScreen() {
     // Protection : Rediriger si pas coach
     useFocusEffect(
         useCallback(() => {
-            if (!global.user || global.user.type !== "coach") {
+            if (!global.user || global.user.type !== "ROLE_COACH") {
                 router.replace("/(auth)/login" as any);
                 return;
             }
@@ -57,7 +57,7 @@ export default function BookingScreen() {
     const styles = getStyles(currentTheme);
 
     // Si pas coach, ne pas afficher l'écran
-    if (!global.user || global.user.type !== "coach") {
+    if (!global.user || global.user.type !== "ROLE_COACH") {
         return null;
     }
 
@@ -120,7 +120,7 @@ export default function BookingScreen() {
 
     // Fonction pour récupérer les réservations du coach connecté
     const fetchCoachBookings = async () => {
-        if (!global.user || global.user.type !== "coach") return;
+        if (!global.user || global.user.type !== "ROLE_COACH") return;
 
         try {
             const token = await SecureStore.getItemAsync("userToken");
@@ -626,7 +626,7 @@ export default function BookingScreen() {
         }
 
         // Récupérer l'ID du coach à partir des données utilisateur globales
-        if (!global.user || global.user.type !== "coach") {
+        if (!global.user || global.user.type !== "ROLE_COACH") {
             Alert.alert("Erreur", "Vous devez être connecté en tant que coach pour réserver");
             return;
         }

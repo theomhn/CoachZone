@@ -9,7 +9,7 @@ export const usePriceStatus = (user: any) => {
     const [isLoading, setIsLoading] = useState(false);
 
     const checkPriceStatus = useCallback(async () => {
-        if (!user || user.type !== "institution") {
+        if (!user || user.type !== "ROLE_INSTITUTION") {
             setHasConfiguredPrices(true); // Si ce n'est pas une institution, on considère que c'est OK
             return;
         }

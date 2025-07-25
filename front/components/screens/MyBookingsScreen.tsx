@@ -281,7 +281,7 @@ export default function MyBookingsScreen() {
                     </View>
 
                     {/* Afficher le nom du coach pour les institutions */}
-                    {currentUser && currentUser.type === "institution" && item.coachFullName && (
+                    {currentUser && currentUser.type === "ROLE_INSTITUTION" && item.coachFullName && (
                         <View style={styles.detailRow}>
                             <Ionicons
                                 name="person-outline"

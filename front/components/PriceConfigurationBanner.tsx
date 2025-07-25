@@ -24,7 +24,7 @@ const PriceConfigurationBanner = React.forwardRef<{ refresh: () => void }, Price
         const styles = getStyles(currentTheme);
 
         const checkPriceStatus = useCallback(async () => {
-            if (!user || user.type !== "institution") {
+            if (!user || user.type !== "ROLE_INSTITUTION") {
                 setShouldShow(false);
                 return;
             }

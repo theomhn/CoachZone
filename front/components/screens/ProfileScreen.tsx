@@ -28,7 +28,7 @@ export default function ProfileScreen({ onPriceUpdated }: ProfileScreenProps) {
             setUser(global.user);
 
             // Si l'utilisateur est une institution, récupérer ses places
-            if (global.user.type === "institution") {
+            if (global.user.type === "ROLE_INSTITUTION") {
                 fetchPlaces();
             }
         } else {
@@ -155,7 +155,7 @@ export default function ProfileScreen({ onPriceUpdated }: ProfileScreenProps) {
                     <Text style={styles.label}>Email</Text>
                     <Text style={styles.value}>{user.email}</Text>
 
-                    {user.type === "coach" ? (
+                    {user.type === "ROLE_COACH" ? (
                         <>
                             <Text style={styles.label}>Prénom</Text>
                             <Text style={styles.value}>{user.firstName}</Text>
@@ -178,7 +178,7 @@ export default function ProfileScreen({ onPriceUpdated }: ProfileScreenProps) {
                 </View>
 
                 {/* Section de gestion des prix pour les utilisateurs institution */}
-                {user.type === "institution" && (
+                {user.type === "ROLE_INSTITUTION" && (
                     <View style={styles.placesSection}>
                         <Text style={styles.sectionTitle}>
                             <Ionicons name="cash-outline" size={20} style={styles.icon} /> Gestion des prix
