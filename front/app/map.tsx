@@ -1,16 +1,16 @@
 import getStyles from "@/assets/styles/mapScreen";
+import Button from "@/components/Button";
 import InstitutionCard from "@/components/InstitutionCard";
 import SearchFilterBar from "@/components/SearchFilterBar";
 import { API_BASE_URL } from "@/config";
 import { useInstitutionFiltersContext } from "@/contexts/InstitutionFiltersContext";
 import { useTheme } from "@/hooks/useTheme";
 import { Institution } from "@/types";
-import { Ionicons } from "@expo/vector-icons";
 import * as Location from "expo-location";
 import { router, useFocusEffect } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import React, { useCallback, useEffect, useState } from "react";
-import { ActivityIndicator, Alert, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Alert, View } from "react-native";
 import MapView, { Marker, PROVIDER_DEFAULT } from "react-native-maps";
 
 export default function MapScreen() {
@@ -206,9 +206,22 @@ export default function MapScreen() {
 
             {/* Bouton pour centrer sur l'utilisateur */}
             {userLocation && (
-                <TouchableOpacity style={styles.locationButton} onPress={centerOnUserLocation}>
-                    <Ionicons name="locate" size={24} style={styles.icon} />
-                </TouchableOpacity>
+                <Button
+                    onPress={centerOnUserLocation}
+                    variant="floating"
+                    icon="locate"
+                    iconSize={24}
+                    style={{
+                        position: "absolute",
+                        bottom: 20,
+                        right: 20,
+                        backgroundColor: currentTheme.background,
+                        borderRadius: 30,
+                        padding: 10,
+                        width: 50,
+                        height: 50,
+                    }}
+                />
             )}
 
             {/* Utilisation du InstitutionCard partagé en mode popup */}

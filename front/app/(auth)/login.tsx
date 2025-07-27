@@ -1,20 +1,11 @@
 import getStyles from "@/assets/styles/authScreen";
+import Button from "@/components/Button";
 import { API_BASE_URL } from "@/config";
 import { useTheme } from "@/hooks/useTheme";
 import { router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import React, { useState } from "react";
-import {
-    Alert,
-    Image,
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
-} from "react-native";
+import { Alert, Image, KeyboardAvoidingView, Platform, ScrollView, Text, TextInput, View } from "react-native";
 
 export default function LoginScreen() {
     const [email, setEmail] = useState("coach@test.com");
@@ -100,20 +91,28 @@ export default function LoginScreen() {
                     />
                 </View>
 
-                <TouchableOpacity style={styles.button} onPress={handleLogin} disabled={isLoading}>
-                    <Text style={styles.buttonText}>{isLoading ? "Chargement..." : "Se connecter"}</Text>
-                </TouchableOpacity>
+                <Button
+                    title={isLoading ? "Chargement..." : "Se connecter"}
+                    onPress={handleLogin}
+                    variant="primary"
+                    size="large"
+                    disabled={isLoading}
+                    loading={isLoading}
+                    fullWidth
+                />
 
-                <TouchableOpacity
-                    style={styles.linkButton}
+                <Button
+                    title="Mot de passe oublié ?"
                     onPress={() => router.push({ pathname: "/(auth)/reset-password", params: { email } })}
-                >
-                    <Text style={styles.linkText}>Mot de passe oublié ?</Text>
-                </TouchableOpacity>
+                    variant="link"
+                    style={{ marginTop: 20 }}
+                />
 
-                <TouchableOpacity style={styles.linkButton} onPress={() => router.replace("/(auth)/register")}>
-                    <Text style={styles.linkText}>Pas encore de compte ? S'inscrire</Text>
-                </TouchableOpacity>
+                <Button
+                    title="Pas encore de compte ? S'inscrire"
+                    onPress={() => router.replace("/(auth)/register")}
+                    variant="link"
+                />
             </ScrollView>
         </KeyboardAvoidingView>
     );

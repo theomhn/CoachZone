@@ -1,4 +1,5 @@
 import getStyles from "@/assets/styles/authScreen";
+import Button from "@/components/Button";
 import { API_BASE_URL } from "@/config";
 import { useTheme } from "@/hooks/useTheme";
 import { InstitutionRegister } from "@/types";
@@ -170,24 +171,24 @@ export default function RegisterScreen() {
                 </View>
 
                 <View style={styles.typeSelector}>
-                    <TouchableOpacity
-                        style={[styles.typeButton, userType === "ROLE_COACH" && styles.selectedType]}
+                    <Button
+                        title="Coach"
                         onPress={() => {
                             setUserType("ROLE_COACH");
                             setSelectedInstitution(null);
                             setSearchText("");
                         }}
-                    >
-                        <Text style={[styles.typeText, userType === "ROLE_COACH" && styles.selectedTypeText]}>Coach</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        style={[styles.typeButton, userType === "ROLE_INSTITUTION" && styles.selectedType]}
+                        variant="selection"
+                        selected={userType === "ROLE_COACH"}
+                        style={{ flex: 1, marginRight: 8 }}
+                    />
+                    <Button
+                        title="Institution"
                         onPress={() => setUserType("ROLE_INSTITUTION")}
-                    >
-                        <Text style={[styles.typeText, userType === "ROLE_INSTITUTION" && styles.selectedTypeText]}>
-                            Institution
-                        </Text>
-                    </TouchableOpacity>
+                        variant="selection"
+                        selected={userType === "ROLE_INSTITUTION"}
+                        style={{ flex: 1, marginLeft: 8 }}
+                    />
                 </View>
 
                 {userType === "ROLE_COACH" && (
@@ -255,7 +256,7 @@ export default function RegisterScreen() {
                     </View>
                 ) : (
                     <View style={styles.inputContainer}>
-                        <Text style={styles.label}>Nom de l'établissement</Text>
+                        <Text style={styles.label}>Nom de l&apos;établissement</Text>
                         {isLoadingInstitutions ? (
                             <View style={[styles.input, styles.loadingContainer]}>
                                 <ActivityIndicator size="small" color={currentTheme.primary} />
@@ -273,13 +274,22 @@ export default function RegisterScreen() {
                     </View>
                 )}
 
-                <TouchableOpacity style={styles.button} onPress={handleRegister} disabled={isLoading}>
-                    <Text style={styles.buttonText}>{isLoading ? "Chargement..." : "S'inscrire"}</Text>
-                </TouchableOpacity>
+                <Button
+                    title={isLoading ? "Chargement..." : "S'inscrire"}
+                    onPress={handleRegister}
+                    variant="primary"
+                    size="large"
+                    disabled={isLoading}
+                    loading={isLoading}
+                    fullWidth
+                />
 
-                <TouchableOpacity style={styles.linkButton} onPress={() => router.replace("/login")}>
-                    <Text style={styles.linkText}>Déjà un compte ? Se connecter</Text>
-                </TouchableOpacity>
+                <Button
+                    title="Déjà un compte ? Se connecter"
+                    onPress={() => router.replace("/login")}
+                    variant="link"
+                    style={{ marginTop: 20 }}
+                />
             </ScrollView>
 
             {/* Modal pour la recherche d'établissements */}
@@ -300,9 +310,12 @@ export default function RegisterScreen() {
                                 autoFocus
                                 placeholderTextColor={currentTheme.placeholder}
                             />
-                            <TouchableOpacity style={styles.closeButton} onPress={() => setShowModal(false)}>
-                                <Text style={styles.closeButtonText}>Fermer</Text>
-                            </TouchableOpacity>
+                            <Button
+                                title="Fermer"
+                                onPress={() => setShowModal(false)}
+                                variant="secondary"
+                                size="small"
+                            />
                         </View>
 
                         <FlatList

@@ -3,7 +3,7 @@ import { useTheme } from "@/hooks/useTheme";
 import { FavoriteButtonProps } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import * as SecureStore from "expo-secure-store";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Alert, StyleSheet, TouchableOpacity } from "react-native";
 
 export default function FavoriteButton({ instNumero, size = 24, onFavoriteChange, style }: FavoriteButtonProps) {
@@ -11,12 +11,7 @@ export default function FavoriteButton({ instNumero, size = 24, onFavoriteChange
     const [isLoading, setIsLoading] = useState(false);
     const { currentTheme } = useTheme();
 
-    // Vérifier si l'institution est déjà en favoris au montage
-    useEffect(() => {
-        checkIfFavorite();
-    }, [instNumero]);
-
-    const checkIfFavorite = async () => {
+    const checkIfFavorite = useCallback(async () => {
         try {
             const token = await SecureStore.getItemAsync("userToken");
             if (!token) return;
@@ -37,7 +32,12 @@ export default function FavoriteButton({ instNumero, size = 24, onFavoriteChange
         } catch (error) {
             console.error("Erreur lors de la vérification des favoris:", error);
         }
-    };
+    }, [instNumero]);
+
+    // Vérifier si l'institution est déjà en favoris au montage
+    useEffect(() => {
+        checkIfFavorite();
+    }, [checkIfFavorite]);
 
     const toggleFavorite = async () => {
         if (isLoading) return;

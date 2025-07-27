@@ -35,6 +35,65 @@ export interface User {
     name?: string;
     inst_numero?: string;
     inst_name?: string;
+    adresse?: string;
+    ville?: string;
+    coordonnees?: {
+        latitude: number;
+        longitude: number;
+    };
+    activites?: string[];
+    equipements?: string[];
+}
+
+/**
+ * Types pour la mise à jour du profil utilisateur
+ */
+export interface UpdateCoachProfile {
+    email?: string; // Email requis par l'API
+    firstName?: string;
+    lastName?: string;
+    work?: string;
+}
+
+export interface UpdateInstitutionProfile {
+    email?: string; // Email requis par l'API
+    inst_name?: string;
+    adresse?: string;
+    ville?: string;
+    coordonnees?: {
+        latitude: number;
+        longitude: number;
+    };
+    activites?: string[];
+    equipements?: string[];
+}
+
+/**
+ * Types pour le changement de mot de passe
+ */
+export interface PasswordChangeRequest {
+    currentPassword: string;
+    newPassword: string;
+    confirmPassword: string;
+}
+
+/**
+ * Types pour le système de changement d'email
+ */
+export interface EmailChangeRequest {
+    newEmail: string;
+}
+
+export interface EmailChangeConfirm {
+    code: string;
+}
+
+export interface EmailChangeStatus {
+    canInitiateChange: boolean;
+    currentEmail: string;
+    pendingEmail?: string;
+    expiresAt?: string;
+    message?: string;
 }
 
 /**

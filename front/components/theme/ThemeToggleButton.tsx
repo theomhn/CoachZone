@@ -1,8 +1,7 @@
-import getStyles from "@/assets/styles/ThemeToggleButton";
 import { useTheme } from "@/hooks/useTheme";
 import Feather from "@expo/vector-icons/Feather";
 import React, { useState } from "react";
-import { TouchableOpacity, View } from "react-native";
+import { StyleSheet, TouchableOpacity, View } from "react-native";
 import ThemeSelector from "./ThemeSelector";
 /**
  * Composant à placer dans le Header des écrans
@@ -12,7 +11,18 @@ export const ThemeToggleButton: React.FC = () => {
     const [isModalVisible, setIsModalVisible] = useState(false);
     // Récupérer le thème actuel et les couleurs associées
     const { currentTheme } = useTheme();
-    const styles = getStyles(currentTheme);
+
+    const styles = StyleSheet.create({
+        container: {
+            marginRight: 16,
+        },
+        button: {
+            padding: 0,
+        },
+        iconPrimary: {
+            color: currentTheme.primary,
+        },
+    });
 
     const openModal = () => {
         setIsModalVisible(true);

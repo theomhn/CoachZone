@@ -1,4 +1,3 @@
-import getStyles from "@/assets/styles/PriceConfigurationBanner";
 import { API_BASE_URL } from "@/config";
 import { useTheme } from "@/hooks/useTheme";
 import { Place } from "@/types";
@@ -6,7 +5,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import React, { useCallback, useEffect, useState } from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 interface PriceConfigurationBannerProps {
     user: any;
@@ -21,7 +20,50 @@ const PriceConfigurationBanner = React.forwardRef<{ refresh: () => void }, Price
 
         // Récupérer le thème actuel et les couleurs associées
         const { currentTheme } = useTheme();
-        const styles = getStyles(currentTheme);
+
+        const styles = StyleSheet.create({
+            banner: {
+                backgroundColor: currentTheme.danger,
+                paddingHorizontal: 16,
+                paddingVertical: 12,
+                flexDirection: "row",
+                alignItems: "center",
+                borderBottomWidth: 1,
+                borderBottomColor: currentTheme.border,
+            },
+            iconContainer: {
+                marginRight: 12,
+            },
+            icon: {
+                color: currentTheme.warning,
+            },
+            textContainer: {
+                flex: 1,
+            },
+            title: {
+                fontSize: 14,
+                fontWeight: "600",
+                color: currentTheme.white,
+                marginBottom: 2,
+            },
+            subtitle: {
+                fontSize: 12,
+                color: currentTheme.white,
+                opacity: 0.9,
+            },
+            button: {
+                backgroundColor: currentTheme.white,
+                paddingHorizontal: 12,
+                paddingVertical: 6,
+                borderRadius: 6,
+                marginLeft: 8,
+            },
+            buttonText: {
+                fontSize: 12,
+                fontWeight: "600",
+                color: currentTheme.black,
+            },
+        });
 
         const checkPriceStatus = useCallback(async () => {
             if (!user || user.type !== "ROLE_INSTITUTION") {

@@ -1,4 +1,5 @@
 import getStyles from "@/assets/styles/bookingScreen";
+import Button from "@/components/Button";
 import { API_BASE_URL } from "@/config";
 import { useTheme } from "@/hooks/useTheme";
 import { Booking } from "@/types";
@@ -843,14 +844,13 @@ export default function BookingScreen() {
                             </View>
 
                             {timeSlots.length > 6 && (
-                                <TouchableOpacity
-                                    style={styles.showMoreButton}
+                                <Button
+                                    title={showAllTimeSlots ? "Voir moins" : "Voir plus"}
                                     onPress={() => setShowAllTimeSlots(!showAllTimeSlots)}
-                                >
-                                    <Text style={styles.showMoreButtonText}>
-                                        {showAllTimeSlots ? "Voir moins" : "Voir plus"}
-                                    </Text>
-                                </TouchableOpacity>
+                                    variant="secondary"
+                                    size="small"
+                                    style={{ marginTop: 10, alignSelf: "center" }}
+                                />
                             )}
                         </>
                     ) : (
@@ -919,22 +919,15 @@ export default function BookingScreen() {
                 )}
 
                 {/* Bouton de soumission */}
-                <TouchableOpacity
-                    style={[
-                        styles.submitButton,
-                        (!selectedDate || selectedTimeSlots.length === 0 || isSubmitting) && styles.disabledButton,
-                    ]}
+                <Button
+                    title={isEditMode ? "Confirmer les modifications" : "Confirmer la réservation"}
                     onPress={handleSubmit}
-                    disabled={!selectedDate || selectedTimeSlots.length === 0 || isSubmitting}
-                >
-                    {isSubmitting ? (
-                        <ActivityIndicator color={currentTheme.white} size="small" />
-                    ) : (
-                        <Text style={styles.submitButtonText}>
-                            {isEditMode ? "Confirmer les modifications" : "Confirmer la réservation"}
-                        </Text>
-                    )}
-                </TouchableOpacity>
+                    variant="success"
+                    disabled={!selectedDate || selectedTimeSlots.length === 0}
+                    loading={isSubmitting}
+                    fullWidth
+                    style={{ marginTop: 20 }}
+                />
             </ScrollView>
         </KeyboardAvoidingView>
     );

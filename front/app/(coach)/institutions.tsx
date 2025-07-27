@@ -1,4 +1,5 @@
 import getStyles from "@/assets/styles/institutionsScreen";
+import Button from "@/components/Button";
 import FavoriteButton from "@/components/FavoriteButton";
 import InstitutionCard from "@/components/InstitutionCard";
 import SearchFilterBar from "@/components/SearchFilterBar";
@@ -6,11 +7,10 @@ import { API_BASE_URL } from "@/config";
 import { useInstitutionFiltersContext } from "@/contexts/InstitutionFiltersContext";
 import { useTheme } from "@/hooks/useTheme";
 import { Institution } from "@/types";
-import { Ionicons } from "@expo/vector-icons";
 import { router, useFocusEffect } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import React, { useCallback, useEffect, useState } from "react";
-import { ActivityIndicator, Alert, FlatList, RefreshControl, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Alert, FlatList, RefreshControl, Text, View } from "react-native";
 
 export default function InstitutionsScreen() {
     const [isLoading, setIsLoading] = useState(true);
@@ -151,10 +151,14 @@ export default function InstitutionsScreen() {
             />
 
             {/* Bouton Voir la carte en position absolute */}
-            <TouchableOpacity style={styles.floatingMapButton} onPress={navigateToMap}>
-                <Ionicons name="map-outline" size={24} style={styles.icon} />
-                <Text style={styles.mapButtonText}>Voir la carte</Text>
-            </TouchableOpacity>
+            <Button
+                title="Voir la carte"
+                onPress={navigateToMap}
+                variant="floating"
+                icon="map-outline"
+                iconSize={24}
+                style={{ bottom: 25, alignSelf: "center" }}
+            />
         </View>
     );
 }

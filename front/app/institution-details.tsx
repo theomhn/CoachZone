@@ -1,5 +1,6 @@
 import getStyles from "@/assets/styles/institutionDetailsScreen";
 import Badge from "@/components/Badge";
+import Button from "@/components/Button";
 import { API_BASE_URL } from "@/config";
 import { useTheme } from "@/hooks/useTheme";
 import { Institution, Place } from "@/types";
@@ -348,16 +349,16 @@ export default function InstitutionDetailsScreen() {
 
                     {/* Bouton de réservation */}
                     {global.user && places.length > 0 && (
-                        <TouchableOpacity
-                            style={styles.bookingButton}
+                        <Button
+                            title="Voir les disponibilités"
                             onPress={navigateToBooking}
+                            variant="success"
+                            icon="calendar-outline"
+                            iconSize={20}
                             disabled={!selectedPlace}
-                        >
-                            <View style={styles.bookingButtonContent}>
-                                <Ionicons name="calendar-outline" size={20} style={styles.iconWhite} />
-                                <Text style={styles.bookingButtonText}>Voir les disponibilités</Text>
-                            </View>
-                        </TouchableOpacity>
+                            fullWidth
+                            style={{ marginTop: 10 }}
+                        />
                     )}
                 </View>
             </ScrollView>
