@@ -16,28 +16,43 @@ class AccessTokenRepository extends ServiceEntityRepository
         parent::__construct($registry, AccessToken::class);
     }
 
-    //    /**
-    //     * @return AccessToken[] Returns an array of AccessToken objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('a')
-    //            ->andWhere('a.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('a.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    /**
+     * Trouve tous les tokens pour un email donné
+     */
+    public function findByUserEmail(string $email): array
+    {
+        return $this->createQueryBuilder('a')
+            ->andWhere('a.userEmail = :email')
+            ->setParameter('email', $email)
+            ->getQuery()
+            ->getResult();
+    }
 
-    //    public function findOneBySomeField($value): ?AccessToken
-    //    {
-    //        return $this->createQueryBuilder('a')
-    //            ->andWhere('a.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+    /**
+     * Met à jour l'email pour tous les tokens d'un utilisateur
+     */
+    public function updateUserEmailForTokens(string $oldEmail, string $newEmail): int
+    {
+        return $this->createQueryBuilder('a')
+            ->update()
+            ->set('a.userEmail', ':newEmail')
+            ->andWhere('a.userEmail = :oldEmail')
+            ->setParameter('newEmail', $newEmail)
+            ->setParameter('oldEmail', $oldEmail)
+            ->getQuery()
+            ->execute();
+    }
+
+    /**
+     * Supprime tous les tokens pour un email donné
+     */
+    public function deleteByUserEmail(string $email): int
+    {
+        return $this->createQueryBuilder('a')
+            ->delete()
+            ->andWhere('a.userEmail = :email')
+            ->setParameter('email', $email)
+            ->getQuery()
+            ->execute();
+    }
 }

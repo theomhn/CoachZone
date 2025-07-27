@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Code de vérification - CoachZone</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background: #2563eb;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 8px 8px 0 0;
+        }
+        .content {
+            background: #f8fafc;
+            padding: 30px;
+            border: 1px solid #e2e8f0;
+        }
+        .code-box {
+            background: white;
+            border: 2px solid #2563eb;
+            padding: 20px;
+            text-align: center;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        .code {
+            font-size: 32px;
+            font-weight: bold;
+            color: #2563eb;
+            letter-spacing: 8px;
+            margin: 10px 0;
+        }
+        .warning {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .footer {
+            background: #374151;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 0 0 8px 8px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🔐 Code de vérification</h1>
+        <p>Changement d'adresse email</p>
+    </div>
+    
+    <div class="content">
+        <p>Bonjour,</p>
+        
+        <p>Une demande de changement d'adresse email a été effectuée sur votre compte CoachZone.</p>
+        
+        <p><strong>Nouvelle adresse demandée :</strong> {{ newEmail }}</p>
+        
+        <div class="code-box">
+            <p>Votre code de vérification est :</p>
+            <div class="code">{{ code }}</div>
+            <p><small>Ce code est valide jusqu'à {{ expiresAt|date('d/m/Y à H:i') }}</small></p>
+        </div>
+        
+        <p>Pour confirmer ce changement, utilisez ce code dans l'application CoachZone.</p>
+        
+        <div class="warning">
+            <strong>⚠️ Important :</strong>
+            <ul>
+                <li>Si vous n'avez pas demandé ce changement, ignorez cet email</li>
+                <li>Ce code expire dans 15 minutes</li>
+                <li>Ne partagez jamais ce code avec quelqu'un d'autre</li>
+            </ul>
+        </div>
+        
+        <p>Si vous avez des questions, contactez notre support.</p>
+        
+        <p>Cordialement,<br>L'équipe CoachZone</p>
+    </div>
+    
+    <div class="footer">
+        <p>© {{ "now"|date("Y") }} CoachZone - Plateforme de réservation sportive</p>
+        <p>Cet email a été envoyé automatiquement, merci de ne pas y répondre.</p>
+    </div>
+</body>
+</html>

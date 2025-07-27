@@ -14,8 +14,8 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: InstitutionRepository::class)]
 #[ApiResource(
@@ -47,11 +47,13 @@ use Symfony\Component\Serializer\Annotation\Groups;
 class Institution extends User
 {
     #[ORM\Column(length: 255, unique: true)]
-    #[Groups(['institution:read'])]
+    #[Groups(['institution:read', 'user:read'])]
     private ?string $inst_numero = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['institution:read'])]
+    #[Groups(['institution:read', 'user:read'])]
+    #[Assert\NotBlank(message: "Le nom de l'institution est requis")]
+    #[Assert\Length(max: 255, maxMessage: "Le nom ne peut pas dépasser {{ limit }} caractères")]
     private ?string $inst_name = null;
 
     /**
@@ -59,7 +61,8 @@ class Institution extends User
      * @example "123 Avenue du Sport, 75001 Paris"
      */
     #[ORM\Column(length: 500, nullable: true)]
-    #[Groups(['institution:read', 'institution:write'])]
+    #[Groups(['institution:read', 'institution:write', 'user:read'])]
+    #[Assert\Length(max: 500, maxMessage: "L'adresse ne peut pas dépasser {{ limit }} caractères")]
     private ?string $adresse = null;
 
     /**
@@ -67,7 +70,8 @@ class Institution extends User
      * @example "Paris"
      */
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['institution:read', 'institution:write'])]
+    #[Groups(['institution:read', 'institution:write', 'user:read'])]
+    #[Assert\Length(max: 255, maxMessage: "La ville ne peut pas dépasser {{ limit }} caractères")]
     private ?string $ville = null;
 
     /**
@@ -75,7 +79,7 @@ class Institution extends User
      * @example {"latitude": 48.8566, "longitude": 2.3522}
      */
     #[ORM\Column(type: Types::JSON, nullable: true)]
-    #[Groups(['institution:read', 'institution:write'])]
+    #[Groups(['institution:read', 'institution:write', 'user:read'])]
     private ?array $coordonnees = null;
 
     /**
@@ -83,7 +87,7 @@ class Institution extends User
      * @example ["Football", "Basketball", "Tennis"]
      */
     #[ORM\Column(type: Types::JSON, nullable: true)]
-    #[Groups(['institution:read', 'institution:write'])]
+    #[Groups(['institution:read', 'institution:write', 'user:read'])]
     private ?array $activites = null;
 
     /**
@@ -91,7 +95,7 @@ class Institution extends User
      * @example ["Terrain de football", "Gymnase", "Court de tennis"]
      */
     #[ORM\Column(type: Types::JSON, nullable: true)]
-    #[Groups(['institution:read', 'institution:write'])]
+    #[Groups(['institution:read', 'institution:write', 'user:read'])]
     private ?array $equipements = null;
 
     /**

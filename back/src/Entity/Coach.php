@@ -6,6 +6,8 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Delete;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 use App\Controller\CoachFavoritesController;
 use App\Controller\AddFavoriteInstitutionController;
 use App\Controller\RemoveFavoriteInstitutionController;
@@ -41,12 +43,21 @@ use Doctrine\ORM\Mapping as ORM;
 class Coach extends User
 {
     #[ORM\Column(length: 255)]
+    #[Groups(['user:read'])]
+    #[Assert\NotBlank(message: "Le nom est requis")]
+    #[Assert\Length(max: 255, maxMessage: "Le nom ne peut pas dépasser {{ limit }} caractères")]
     private ?string $lastName = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['user:read'])]
+    #[Assert\NotBlank(message: "Le prénom est requis")]
+    #[Assert\Length(max: 255, maxMessage: "Le prénom ne peut pas dépasser {{ limit }} caractères")]
     private ?string $firstName = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['user:read'])]
+    #[Assert\NotBlank(message: "Le métier est requis")]
+    #[Assert\Length(max: 255, maxMessage: "Le métier ne peut pas dépasser {{ limit }} caractères")]
     private ?string $work = null;
 
     /**

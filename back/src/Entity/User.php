@@ -4,11 +4,15 @@ namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\Patch;
 use App\Controller\MeController;
+use App\Controller\UserProfileController;
+use Symfony\Component\Serializer\Annotation\Groups;
 use App\Repository\UserRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\InheritanceType('JOINED')]
@@ -19,14 +23,23 @@ use Symfony\Component\Security\Core\User\UserInterface;
     new Get(
         requirements: ['id' => '\d+'],
         security: "is_granted('ROLE_USER') and (object == user or is_granted('ROLE_ADMIN'))",
-        securityMessage: "Vous ne pouvez accéder qu'à votre propre profil utilisateur."
+        securityMessage: "Vous ne pouvez accéder qu'à votre propre profil utilisateur.",
+        normalizationContext: ['groups' => ['user:read']]
     ),
     new Get(
         name: 'me',
         uriTemplate: 'users/me',
         controller: MeController::class,
         security: "is_granted('ROLE_USER')",
-        securityMessage: "Vous devez être authentifié pour accéder à votre profil."
+        securityMessage: "Vous devez être authentifié pour accéder à votre profil.",
+        normalizationContext: ['groups' => ['user:read']]
+    ),
+    new Patch(
+        uriTemplate: 'users/me/update',
+        controller: UserProfileController::class,
+        read: false,
+        security: "is_granted('ROLE_USER')",
+        securityMessage: "Vous devez être authentifié pour mettre à jour votre profil."
     )
 ])]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
@@ -37,6 +50,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?int $id = null;
 
     #[ORM\Column(length: 180)]
+    #[Groups(['user:read'])]
+    #[Assert\NotBlank(message: "L'email est requis")]
+    #[Assert\Email(message: "L'email doit avoir un format valide")]
+    #[Assert\Length(max: 180, maxMessage: "L'email ne peut pas dépasser {{ limit }} caractères")]
     private ?string $email = null;
 
     /**
@@ -103,7 +120,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setRoles(array $roles): static
     {
         $this->roles = $roles;
-        
+
         // Synchroniser type avec le rôle principal
         $this->syncTypeFromRoles();
 
