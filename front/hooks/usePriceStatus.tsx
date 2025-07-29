@@ -1,6 +1,4 @@
-import { API_BASE_URL } from "@/config";
-import { Place } from "@/types";
-import * as SecureStore from "expo-secure-store";
+import { PlaceService } from "@/services";
 import { useCallback, useEffect, useState } from "react";
 
 export const usePriceStatus = (user: any) => {
@@ -10,37 +8,24 @@ export const usePriceStatus = (user: any) => {
 
     const checkPriceStatus = useCallback(async () => {
         if (!user || user.type !== "ROLE_INSTITUTION") {
-            setHasConfiguredPrices(true); // Si ce n'est pas une institution, on considère que c'est OK
+            setHasConfiguredPrices(true);
             return;
         }
 
         try {
             setIsLoading(true);
-            const userToken = await SecureStore.getItemAsync("userToken");
-
-            if (!userToken) {
+            const result = await PlaceService.checkPriceStatus(user.inst_numero);
+            
+            setPlacesWithoutPrice(result.placesWithoutPrice);
+            setHasConfiguredPrices(result.hasConfiguredPrices);
+        } catch (error) {
+            // Si erreur 401, l'utilisateur n'est plus authentifié - pas d'alerte
+            if (error instanceof Error && error.message.includes("401")) {
                 setHasConfiguredPrices(true);
                 return;
             }
-
-            const response = await fetch(`${API_BASE_URL}/places?inst_numero=${user.inst_numero}`, {
-                headers: {
-                    Authorization: `Bearer ${userToken}`,
-                },
-            });
-
-            if (!response.ok) {
-                throw new Error("Erreur lors de la récupération des équipements");
-            }
-
-            const places: Place[] = await response.json();
-            const unconfiguredPlaces = places.filter((place) => place.price === null || place.price === undefined);
-
-            setPlacesWithoutPrice(unconfiguredPlaces.length);
-            setHasConfiguredPrices(unconfiguredPlaces.length === 0 || places.length === 0);
-        } catch (error) {
-            console.error("Erreur lors de la vérification des prix :", error);
-            // En cas d'erreur, on laisse passer pour ne pas bloquer l'utilisateur
+            
+            console.warn("Vérification des prix échouée:", error instanceof Error ? error.message : error);
             setHasConfiguredPrices(true);
         } finally {
             setIsLoading(false);

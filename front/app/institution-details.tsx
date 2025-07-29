@@ -1,12 +1,11 @@
 import getStyles from "@/assets/styles/institutionDetailsScreen";
 import Badge from "@/components/Badge";
 import Button from "@/components/Button";
-import { API_BASE_URL } from "@/config";
 import { useTheme } from "@/hooks/useTheme";
+import { InstitutionService, PlaceService } from "@/services";
 import { Institution, Place } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect, useLocalSearchParams, useNavigation, useRouter } from "expo-router";
-import * as SecureStore from "expo-secure-store";
 import React, { useCallback, useEffect, useState } from "react";
 import { ActivityIndicator, Alert, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import MapView, { Marker, PROVIDER_DEFAULT } from "react-native-maps";
@@ -81,33 +80,12 @@ export default function InstitutionDetailsScreen() {
         if (!id) return;
 
         try {
-            // Ajouter la récupération du token
-            const token = await SecureStore.getItemAsync("userToken");
-
-            const response = await fetch(`${API_BASE_URL}/institutions`, {
-                method: "GET",
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    "Content-Type": "application/json",
-                },
-            });
-
-            if (!response.ok) {
-                throw new Error("Erreur lors de la récupération des données");
-            }
-
-            const data = await response.json();
-            const institutionFound = data.find((i: Institution) => i.inst_numero === id);
-
-            if (institutionFound) {
-                setInstitution(institutionFound);
-            } else {
-                Alert.alert("Erreur", "Établissement non trouvé");
-                router.back();
-            }
+            const institutionFound = await InstitutionService.getInstitutionByNumero(id);
+            setInstitution(institutionFound);
         } catch (error) {
             console.error("Erreur :", error);
             Alert.alert("Erreur", "Impossible de charger les détails de l'établissement");
+            router.back();
         } finally {
             setIsLoading(false);
         }
@@ -119,35 +97,17 @@ export default function InstitutionDetailsScreen() {
         try {
             setIsLoadingPlaces(true);
 
-            // Ajouter la récupération du token
-            const token = await SecureStore.getItemAsync("userToken");
-
-            // Récupérer chaque place individuellement
             const placesPromises = institution.places.map(async (placeUrl: string) => {
-                const response = await fetch(`${API_BASE_URL}${placeUrl.replace("/api", "")}`, {
-                    method: "GET",
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        "Content-Type": "application/json",
-                    },
-                });
-
-                if (!response.ok) {
-                    throw new Error(`Erreur lors de la récupération de l'équipement ${placeUrl}`);
-                }
-
-                return response.json();
+                return await PlaceService.getPlaceFromUrl(placeUrl);
             });
 
             const placesData = await Promise.all(placesPromises);
 
-            // Filtrer pour ne garder que les places avec un prix défini (non NULL)
             const placesWithPrice = placesData.filter(
                 (place: Place) => place.price !== undefined && place.price !== null
             );
             setPlaces(placesWithPrice);
 
-            // Sélectionner la première place par défaut s'il y en a
             if (placesWithPrice.length > 0) {
                 setSelectedPlace(placesWithPrice[0]);
             }

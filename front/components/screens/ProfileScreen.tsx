@@ -1,10 +1,9 @@
-import { API_BASE_URL } from "@/config";
 import { useTheme } from "@/hooks/useTheme";
-import { UserService } from "@/services/userService";
+import { AuthService, PlaceService } from "@/services";
+import { UserService } from "@/services";
 import { Place, User } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import * as SecureStore from "expo-secure-store";
 import React, { useCallback, useEffect, useState } from "react";
 import {
     ActivityIndicator,
@@ -41,31 +40,20 @@ export default function ProfileScreen({ onPriceUpdated }: ProfileScreenProps) {
     const fetchPlaces = useCallback(async () => {
         try {
             setLoading(true);
-            const userToken = await SecureStore.getItemAsync("userToken");
+            if (!user?.inst_numero) return;
+            
+            const places = await PlaceService.getPlacesByInstitution(user.inst_numero);
+            setPlaces(places);
 
-            const response = await fetch(`${API_BASE_URL}/places?inst_numero=${user?.inst_numero}`, {
-                headers: {
-                    Authorization: `Bearer ${userToken}`,
-                },
-            });
-
-            if (!response.ok) {
-                throw new Error("Erreur lors de la récupération des équipements");
-            }
-
-            const data = await response.json();
-            setPlaces(data);
-
-            // Initialiser l'état des prix avec les valeurs actuelles
             const initialPrices: { [id: string]: string } = {};
-            data.forEach((place: Place) => {
+            places.forEach((place: Place) => {
                 initialPrices[place.id] =
                     place.price !== null && place.price !== undefined ? place.price.toString() : "";
             });
             setPrices(initialPrices);
         } catch (error) {
-            console.error("Erreur :", error);
-            Alert.alert("Erreur", "Impossible de charger les équipements de cet établissement");
+            const errorMessage = error instanceof Error ? error.message : "Impossible de charger les équipements de cet établissement";
+            Alert.alert("Erreur", errorMessage);
         } finally {
             setLoading(false);
         }
@@ -87,35 +75,19 @@ export default function ProfileScreen({ onPriceUpdated }: ProfileScreenProps) {
     const updatePlacePrice = async (placeId: string) => {
         try {
             setUpdatingPlace(placeId);
-            const userToken = await SecureStore.getItemAsync("userToken");
-
-            const response = await fetch(`${API_BASE_URL}/places/${placeId}`, {
-                method: "PATCH",
-                headers: {
-                    Authorization: `Bearer ${userToken}`,
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    price: prices[placeId] === "" ? null : Number(prices[placeId]),
-                }),
-            });
-
-            if (!response.ok) {
-                throw new Error("Erreur lors de la mise à jour du prix");
-            }
-
+            const priceValue = prices[placeId] === "" ? null : Number(prices[placeId]);
+            
+            await PlaceService.updatePlace(placeId, { price: priceValue });
+            
             Alert.alert("Succès", "Le prix a été mis à jour avec succès");
-
-            // Rafraîchir les places pour obtenir les données mises à jour
             fetchPlaces();
-
-            // Notifier le parent que les prix ont été mis à jour
+            
             if (onPriceUpdated) {
                 onPriceUpdated();
             }
         } catch (error) {
-            console.error("Erreur :", error);
-            Alert.alert("Erreur", "Impossible de mettre à jour le prix");
+            const errorMessage = error instanceof Error ? error.message : "Impossible de mettre à jour le prix";
+            Alert.alert("Erreur", errorMessage);
         } finally {
             setUpdatingPlace(null);
         }
@@ -123,44 +95,17 @@ export default function ProfileScreen({ onPriceUpdated }: ProfileScreenProps) {
 
     const handleLogout = async () => {
         try {
-            const userToken = await SecureStore.getItemAsync("userToken");
-
-            const response = await fetch(`${API_BASE_URL}/logout`, {
-                method: "POST",
-                headers: {
-                    Authorization: `Bearer ${userToken}`,
-                    "Content-Type": "application/json",
-                },
-            });
-
-            if (response.ok || response.status === 204) {
-                global.user = null;
-                await SecureStore.deleteItemAsync("userToken");
-                router.replace("/login");
-            } else {
-                try {
-                    const errorData = await response.json();
-                    Alert.alert("Erreur", errorData.message || "Erreur lors de la déconnexion");
-                } catch {
-                    Alert.alert("Erreur", "Erreur lors de la déconnexion");
-                }
-            }
-        } catch (error) {
-            console.error("Erreur de déconnexion :", error);
+            await AuthService.logout();
             global.user = null;
-            await SecureStore.deleteItemAsync("userToken");
+            router.replace("/login");
+        } catch (error) {
+            // Forcer la déconnexion même en cas d'erreur
+            global.user = null;
             router.replace("/login");
         }
     };
 
     const handleUserUpdated = (updatedUser: User) => {
-        console.log("=== MISE À JOUR UTILISATEUR ===");
-        console.log("Utilisateur avant mise à jour:", user);
-        console.log("Utilisateur après mise à jour reçu:", updatedUser);
-        console.log("Type avant:", user?.type);
-        console.log("Type après:", updatedUser.type);
-        console.log("Données complètes:", JSON.stringify(updatedUser, null, 2));
-
         setUser(updatedUser);
         global.user = updatedUser;
 
@@ -168,23 +113,16 @@ export default function ProfileScreen({ onPriceUpdated }: ProfileScreenProps) {
         if (updatedUser.type === "ROLE_INSTITUTION") {
             fetchPlaces();
         }
-
-        console.log("=== FIN MISE À JOUR UTILISATEUR ===");
     };
 
     const handleEmailChanged = async () => {
         try {
-            console.log("Rechargement des données utilisateur après changement d'email...");
             const updatedUser = await UserService.getCurrentUser();
-            console.log("Nouvelles données utilisateur reçues:", updatedUser);
 
             // Mettre à jour l'état local et global
             setUser(updatedUser);
             global.user = updatedUser;
-
-            console.log("Données utilisateur mises à jour avec succès");
         } catch (error) {
-            console.error("Erreur lors du rechargement des données utilisateur:", error);
             Alert.alert(
                 "Information",
                 "Les données ont été mises à jour mais l'affichage n'a pas pu être rafraîchi. Redémarrez l'application pour voir les changements."

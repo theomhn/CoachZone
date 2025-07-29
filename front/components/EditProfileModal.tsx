@@ -1,5 +1,5 @@
 import { useTheme } from "@/hooks/useTheme";
-import { UserService } from "@/services/userService";
+import { UserService } from "@/services";
 import { UpdateCoachProfile, UpdateInstitutionProfile, User } from "@/types";
 import React, { useEffect, useState } from "react";
 import { Alert, Text, TextInput, View } from "react-native";
@@ -95,82 +95,33 @@ export default function EditProfileModal({ visible, onClose, user, onUserUpdated
     const handleSave = async () => {
         try {
             setLoading(true);
-            console.log("=== DÉBUT SAUVEGARDE ===");
-            console.log("Type utilisateur:", user.type);
-            console.log("Données brutes du formulaire:", JSON.stringify(formData, null, 2));
-
-            // Vérifier la validité des données avant l'envoi
-            if (user.type === "ROLE_COACH") {
-                const coachData = formData as UpdateCoachProfile;
-                console.log("Validation données coach:");
-                console.log("- firstName:", coachData.firstName);
-                console.log("- lastName:", coachData.lastName);
-                console.log("- work:", coachData.work);
-            } else {
-                const instData = formData as UpdateInstitutionProfile;
-                console.log("Validation données institution:");
-                console.log("- inst_name:", instData.inst_name);
-                console.log("- adresse:", instData.adresse);
-                console.log("- ville:", instData.ville);
-                console.log("- coordonnees:", instData.coordonnees);
-                console.log("- activites:", instData.activites);
-                console.log("- equipements:", instData.equipements);
-            }
-
-            console.log("Appel du service en cours...");
             let updatedUser: User;
             if (user.type === "ROLE_COACH") {
-                console.log("Appel UserService.updateCoachProfile");
                 const coachDataWithEmail = {
                     ...(formData as UpdateCoachProfile),
                     email: user.email, // Email obligatoire selon validation Symfony
                 };
-                console.log("Données coach avec email:", coachDataWithEmail);
                 updatedUser = await UserService.updateCoachProfile(coachDataWithEmail);
             } else {
-                console.log("Appel UserService.updateInstitutionProfile");
                 const instDataWithEmail = {
                     ...(formData as UpdateInstitutionProfile),
                     email: user.email, // Email obligatoire selon validation Symfony
                 };
-                console.log("Données institution avec email:", instDataWithEmail);
                 updatedUser = await UserService.updateInstitutionProfile(instDataWithEmail);
             }
 
-            console.log("=== RÉPONSE REÇUE ===");
-            console.log("Utilisateur mis à jour:", JSON.stringify(updatedUser, null, 2));
-
             // Vérifier si le type d'utilisateur est préservé
             if (!updatedUser.type && user.type) {
-                console.log("ATTENTION: Type d'utilisateur manquant dans la réponse, préservation du type original");
                 updatedUser.type = user.type;
             }
 
-            console.log("Appel onUserUpdated...");
             onUserUpdated(updatedUser);
-
-            console.log("Affichage alerte succès...");
             Alert.alert("Succès", "Profil mis à jour avec succès");
-
-            console.log("Fermeture modal...");
             onClose();
-
-            console.log("=== SAUVEGARDE TERMINÉE ===");
         } catch (error) {
-            console.log("=== ERREUR CAPTURÉE ===");
-            console.error("Type d'erreur:", typeof error);
-            console.error("Erreur complète:", error);
-
-            if (error instanceof Error) {
-                console.error("Message d'erreur:", error.message);
-                console.error("Stack trace:", error.stack);
-            }
-
             const errorMessage = error instanceof Error ? error.message : "Erreur lors de la mise à jour";
-            console.log("Message d'erreur à afficher:", errorMessage);
             Alert.alert("Erreur", errorMessage);
         } finally {
-            console.log("Fin du loading...");
             setLoading(false);
         }
     };

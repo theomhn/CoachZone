@@ -3,8 +3,8 @@ import AuthFormContainer from "@/components/ui/AuthFormContainer";
 import FormInput from "@/components/ui/FormInput";
 import InstitutionSelector from "@/components/ui/InstitutionSelector";
 import LoadingView from "@/components/ui/LoadingView";
-import { API_BASE_URL } from "@/config";
 import { useTheme } from "@/hooks/useTheme";
+import { AuthService, InstitutionService } from "@/services";
 import { InstitutionRegister } from "@/types";
 import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
@@ -56,13 +56,8 @@ export default function RegisterScreen() {
     const fetchInstitutions = async () => {
         setIsLoadingInstitutions(true);
         try {
-            const response = await fetch(`${API_BASE_URL}/opendata/institutions`);
-            if (!response.ok) {
-                throw new Error("Erreur lors de la récupération des institutions");
-            }
-            const data = await response.json();
-
-            // Transformer l'objet en tableau d'objets pour faciliter la manipulation
+            const data = await InstitutionService.getOpenDataInstitutions();
+            
             const institutionsArray = Object.entries(data).map(([id, name]) => ({
                 id,
                 name: name as string,
@@ -89,50 +84,35 @@ export default function RegisterScreen() {
             return;
         }
 
-        let body;
+        let registerData;
         if (userType === "ROLE_COACH") {
             if (!firstName || !lastName || !work) {
                 Alert.alert("Erreur", "Veuillez remplir tous les champs");
                 return;
             }
-            body = {
-                type: "coach",
+            registerData = {
+                name: `${firstName} ${lastName}`,
                 email,
                 password,
-                firstName,
-                lastName,
-                work,
+                type: "ROLE_COACH" as const,
             };
         } else {
             if (!selectedInstitution) {
                 Alert.alert("Erreur", "Veuillez sélectionner votre établissement");
                 return;
             }
-            body = {
-                type: "institution",
+            registerData = {
+                name: selectedInstitution.name,
                 email,
                 password,
+                type: "ROLE_INSTITUTION" as const,
                 inst_numero: selectedInstitution.id,
-                inst_name: selectedInstitution.name,
             };
         }
 
         setIsLoading(true);
         try {
-            const response = await fetch(`${API_BASE_URL}/register`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(body),
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.message || "Une erreur est survenue");
-            }
-
+            await AuthService.register(registerData);
             Alert.alert("Succès", "Inscription réussie !", [{ text: "OK", onPress: () => router.replace("/login") }]);
         } catch (error: unknown) {
             const errorMessage = error instanceof Error ? error.message : "Une erreur est survenue";

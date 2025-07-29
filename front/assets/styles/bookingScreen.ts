@@ -8,6 +8,8 @@ export default function (currentTheme: any) {
         },
         scrollView: {
             flex: 1,
+            paddingHorizontal: 16,
+            paddingBottom: 40, // Ajouter du padding en bas pour le bouton
         },
         header: {
             flexDirection: "row",
@@ -70,8 +72,7 @@ export default function (currentTheme: any) {
             backgroundColor: currentTheme.lightBackground,
             borderRadius: 12,
             padding: 16,
-            marginHorizontal: 16,
-            marginBottom: 16,
+            marginBottom: 16, // Supprimer marginHorizontal car le ScrollView a déjà paddingHorizontal
             elevation: 2,
             shadowColor: currentTheme.shadow,
             shadowOffset: { width: 0, height: 1 },
@@ -230,7 +231,6 @@ export default function (currentTheme: any) {
             backgroundColor: currentTheme.lightBackground,
             borderRadius: 12,
             padding: 16,
-            marginHorizontal: 16,
             marginBottom: 24,
             elevation: 2,
             shadowColor: currentTheme.shadow,
@@ -261,17 +261,8 @@ export default function (currentTheme: any) {
             color: currentTheme.text,
         },
         submitButton: {
-            backgroundColor: currentTheme.success,
-            padding: 16,
-            borderRadius: 12,
-            marginHorizontal: 16,
             marginBottom: 32,
-            alignItems: "center",
-            elevation: 2,
-            shadowColor: currentTheme.shadow,
-            shadowOffset: { width: 0, height: 1 },
-            shadowOpacity: 0.2,
-            shadowRadius: 1.5,
+            color: currentTheme.white,
         },
         disabledButton: {
             backgroundColor: currentTheme.greenLight,

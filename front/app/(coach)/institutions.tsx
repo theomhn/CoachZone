@@ -2,11 +2,10 @@ import Button from "@/components/Button";
 import SearchFilterBar from "@/components/SearchFilterBar";
 import InstitutionListView from "@/components/ui/InstitutionListView";
 import LoadingView from "@/components/ui/LoadingView";
-import { API_BASE_URL } from "@/config";
 import { useInstitutionFiltersContext } from "@/contexts/InstitutionFiltersContext";
 import { useTheme } from "@/hooks/useTheme";
+import { InstitutionService } from "@/services";
 import { router, useFocusEffect } from "expo-router";
-import * as SecureStore from "expo-secure-store";
 import React, { useCallback, useEffect, useState } from "react";
 import { Alert, StyleSheet, View } from "react-native";
 
@@ -31,21 +30,7 @@ export default function InstitutionsScreen() {
 
     const fetchInstitutions = async () => {
         try {
-            // Ajouter la récupération du token
-            const token = await SecureStore.getItemAsync("userToken");
-
-            const response = await fetch(`${API_BASE_URL}/institutions`, {
-                method: "GET",
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    "Content-Type": "application/json",
-                },
-            });
-
-            if (!response.ok) {
-                throw new Error("Erreur lors de la récupération des données");
-            }
-            const data = await response.json();
+            const data = await InstitutionService.getAllInstitutions();
             updateInstitutions(data);
         } catch (error: unknown) {
             const errorMessage = error instanceof Error ? error.message : "Une erreur est survenue";
@@ -79,7 +64,7 @@ export default function InstitutionsScreen() {
 
 
     const handleFavoriteChange = (instNumero: string, isFavorite: boolean) => {
-        console.log(`Institution ${instNumero} ${isFavorite ? "ajoutée aux" : "supprimée des"} favoris`);
+        // Callback vide - la logique est gérée par le FavoriteButton
     };
 
     if (isLoading) {

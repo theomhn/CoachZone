@@ -1,91 +1,58 @@
-import { API_BASE_URL } from "@/config";
 import { useTheme } from "@/hooks/useTheme";
+import { CoachService } from "@/services";
 import { FavoriteButtonProps } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
-import * as SecureStore from "expo-secure-store";
 import React, { useCallback, useEffect, useState } from "react";
 import { Alert, StyleSheet, TouchableOpacity } from "react-native";
 
-export default function FavoriteButton({ instNumero, size = 24, onFavoriteChange, style }: FavoriteButtonProps) {
-    const [isFavorite, setIsFavorite] = useState(false);
+export default function FavoriteButton({ instNumero, size = 24, onFavoriteChange, style, initialState }: FavoriteButtonProps) {
+    const [isFavorite, setIsFavorite] = useState(initialState ?? false);
     const [isLoading, setIsLoading] = useState(false);
+    const [isInitialLoading, setIsInitialLoading] = useState(initialState === undefined);
     const { currentTheme } = useTheme();
+    
 
     const checkIfFavorite = useCallback(async () => {
         try {
-            const token = await SecureStore.getItemAsync("userToken");
-            if (!token) return;
-
-            const response = await fetch(`${API_BASE_URL}/coaches/me/favorites/`, {
-                method: "GET",
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    "Content-Type": "application/json",
-                },
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                const isInFavorites = data.favoriteInstitutions.some((fav: any) => fav.inst_numero === instNumero);
-                setIsFavorite(isInFavorites);
-            }
+            const isInFavorites = await CoachService.isFavorite(instNumero);
+            setIsFavorite(isInFavorites);
         } catch (error) {
-            console.error("Erreur lors de la vérification des favoris:", error);
+            // Erreur silencieuse pour la vérification initiale
+        } finally {
+            setIsInitialLoading(false);
         }
     }, [instNumero]);
 
-    // Vérifier si l'institution est déjà en favoris au montage
+    // Vérifier si l'institution est déjà en favoris au montage (seulement si initialState n'est pas fourni)
     useEffect(() => {
-        checkIfFavorite();
-    }, [checkIfFavorite]);
+        if (initialState === undefined) {
+            checkIfFavorite();
+        }
+    }, [checkIfFavorite, initialState, instNumero]);
 
     const toggleFavorite = async () => {
         if (isLoading) return;
 
         setIsLoading(true);
         try {
-            const token = await SecureStore.getItemAsync("userToken");
-            if (!token) {
-                Alert.alert("Erreur", "Token d'authentification non trouvé");
-                return;
-            }
-
-            const method = isFavorite ? "DELETE" : "POST";
-            const response = await fetch(`${API_BASE_URL}/coaches/me/favorites/${instNumero}`, {
-                method,
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    "Content-Type": "application/json",
-                },
-            });
-
-            if (!response.ok) {
-                throw new Error(`Erreur lors de ${isFavorite ? "la suppression" : "l'ajout"} du favori`);
-            }
-
-            const newFavoriteState = !isFavorite;
+            const newFavoriteState = await CoachService.toggleFavorite(instNumero);
             setIsFavorite(newFavoriteState);
-
-            // Notifier le parent du changement si callback fourni
             onFavoriteChange?.(newFavoriteState);
-
-            // Message de succès discret (optionnel)
-            // Alert.alert("Succès", isFavorite ? "Supprimé des favoris" : "Ajouté aux favoris");
         } catch (error) {
-            console.error("Erreur:", error);
-            Alert.alert("Erreur", `Impossible de ${isFavorite ? "supprimer" : "ajouter"} ce favori`);
+            const errorMessage = error instanceof Error ? error.message : `Impossible de ${isFavorite ? "supprimer" : "ajouter"} ce favori`;
+            Alert.alert("Erreur", errorMessage);
         } finally {
             setIsLoading(false);
         }
     };
 
     return (
-        <TouchableOpacity style={[styles.button, style]} onPress={toggleFavorite} disabled={isLoading}>
+        <TouchableOpacity style={[styles.button, style]} onPress={toggleFavorite} disabled={isLoading || isInitialLoading}>
             <Ionicons
                 name={isFavorite ? "heart" : "heart-outline"}
                 size={size}
                 color={isFavorite ? currentTheme.danger : currentTheme.secondaryText}
-                style={{ opacity: isLoading ? 0.5 : 1 }}
+                style={{ opacity: (isLoading || isInitialLoading) ? 0.3 : 1 }}
             />
         </TouchableOpacity>
     );

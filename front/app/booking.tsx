@@ -1,11 +1,10 @@
 import getStyles from "@/assets/styles/bookingScreen";
 import Button from "@/components/Button";
-import { API_BASE_URL } from "@/config";
 import { useTheme } from "@/hooks/useTheme";
+import { BookingService, PlaceService } from "@/services";
 import { Booking } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
-import * as SecureStore from "expo-secure-store";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
     ActivityIndicator,
@@ -124,34 +123,11 @@ export default function BookingScreen() {
         if (!global.user || global.user.type !== "ROLE_COACH") return;
 
         try {
-            const token = await SecureStore.getItemAsync("userToken");
-
-            if (!token) {
-                console.warn("Pas de token disponible pour récupérer les réservations du coach");
-                return;
-            }
-
-            const response = await fetch(`${API_BASE_URL}/bookings`, {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-
-            if (!response.ok) {
-                console.warn("Erreur lors de la récupération des réservations du coach");
-                return;
-            }
-
-            const data = await response.json();
-
-            // Les données sont directement un tableau de réservations - filtrer les annulées
-            const bookings = Array.isArray(data) ? data : [];
-            const activeBookings = bookings.filter((booking: any) => booking && booking.status !== "cancelled");
+            const data = await BookingService.getMyBookings();
+            const activeBookings = data.filter((booking) => booking.status !== "cancelled");
             setCoachBookings(activeBookings);
         } catch (error) {
-            console.error("Erreur lors de la récupération des réservations du coach:", error);
+            // Erreur silencieuse pour la récupération des réservations du coach
             setCoachBookings([]);
         }
     };
@@ -162,36 +138,14 @@ export default function BookingScreen() {
 
         try {
             setIsLoadingBookings(true);
-            const token = await SecureStore.getItemAsync("userToken");
-
-            if (!token) {
-                console.warn("Pas de token disponible pour récupérer les réservations");
-                return;
-            }
-
-            const response = await fetch(`${API_BASE_URL}/places/${placeId}`, {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-
-            if (!response.ok) {
-                throw new Error("Erreur lors de la récupération des réservations");
-            }
-
-            const data = await response.json();
-
-            // S'assurer que upcomingBookings est bien un tableau et filtrer les réservations annulées
+            const data = await PlaceService.getPlaceById(placeId);
             const bookings = Array.isArray(data.upcomingBookings) ? data.upcomingBookings : [];
 
             // Garder toutes les réservations (actives ET annulées) pour un affichage correct
             const allBookings = bookings.filter((booking: any) => booking);
             setPlaceBookings(allBookings);
         } catch (error) {
-            console.error("Erreur lors de la récupération des réservations:", error);
-            // On ne montre pas d'alerte à l'utilisateur pour ne pas être intrusif
+            // Erreur silencieuse pour la récupération des réservations de la place
             setPlaceBookings([]);
         } finally {
             setIsLoadingBookings(false);
@@ -588,8 +542,8 @@ export default function BookingScreen() {
         const minute = String(dateTime.getMinutes()).padStart(2, "0");
         const second = String(dateTime.getSeconds()).padStart(2, "0");
 
-        // Format ISO avec fuseau horaire local (+00:00 sera ajusté par le serveur)
-        return `${year}-${month}-${day}T${hour}:${minute}:${second}+00:00`;
+        // Format ISO simple sans fuseau horaire
+        return `${year}-${month}-${day}T${hour}:${minute}:${second}`;
     };
 
     // Soumission du formulaire
@@ -626,58 +580,32 @@ export default function BookingScreen() {
             return;
         }
 
-        // Récupérer l'ID du coach à partir des données utilisateur globales
+        // Vérifier que l'utilisateur est bien un coach
         if (!global.user || global.user.type !== "ROLE_COACH") {
             Alert.alert("Erreur", "Vous devez être connecté en tant que coach pour réserver");
             return;
         }
 
-        const coachId = global.user.id;
-
-        // Préparer les données pour l'API
-        const bookingData = {
-            dateStart,
-            dateEnd,
-            price: Number(price),
-            place: "/api/places/" + placeId,
-            coach: "/api/users/" + coachId,
-        };
-
         try {
             setIsSubmitting(true);
 
-            // Récupérer le token d'authentification
-            const token = await SecureStore.getItemAsync("userToken");
-
-            if (!token) {
-                Alert.alert("Erreur", "Vous devez être connecté pour effectuer une réservation");
-                router.replace("/(auth)/login" as any);
-                return;
+            if (isEditMode && bookingId) {
+                await BookingService.updateBooking(bookingId, {
+                    placeId,
+                    date: dateStart.split("T")[0],
+                    startTime: dateStart.split("T")[1],
+                    endTime: dateEnd.split("T")[1],
+                });
+            } else {
+                await BookingService.createBooking({
+                    placeId,
+                    date: dateStart.split("T")[0],
+                    startTime: dateStart.split("T")[1],
+                    endTime: dateEnd.split("T")[1],
+                    price: Number(price),
+                });
             }
 
-            // Envoyer la demande à l'API - POST pour création, PATCH pour modification
-            const url = isEditMode ? `${API_BASE_URL}/bookings/${bookingId}` : `${API_BASE_URL}/bookings`;
-            const method = isEditMode ? "PATCH" : "POST";
-
-            const response = await fetch(url, {
-                method,
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify(bookingData),
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                const errorMsg = isEditMode
-                    ? "Erreur lors de la modification de la réservation"
-                    : "Erreur lors de la création de la réservation";
-                throw new Error(data.message || errorMsg);
-            }
-
-            // Succès
             const successTitle = isEditMode ? "Réservation modifiée" : "Réservation confirmée";
             const successMessage = isEditMode
                 ? "Votre réservation a été modifiée avec succès !"
@@ -926,7 +854,7 @@ export default function BookingScreen() {
                     disabled={!selectedDate || selectedTimeSlots.length === 0}
                     loading={isSubmitting}
                     fullWidth
-                    style={{ marginTop: 20 }}
+                    style={styles.submitButton}
                 />
             </ScrollView>
         </KeyboardAvoidingView>

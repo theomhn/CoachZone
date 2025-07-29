@@ -1,6 +1,6 @@
 import getStyles from "@/assets/styles/authScreen";
-import { API_BASE_URL } from "@/config";
 import { useTheme } from "@/hooks/useTheme";
+import { AuthService } from "@/services";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
@@ -37,22 +37,7 @@ export default function ResetPasswordScreen() {
 
         setIsLoading(true);
         try {
-            const response = await fetch(`${API_BASE_URL}/password/forgot`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    email,
-                }),
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.message || "Une erreur est survenue");
-            }
-
+            await AuthService.forgotPassword({ email });
             Alert.alert(
                 "Email envoyé",
                 "Si cette adresse email existe dans notre système, vous recevrez un lien de réinitialisation.",

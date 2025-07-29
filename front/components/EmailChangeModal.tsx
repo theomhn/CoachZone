@@ -1,5 +1,5 @@
 import { useTheme } from "@/hooks/useTheme";
-import { UserService } from "@/services/userService";
+import { UserService } from "@/services";
 import { EmailChangeStatus } from "@/types";
 import React, { useCallback, useEffect, useState } from "react";
 import { Alert, Text, TextInput, TouchableOpacity, View } from "react-native";

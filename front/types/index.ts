@@ -227,4 +227,5 @@ export interface FavoriteButtonProps {
     size?: number;
     onFavoriteChange?: (isFavorite: boolean) => void; // Callback optionnel pour notifier le parent
     style?: any;
+    initialState?: boolean; // État initial connu (pour éviter l'appel API)
 }

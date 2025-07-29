@@ -2,13 +2,12 @@ import getStyles from "@/assets/styles/mapScreen";
 import Button from "@/components/Button";
 import InstitutionCard from "@/components/InstitutionCard";
 import SearchFilterBar from "@/components/SearchFilterBar";
-import { API_BASE_URL } from "@/config";
 import { useInstitutionFiltersContext } from "@/contexts/InstitutionFiltersContext";
 import { useTheme } from "@/hooks/useTheme";
+import { InstitutionService } from "@/services";
 import { Institution } from "@/types";
 import * as Location from "expo-location";
 import { router, useFocusEffect } from "expo-router";
-import * as SecureStore from "expo-secure-store";
 import React, { useCallback, useEffect, useState } from "react";
 import { ActivityIndicator, Alert, View } from "react-native";
 import MapView, { Marker, PROVIDER_DEFAULT } from "react-native-maps";
@@ -62,21 +61,7 @@ export default function MapScreen() {
 
     const fetchInstitutions = async () => {
         try {
-            // Ajouter la récupération du token
-            const token = await SecureStore.getItemAsync("userToken");
-
-            const response = await fetch(`${API_BASE_URL}/institutions`, {
-                method: "GET",
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    "Content-Type": "application/json",
-                },
-            });
-
-            if (!response.ok) {
-                throw new Error("Erreur lors de la récupération des données");
-            }
-            const data = await response.json();
+            const data = await InstitutionService.getAllInstitutions();
             updateInstitutions(data);
 
             // Si des institutions sont disponibles, centrer la carte sur la première
@@ -217,9 +202,10 @@ export default function MapScreen() {
                         right: 20,
                         backgroundColor: currentTheme.background,
                         borderRadius: 30,
-                        padding: 10,
                         width: 50,
                         height: 50,
+                        paddingVertical: 0,
+                        paddingHorizontal: 0,
                     }}
                 />
             )}

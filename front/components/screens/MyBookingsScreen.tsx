@@ -1,14 +1,13 @@
 import Card from "@/components/ui/Card";
 import EmptyState from "@/components/ui/EmptyState";
 import LoadingView from "@/components/ui/LoadingView";
-import { API_BASE_URL } from "@/config";
 import { useTheme } from "@/hooks/useTheme";
+import { BookingService } from "@/services";
 import { Booking } from "@/types";
 import { formatDate } from "@/utils/date";
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
 import { router } from "expo-router";
-import * as SecureStore from "expo-secure-store";
 import React, { useCallback, useEffect, useState } from "react";
 import { Alert, FlatList, RefreshControl, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
@@ -52,36 +51,12 @@ export default function MyBookingsScreen() {
 
         try {
             setIsLoading(true);
-
-            // Récupérer le token d'authentification
-            const token = await SecureStore.getItemAsync("userToken");
-            if (!token) {
-                Alert.alert("Erreur", "Vous devez être connecté pour voir vos réservations");
-                setIsLoading(false);
-                return;
-            }
-
-            // Endpoint unique qui retourne les réservations filtrées selon l'utilisateur authentifié
-            const bookings = `${API_BASE_URL}/bookings`;
-
-            const response = await fetch(bookings, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    "Content-Type": "application/json",
-                },
-            });
-
-            if (!response.ok) {
-                throw new Error("Erreur lors de la récupération des réservations");
-            }
-
-            const data = await response.json();
-
+            const data = await BookingService.getMyBookings();
             setBookings(data);
             filterBookings(data, showUpcoming);
         } catch (error) {
-            console.error("Erreur:", error);
-            Alert.alert("Erreur", "Impossible de récupérer vos réservations");
+            const errorMessage = error instanceof Error ? error.message : "Impossible de récupérer vos réservations";
+            Alert.alert("Erreur", errorMessage);
         } finally {
             setIsLoading(false);
             setRefreshing(false);
@@ -153,29 +128,12 @@ export default function MyBookingsScreen() {
                         style: "destructive",
                         onPress: async () => {
                             try {
-                                const token = await SecureStore.getItemAsync("userToken");
-                                if (!token) {
-                                    Alert.alert("Erreur", "Token d'authentification manquant");
-                                    return;
-                                }
-
-                                const response = await fetch(`${API_BASE_URL}/bookings/${booking.id}`, {
-                                    method: "DELETE",
-                                    headers: {
-                                        Authorization: `Bearer ${token}`,
-                                        "Content-Type": "application/json",
-                                    },
-                                });
-
-                                if (!response.ok) {
-                                    throw new Error("Erreur lors de l'annulation de la réservation");
-                                }
-
+                                await BookingService.cancelBooking(booking.id);
                                 Alert.alert("Succès", "Votre réservation a été annulée avec succès");
-                                fetchBookings(); // Recharger la liste
+                                fetchBookings();
                             } catch (error) {
-                                console.error("Erreur annulation:", error);
-                                Alert.alert("Erreur", "Impossible d'annuler la réservation");
+                                const errorMessage = error instanceof Error ? error.message : "Impossible d'annuler la réservation";
+                                Alert.alert("Erreur", errorMessage);
                             }
                         },
                     },

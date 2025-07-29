@@ -70,6 +70,7 @@ const InstitutionListView: React.FC<InstitutionListViewProps> = ({
                     size={22}
                     onFavoriteChange={(isFavorite) => handleFavoriteChange(item.inst_numero, isFavorite)}
                     style={styles.favoriteButton}
+                    initialState={sourceScreen === "favorites" ? true : undefined}
                 />
             </View>
         </View>

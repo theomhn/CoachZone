@@ -1,9 +1,8 @@
 import Button from "@/components/Button";
 import AuthFormContainer from "@/components/ui/AuthFormContainer";
 import FormInput from "@/components/ui/FormInput";
-import { API_BASE_URL } from "@/config";
+import { AuthService } from "@/services";
 import { router } from "expo-router";
-import * as SecureStore from "expo-secure-store";
 import React, { useState } from "react";
 import { Alert } from "react-native";
 
@@ -11,7 +10,6 @@ export default function LoginScreen() {
     const [email, setEmail] = useState("coach@test.com");
     const [password, setPassword] = useState("test123");
     const [isLoading, setIsLoading] = useState(false);
-
 
     const handleLogin = async () => {
         if (!email || !password) {
@@ -21,26 +19,7 @@ export default function LoginScreen() {
 
         setIsLoading(true);
         try {
-            const response = await fetch(`${API_BASE_URL}/login`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    email,
-                    password,
-                }),
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.message || "Une erreur est survenue");
-            }
-
-            await SecureStore.setItemAsync("userToken", data);
-
-            // Rediriger vers la racine, le layout principal gérera la redirection selon le type d'utilisateur
+            await AuthService.login({ email, password });
             router.replace("/");
         } catch (error: unknown) {
             const errorMessage = error instanceof Error ? error.message : "Une erreur est survenue";

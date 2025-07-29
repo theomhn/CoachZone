@@ -1,4 +1,4 @@
-import { UserService } from "@/services/userService";
+import { UserService } from "@/services";
 import { PasswordChangeRequest } from "@/types";
 import React, { useState } from "react";
 import { Alert } from "react-native";
@@ -45,7 +45,6 @@ export default function PasswordChangeModal({ visible, onClose }: PasswordChange
             Alert.alert("Succès", response.message || "Mot de passe modifié avec succès");
             handleClose();
         } catch (error) {
-            console.error("Erreur lors du changement de mot de passe:", error);
             const errorMessage = error instanceof Error ? error.message : "Erreur lors du changement de mot de passe";
             Alert.alert("Erreur", errorMessage);
         } finally {

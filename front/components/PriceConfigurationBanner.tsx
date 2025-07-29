@@ -1,9 +1,7 @@
-import { API_BASE_URL } from "@/config";
 import { useTheme } from "@/hooks/useTheme";
-import { Place } from "@/types";
+import { PlaceService } from "@/services";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import * as SecureStore from "expo-secure-store";
 import React, { useCallback, useEffect, useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
@@ -18,7 +16,6 @@ const PriceConfigurationBanner = React.forwardRef<{ refresh: () => void }, Price
         const [shouldShow, setShouldShow] = useState(false);
         const [isLoading, setIsLoading] = useState(false);
 
-        // Récupérer le thème actuel et les couleurs associées
         const { currentTheme } = useTheme();
         const styles = getStyles(currentTheme);
 
@@ -30,36 +27,23 @@ const PriceConfigurationBanner = React.forwardRef<{ refresh: () => void }, Price
 
             try {
                 setIsLoading(true);
-                const userToken = await SecureStore.getItemAsync("userToken");
-                if (!userToken) {
-                    setShouldShow(false);
-                    return;
-                }
-
-                const response = await fetch(`${API_BASE_URL}/places?inst_numero=${user.inst_numero}`, {
-                    headers: {
-                        Authorization: `Bearer ${userToken}`,
-                    },
-                });
-
-                if (!response.ok) {
-                    setShouldShow(false);
-                    return;
-                }
-
-                const places: Place[] = await response.json();
-                const unconfiguredPlaces = places.filter((place) => place.price === null || place.price === undefined);
-
-                setPlacesWithoutPrice(unconfiguredPlaces.length);
-                const hasUnconfiguredPrices = unconfiguredPlaces.length > 0;
+                const result = await PlaceService.checkPriceStatus(user.inst_numero);
+                
+                setPlacesWithoutPrice(result.placesWithoutPrice);
+                const hasUnconfiguredPrices = !result.hasConfiguredPrices;
                 setShouldShow(hasUnconfiguredPrices);
 
-                // Callback quand les prix sont configurés
-                if (!hasUnconfiguredPrices && onPriceConfigured) {
+                if (result.hasConfiguredPrices && onPriceConfigured) {
                     onPriceConfigured();
                 }
             } catch (error) {
-                console.error("Erreur lors de la vérification des prix :", error);
+                // Si erreur 401, l'utilisateur n'est plus authentifié - pas d'alerte
+                if (error instanceof Error && error.message.includes("401")) {
+                    setShouldShow(false);
+                    return;
+                }
+                
+                console.warn("Vérification des prix échouée:", error instanceof Error ? error.message : error);
                 setShouldShow(false);
             } finally {
                 setIsLoading(false);
