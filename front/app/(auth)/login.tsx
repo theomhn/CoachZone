@@ -1,20 +1,17 @@
-import getStyles from "@/assets/styles/authScreen";
 import Button from "@/components/Button";
+import AuthFormContainer from "@/components/ui/AuthFormContainer";
+import FormInput from "@/components/ui/FormInput";
 import { API_BASE_URL } from "@/config";
-import { useTheme } from "@/hooks/useTheme";
 import { router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import React, { useState } from "react";
-import { Alert, Image, KeyboardAvoidingView, Platform, ScrollView, Text, TextInput, View } from "react-native";
+import { Alert } from "react-native";
 
 export default function LoginScreen() {
     const [email, setEmail] = useState("coach@test.com");
     const [password, setPassword] = useState("test123");
     const [isLoading, setIsLoading] = useState(false);
 
-    // Récupérer le thème actuel et les couleurs associées
-    const { currentTheme } = useTheme();
-    const styles = getStyles(currentTheme);
 
     const handleLogin = async () => {
         if (!email || !password) {
@@ -54,66 +51,50 @@ export default function LoginScreen() {
     };
 
     return (
-        <KeyboardAvoidingView
-            behavior={Platform.OS === "ios" ? "padding" : "height"}
-            style={styles.container}
-            keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
-        >
-            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContainer}>
-                <View style={styles.logoContainer}>
-                    <Image source={require("@/assets/images/logo.png")} style={styles.logo} resizeMode="contain" />
-                </View>
+        <AuthFormContainer>
+            <FormInput
+                label="Email"
+                placeholder="Entrez votre email"
+                value={email}
+                onChangeText={setEmail}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                autoCorrect={false}
+                spellCheck={false}
+                required
+            />
 
-                <View style={styles.inputContainer}>
-                    <Text style={styles.label}>Email</Text>
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Entrez votre email"
-                        value={email}
-                        onChangeText={setEmail}
-                        keyboardType="email-address"
-                        autoCapitalize="none"
-                        autoCorrect={false}
-                        spellCheck={false}
-                        placeholderTextColor={currentTheme.placeholder}
-                    />
-                </View>
+            <FormInput
+                label="Mot de passe"
+                placeholder="Entrez votre mot de passe"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry
+                required
+            />
 
-                <View style={styles.inputContainer}>
-                    <Text style={styles.label}>Mot de passe</Text>
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Entrez votre mot de passe"
-                        value={password}
-                        onChangeText={setPassword}
-                        secureTextEntry
-                        placeholderTextColor={currentTheme.placeholder}
-                    />
-                </View>
+            <Button
+                title={isLoading ? "Chargement..." : "Se connecter"}
+                onPress={handleLogin}
+                variant="primary"
+                size="large"
+                disabled={isLoading}
+                loading={isLoading}
+                fullWidth
+            />
 
-                <Button
-                    title={isLoading ? "Chargement..." : "Se connecter"}
-                    onPress={handleLogin}
-                    variant="primary"
-                    size="large"
-                    disabled={isLoading}
-                    loading={isLoading}
-                    fullWidth
-                />
+            <Button
+                title="Mot de passe oublié ?"
+                onPress={() => router.push({ pathname: "/(auth)/reset-password", params: { email } })}
+                variant="link"
+                style={{ marginTop: 20 }}
+            />
 
-                <Button
-                    title="Mot de passe oublié ?"
-                    onPress={() => router.push({ pathname: "/(auth)/reset-password", params: { email } })}
-                    variant="link"
-                    style={{ marginTop: 20 }}
-                />
-
-                <Button
-                    title="Pas encore de compte ? S'inscrire"
-                    onPress={() => router.replace("/(auth)/register")}
-                    variant="link"
-                />
-            </ScrollView>
-        </KeyboardAvoidingView>
+            <Button
+                title="Pas encore de compte ? S'inscrire"
+                onPress={() => router.replace("/(auth)/register")}
+                variant="link"
+            />
+        </AuthFormContainer>
     );
 }

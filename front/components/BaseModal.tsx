@@ -50,7 +50,7 @@ export default function BaseModal({
                 };
             case "large":
                 return {
-                    width: "98%" as const,
+                    width: "100%" as const,
                     maxWidth: 600,
                     maxHeight: "95%" as const,
                     minHeight: 600,

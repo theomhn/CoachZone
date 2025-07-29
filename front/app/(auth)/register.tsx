@@ -1,24 +1,14 @@
-import getStyles from "@/assets/styles/authScreen";
 import Button from "@/components/Button";
+import AuthFormContainer from "@/components/ui/AuthFormContainer";
+import FormInput from "@/components/ui/FormInput";
+import InstitutionSelector from "@/components/ui/InstitutionSelector";
+import LoadingView from "@/components/ui/LoadingView";
 import { API_BASE_URL } from "@/config";
 import { useTheme } from "@/hooks/useTheme";
 import { InstitutionRegister } from "@/types";
 import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
-import {
-    ActivityIndicator,
-    Alert,
-    FlatList,
-    Image,
-    KeyboardAvoidingView,
-    Modal,
-    Platform,
-    ScrollView,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
-} from "react-native";
+import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 type UserType = "ROLE_COACH" | "ROLE_INSTITUTION";
 
@@ -41,7 +31,6 @@ export default function RegisterScreen() {
 
     const [isLoading, setIsLoading] = useState(false);
 
-    // Récupérer le thème actuel et les couleurs associées
     const { currentTheme } = useTheme();
     const styles = getStyles(currentTheme);
 
@@ -159,191 +148,175 @@ export default function RegisterScreen() {
         }
     };
 
+    if (isLoadingInstitutions && userType === "ROLE_INSTITUTION") {
+        return <LoadingView text="Chargement des établissements..." />;
+    }
+
     return (
-        <KeyboardAvoidingView
-            behavior={Platform.OS === "ios" ? "padding" : "height"}
-            style={styles.container}
-            keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
-        >
-            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContainer}>
-                <View style={styles.logoContainer}>
-                    <Image source={require("@/assets/images/logo.png")} style={styles.logo} resizeMode="contain" />
-                </View>
+        <AuthFormContainer>
+            <View style={styles.typeSelector}>
+                <TouchableOpacity
+                    style={[styles.typeButton, userType === "ROLE_COACH" && styles.selectedType]}
+                    onPress={() => {
+                        setUserType("ROLE_COACH");
+                        setSelectedInstitution(null);
+                        setSearchText("");
+                    }}
+                    activeOpacity={0.7}
+                >
+                    <Text style={[styles.typeText, userType === "ROLE_COACH" && styles.selectedTypeText]}>
+                        Coach
+                    </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    style={[styles.typeButton, userType === "ROLE_INSTITUTION" && styles.selectedType]}
+                    onPress={() => setUserType("ROLE_INSTITUTION")}
+                    activeOpacity={0.7}
+                >
+                    <Text style={[styles.typeText, userType === "ROLE_INSTITUTION" && styles.selectedTypeText]}>
+                        Institution
+                    </Text>
+                </TouchableOpacity>
+            </View>
 
-                <View style={styles.typeSelector}>
-                    <Button
-                        title="Coach"
-                        onPress={() => {
-                            setUserType("ROLE_COACH");
-                            setSelectedInstitution(null);
-                            setSearchText("");
-                        }}
-                        variant="selection"
-                        selected={userType === "ROLE_COACH"}
-                        style={{ flex: 1, marginRight: 8 }}
+            {userType === "ROLE_COACH" && (
+                <>
+                    <FormInput
+                        label="Prénom"
+                        placeholder="Entrez votre prénom"
+                        value={firstName}
+                        onChangeText={setFirstName}
+                        required
                     />
-                    <Button
-                        title="Institution"
-                        onPress={() => setUserType("ROLE_INSTITUTION")}
-                        variant="selection"
-                        selected={userType === "ROLE_INSTITUTION"}
-                        style={{ flex: 1, marginLeft: 8 }}
+                    <FormInput
+                        label="Nom"
+                        placeholder="Entrez votre nom"
+                        value={lastName}
+                        onChangeText={setLastName}
+                        required
                     />
-                </View>
+                </>
+            )}
 
-                {userType === "ROLE_COACH" && (
-                    <>
-                        <View style={styles.inputContainer}>
-                            <Text style={styles.label}>Prénom</Text>
-                            <TextInput
-                                style={styles.input}
-                                placeholder="Entrez votre prénom"
-                                value={firstName}
-                                onChangeText={setFirstName}
-                                placeholderTextColor={currentTheme.placeholder}
-                            />
-                        </View>
-                        <View style={styles.inputContainer}>
-                            <Text style={styles.label}>Nom</Text>
-                            <TextInput
-                                style={styles.input}
-                                placeholder="Entrez votre nom"
-                                value={lastName}
-                                onChangeText={setLastName}
-                                placeholderTextColor={currentTheme.placeholder}
-                            />
-                        </View>
-                    </>
-                )}
+            <FormInput
+                label="Email"
+                placeholder="Entrez votre email"
+                value={email}
+                onChangeText={setEmail}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                autoCorrect={false}
+                spellCheck={false}
+                required
+            />
 
-                <View style={styles.inputContainer}>
-                    <Text style={styles.label}>Email</Text>
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Entrez votre email"
-                        value={email}
-                        onChangeText={setEmail}
-                        keyboardType="email-address"
-                        autoCapitalize="none"
-                        autoCorrect={false}
-                        spellCheck={false}
-                        placeholderTextColor={currentTheme.placeholder}
-                    />
-                </View>
+            <FormInput
+                label="Mot de passe"
+                placeholder="Entrez votre mot de passe"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry
+                required
+            />
 
-                <View style={styles.inputContainer}>
-                    <Text style={styles.label}>Mot de passe</Text>
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Entrez votre mot de passe"
-                        value={password}
-                        onChangeText={setPassword}
-                        secureTextEntry
-                        placeholderTextColor={currentTheme.placeholder}
-                    />
-                </View>
-
-                {userType === "ROLE_COACH" ? (
-                    <View style={styles.inputContainer}>
-                        <Text style={styles.label}>Profession</Text>
-                        <TextInput
-                            style={styles.input}
-                            placeholder="Entrez votre profession"
-                            value={work}
-                            onChangeText={setWork}
-                            placeholderTextColor={currentTheme.placeholder}
-                        />
-                    </View>
-                ) : (
-                    <View style={styles.inputContainer}>
-                        <Text style={styles.label}>Nom de l&apos;établissement</Text>
-                        {isLoadingInstitutions ? (
-                            <View style={[styles.input, styles.loadingContainer]}>
-                                <ActivityIndicator size="small" color={currentTheme.primary} />
-                                <Text style={styles.loadingText}>Chargement des établissements...</Text>
-                            </View>
-                        ) : (
-                            <TouchableOpacity style={styles.input} onPress={handleSearchFocus} activeOpacity={0.7}>
-                                <Text style={selectedInstitution ? styles.selectedText : styles.placeholderText}>
-                                    {selectedInstitution
-                                        ? `${selectedInstitution.name} (${selectedInstitution.id})`
-                                        : "Sélectionner un établissement"}
-                                </Text>
-                            </TouchableOpacity>
-                        )}
-                    </View>
-                )}
-
-                <Button
-                    title={isLoading ? "Chargement..." : "S'inscrire"}
-                    onPress={handleRegister}
-                    variant="primary"
-                    size="large"
-                    disabled={isLoading}
-                    loading={isLoading}
-                    fullWidth
+            {userType === "ROLE_COACH" ? (
+                <FormInput
+                    label="Profession"
+                    placeholder="Entrez votre profession"
+                    value={work}
+                    onChangeText={setWork}
+                    required
                 />
+            ) : (
+                <View>
+                    <Text style={{ fontSize: 16, fontWeight: "600", marginBottom: 8, color: currentTheme.text }}>
+                        Nom de l'établissement <Text style={{ color: currentTheme.danger }}>*</Text>
+                    </Text>
+                    <TouchableOpacity style={styles.institutionSelector} onPress={handleSearchFocus} activeOpacity={0.7}>
+                        <Text style={selectedInstitution ? styles.selectedText : styles.placeholderText}>
+                            {selectedInstitution
+                                ? `${selectedInstitution.name} (${selectedInstitution.id})`
+                                : "Sélectionner un établissement"}
+                        </Text>
+                    </TouchableOpacity>
+                </View>
+            )}
 
-                <Button
-                    title="Déjà un compte ? Se connecter"
-                    onPress={() => router.replace("/login")}
-                    variant="link"
-                    style={{ marginTop: 20 }}
-                />
-            </ScrollView>
+            <Button
+                title={isLoading ? "Chargement..." : "S'inscrire"}
+                onPress={handleRegister}
+                variant="primary"
+                size="large"
+                disabled={isLoading}
+                loading={isLoading}
+                fullWidth
+                style={{ marginTop: 24 }}
+            />
 
-            {/* Modal pour la recherche d'établissements */}
-            <Modal
+            <Button
+                title="Déjà un compte ? Se connecter"
+                onPress={() => router.replace("/login")}
+                variant="link"
+                style={{ marginTop: 20 }}
+            />
+
+            <InstitutionSelector
                 visible={showModal}
-                transparent={true}
-                animationType="slide"
-                onRequestClose={() => setShowModal(false)}
-            >
-                <View style={styles.modalContainer}>
-                    <View style={styles.modalContent}>
-                        <View style={styles.modalHeader}>
-                            <TextInput
-                                style={styles.searchInput}
-                                placeholder="Rechercher un établissement"
-                                value={searchText}
-                                onChangeText={setSearchText}
-                                autoFocus
-                                placeholderTextColor={currentTheme.placeholder}
-                            />
-                            <Button
-                                title="Fermer"
-                                onPress={() => setShowModal(false)}
-                                variant="secondary"
-                                size="small"
-                            />
-                        </View>
-
-                        <FlatList
-                            data={searchText ? filteredInstitutions : institutions}
-                            keyExtractor={(item) => item.id}
-                            renderItem={({ item }) => (
-                                <TouchableOpacity
-                                    style={styles.institutionItem}
-                                    onPress={() => handleSelectInstitution(item)}
-                                >
-                                    <Text style={styles.institutionName}>
-                                        {item.name} <Text style={styles.institutionId}>({item.id})</Text>
-                                    </Text>
-                                </TouchableOpacity>
-                            )}
-                            ListEmptyComponent={
-                                <View style={styles.emptyListContainer}>
-                                    {searchText ? (
-                                        <Text style={styles.emptyListText}>Aucun établissement trouvé</Text>
-                                    ) : (
-                                        <Text style={styles.emptyListText}>Commencez à taper pour rechercher</Text>
-                                    )}
-                                </View>
-                            }
-                        />
-                    </View>
-                </View>
-            </Modal>
-        </KeyboardAvoidingView>
+                onClose={() => setShowModal(false)}
+                institutions={institutions}
+                filteredInstitutions={filteredInstitutions}
+                searchText={searchText}
+                onSearchChange={setSearchText}
+                onSelectInstitution={handleSelectInstitution}
+                isLoading={isLoadingInstitutions}
+            />
+        </AuthFormContainer>
     );
 }
+
+const getStyles = (currentTheme: any) => StyleSheet.create({
+    typeSelector: {
+        flexDirection: "row",
+        marginBottom: 20,
+        borderRadius: 30,
+        backgroundColor: currentTheme.primary,
+        padding: 4,
+    },
+    typeButton: {
+        flex: 1,
+        padding: 12,
+        alignItems: "center",
+        justifyContent: "center",
+        borderRadius: 25,
+    },
+    selectedType: {
+        backgroundColor: currentTheme.white,
+    },
+    typeText: {
+        fontSize: 16,
+        fontWeight: "bold",
+        color: currentTheme.white,
+        textTransform: "uppercase",
+    },
+    selectedTypeText: {
+        color: currentTheme.black,
+    },
+    institutionSelector: {
+        backgroundColor: currentTheme.inputBackground,
+        borderWidth: 1,
+        borderColor: currentTheme.border,
+        borderRadius: 8,
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+        minHeight: 48,
+        justifyContent: "center",
+    },
+    selectedText: {
+        fontSize: 16,
+        color: currentTheme.text,
+    },
+    placeholderText: {
+        fontSize: 16,
+        color: currentTheme.placeholder,
+    },
+});

@@ -20,50 +20,7 @@ const PriceConfigurationBanner = React.forwardRef<{ refresh: () => void }, Price
 
         // Récupérer le thème actuel et les couleurs associées
         const { currentTheme } = useTheme();
-
-        const styles = StyleSheet.create({
-            banner: {
-                backgroundColor: currentTheme.danger,
-                paddingHorizontal: 16,
-                paddingVertical: 12,
-                flexDirection: "row",
-                alignItems: "center",
-                borderBottomWidth: 1,
-                borderBottomColor: currentTheme.border,
-            },
-            iconContainer: {
-                marginRight: 12,
-            },
-            icon: {
-                color: currentTheme.warning,
-            },
-            textContainer: {
-                flex: 1,
-            },
-            title: {
-                fontSize: 14,
-                fontWeight: "600",
-                color: currentTheme.white,
-                marginBottom: 2,
-            },
-            subtitle: {
-                fontSize: 12,
-                color: currentTheme.white,
-                opacity: 0.9,
-            },
-            button: {
-                backgroundColor: currentTheme.white,
-                paddingHorizontal: 12,
-                paddingVertical: 6,
-                borderRadius: 6,
-                marginLeft: 8,
-            },
-            buttonText: {
-                fontSize: 12,
-                fontWeight: "600",
-                color: currentTheme.black,
-            },
-        });
+        const styles = getStyles(currentTheme);
 
         const checkPriceStatus = useCallback(async () => {
             if (!user || user.type !== "ROLE_INSTITUTION") {
@@ -153,5 +110,49 @@ const PriceConfigurationBanner = React.forwardRef<{ refresh: () => void }, Price
 );
 
 PriceConfigurationBanner.displayName = "PriceConfigurationBanner";
+
+const getStyles = (currentTheme: any) => StyleSheet.create({
+    banner: {
+        backgroundColor: currentTheme.danger,
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+        flexDirection: "row",
+        alignItems: "center",
+        borderBottomWidth: 1,
+        borderBottomColor: currentTheme.border,
+    },
+    iconContainer: {
+        marginRight: 12,
+    },
+    icon: {
+        color: currentTheme.warning,
+    },
+    textContainer: {
+        flex: 1,
+    },
+    title: {
+        fontSize: 14,
+        fontWeight: "600",
+        color: currentTheme.white,
+        marginBottom: 2,
+    },
+    subtitle: {
+        fontSize: 12,
+        color: currentTheme.white,
+        opacity: 0.9,
+    },
+    button: {
+        backgroundColor: currentTheme.white,
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 6,
+        marginLeft: 8,
+    },
+    buttonText: {
+        fontSize: 12,
+        fontWeight: "600",
+        color: currentTheme.black,
+    },
+});
 
 export default PriceConfigurationBanner;

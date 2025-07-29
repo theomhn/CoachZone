@@ -1,21 +1,18 @@
-import getStyles from "@/assets/styles/favoritesScreen";
-import FavoriteButton from "@/components/FavoriteButton";
-import InstitutionCard from "@/components/InstitutionCard";
+import InstitutionListView from "@/components/ui/InstitutionListView";
+import LoadingView from "@/components/ui/LoadingView";
 import { API_BASE_URL } from "@/config";
 import { useTheme } from "@/hooks/useTheme";
 import { Institution } from "@/types";
-import { Ionicons } from "@expo/vector-icons";
 import { router, useFocusEffect } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import React, { useCallback, useEffect, useState } from "react";
-import { ActivityIndicator, Alert, FlatList, RefreshControl, Text, TouchableOpacity, View } from "react-native";
+import { Alert, StyleSheet, View } from "react-native";
 
 export default function FavoritesScreen() {
     const [favorites, setFavorites] = useState<Institution[]>([]);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
 
-    // Récupérer le thème actuel et les couleurs associées
     const { currentTheme } = useTheme();
     const styles = getStyles(currentTheme);
 
@@ -77,73 +74,34 @@ export default function FavoritesScreen() {
         router.push("/(coach)/institutions");
     };
 
-    const navigateToInstitutionDetails = (institutionId: string) => {
-        router.push({
-            pathname: "/institution-details" as any,
-            params: {
-                id: institutionId,
-                source: "favorites", // Indiquer que l'on vient des favoris
-            },
-        });
-    };
-
-    const renderInstitution = ({ item }: { item: Institution }) => (
-        <View style={styles.cardContainer}>
-            <InstitutionCard
-                item={item}
-                variant="card"
-                showActivities={true}
-                showDetailsButton={true}
-                onViewDetails={() => navigateToInstitutionDetails(item.inst_numero)}
-            />
-            {/* Bouton favori positionné en overlay sur la carte */}
-            <View style={styles.favoriteButtonOverlay}>
-                <FavoriteButton
-                    instNumero={item.inst_numero}
-                    size={22}
-                    onFavoriteChange={(isFavorite) => handleFavoriteRemoved(item.inst_numero, isFavorite)}
-                    style={styles.favoriteButton}
-                />
-            </View>
-        </View>
-    );
-
     if (loading) {
-        return (
-            <View style={styles.centered}>
-                <ActivityIndicator size="large" color={styles.loadingIndicator.color} />
-                <Text style={styles.loadingText}>Chargement des favoris...</Text>
-            </View>
-        );
+        return <LoadingView text="Chargement des favoris..." />;
     }
 
     return (
         <View style={styles.container}>
-            {favorites.length === 0 ? (
-                <View style={styles.emptyContainer}>
-                    <Ionicons name="heart-outline" size={64} color={styles.emptyIcon.color} />
-                    <Text style={styles.emptyTitle}>Aucun favori</Text>
-                    <Text style={styles.emptySubtitle}>Vous n'avez pas encore ajouté d'institutions en favoris</Text>
-                    <TouchableOpacity style={styles.reservationButton} onPress={navigateToInstitutions}>
-                        <Text style={styles.reservationButtonText}>Réserver maintenant une séance</Text>
-                    </TouchableOpacity>
-                </View>
-            ) : (
-                <FlatList
-                    data={favorites}
-                    renderItem={renderInstitution}
-                    keyExtractor={(item) => item.inst_numero}
-                    contentContainerStyle={styles.listContainer}
-                    refreshControl={
-                        <RefreshControl
-                            refreshing={refreshing}
-                            onRefresh={onRefresh}
-                            tintColor={styles.refreshControl.tintColor}
-                        />
-                    }
-                    showsVerticalScrollIndicator={false}
-                />
-            )}
+            <InstitutionListView
+                institutions={favorites}
+                isLoading={false}
+                isRefreshing={refreshing}
+                onRefresh={onRefresh}
+                onFavoriteChange={handleFavoriteRemoved}
+                sourceScreen="favorites"
+                emptyStateConfig={{
+                    icon: "heart-outline",
+                    title: "Aucun favori",
+                    subtitle: "Vous n'avez pas encore ajouté d'institutions en favoris",
+                    actionText: "Réserver maintenant une séance",
+                    onActionPress: navigateToInstitutions,
+                }}
+            />
         </View>
     );
 }
+
+const getStyles = (currentTheme: any) => StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: currentTheme.background,
+    },
+});

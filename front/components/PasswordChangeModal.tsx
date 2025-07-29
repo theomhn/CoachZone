@@ -1,9 +1,9 @@
-import { useTheme } from "@/hooks/useTheme";
 import { UserService } from "@/services/userService";
 import { PasswordChangeRequest } from "@/types";
 import React, { useState } from "react";
-import { Alert, Text, TextInput, View } from "react-native";
+import { Alert } from "react-native";
 import BaseModal from "./BaseModal";
+import FormInput from "./ui/FormInput";
 
 interface PasswordChangeModalProps {
     visible: boolean;
@@ -11,15 +11,12 @@ interface PasswordChangeModalProps {
 }
 
 export default function PasswordChangeModal({ visible, onClose }: PasswordChangeModalProps) {
-    const { currentTheme } = useTheme();
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState<PasswordChangeRequest>({
         currentPassword: "",
         newPassword: "",
         confirmPassword: "",
     });
-
-    const styles = getStyles(currentTheme);
 
     const handlePasswordChange = async () => {
         if (!formData.currentPassword) {
@@ -72,6 +69,8 @@ export default function PasswordChangeModal({ visible, onClose }: PasswordChange
             visible={visible}
             onClose={handleClose}
             title="Changer le mot de passe"
+            size="large"
+            scrollable={true}
             animationType="fade"
             primaryButton={{
                 text: "Modifier",
@@ -85,68 +84,38 @@ export default function PasswordChangeModal({ visible, onClose }: PasswordChange
                 disabled: loading,
             }}
         >
-            <View style={styles.inputContainer}>
-                <Text style={styles.label}>Mot de passe actuel</Text>
-                <TextInput
-                    style={styles.input}
-                    value={formData.currentPassword}
-                    onChangeText={(text) => setFormData((prev) => ({ ...prev, currentPassword: text }))}
-                    secureTextEntry
-                    placeholder="Votre mot de passe actuel"
-                    placeholderTextColor={currentTheme.placeholder}
-                    autoCapitalize="none"
-                    autoCorrect={false}
-                />
-            </View>
+            <FormInput
+                label="Mot de passe actuel"
+                value={formData.currentPassword}
+                onChangeText={(text) => setFormData((prev) => ({ ...prev, currentPassword: text }))}
+                secureTextEntry
+                placeholder="Votre mot de passe actuel"
+                autoCapitalize="none"
+                autoCorrect={false}
+                required
+            />
 
-            <View style={styles.inputContainer}>
-                <Text style={styles.label}>Nouveau mot de passe</Text>
-                <TextInput
-                    style={styles.input}
-                    value={formData.newPassword}
-                    onChangeText={(text) => setFormData((prev) => ({ ...prev, newPassword: text }))}
-                    secureTextEntry
-                    placeholder="Votre nouveau mot de passe (min. 6 caractères)"
-                    placeholderTextColor={currentTheme.placeholder}
-                    autoCapitalize="none"
-                    autoCorrect={false}
-                />
-            </View>
+            <FormInput
+                label="Nouveau mot de passe"
+                value={formData.newPassword}
+                onChangeText={(text) => setFormData((prev) => ({ ...prev, newPassword: text }))}
+                secureTextEntry
+                placeholder="Votre nouveau mot de passe (min. 6 caractères)"
+                autoCapitalize="none"
+                autoCorrect={false}
+                required
+            />
 
-            <View style={styles.inputContainer}>
-                <Text style={styles.label}>Confirmer le nouveau mot de passe</Text>
-                <TextInput
-                    style={styles.input}
-                    value={formData.confirmPassword}
-                    onChangeText={(text) => setFormData((prev) => ({ ...prev, confirmPassword: text }))}
-                    secureTextEntry
-                    placeholder="Confirmez votre nouveau mot de passe"
-                    placeholderTextColor={currentTheme.placeholder}
-                    autoCapitalize="none"
-                    autoCorrect={false}
-                />
-            </View>
+            <FormInput
+                label="Confirmer le nouveau mot de passe"
+                value={formData.confirmPassword}
+                onChangeText={(text) => setFormData((prev) => ({ ...prev, confirmPassword: text }))}
+                secureTextEntry
+                placeholder="Confirmez votre nouveau mot de passe"
+                autoCapitalize="none"
+                autoCorrect={false}
+                required
+            />
         </BaseModal>
     );
 }
-
-const getStyles = (currentTheme: any) => ({
-    inputContainer: {
-        marginBottom: 20,
-    },
-    label: {
-        fontSize: 16,
-        fontWeight: "600" as const,
-        color: currentTheme.text,
-        marginBottom: 8,
-    },
-    input: {
-        borderWidth: 1,
-        borderColor: currentTheme.border,
-        borderRadius: 8,
-        padding: 12,
-        fontSize: 16,
-        color: currentTheme.text,
-        backgroundColor: currentTheme.background,
-    },
-});

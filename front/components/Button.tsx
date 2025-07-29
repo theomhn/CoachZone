@@ -38,7 +38,6 @@ export default function Button({
     activeOpacity = 0.7,
 }: ButtonProps) {
     const { currentTheme } = useTheme();
-
     const styles = getStyles(currentTheme, variant, size, selected, disabled, fullWidth);
     const iconSizeValue = iconSize || getIconSize(size);
 

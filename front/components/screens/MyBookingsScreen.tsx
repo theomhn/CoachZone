@@ -1,3 +1,6 @@
+import Card from "@/components/ui/Card";
+import EmptyState from "@/components/ui/EmptyState";
+import LoadingView from "@/components/ui/LoadingView";
 import { API_BASE_URL } from "@/config";
 import { useTheme } from "@/hooks/useTheme";
 import { Booking } from "@/types";
@@ -7,16 +10,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import { router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import React, { useCallback, useEffect, useState } from "react";
-import {
-    ActivityIndicator,
-    Alert,
-    FlatList,
-    RefreshControl,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
-} from "react-native";
+import { Alert, FlatList, RefreshControl, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export default function MyBookingsScreen() {
     const [isLoading, setIsLoading] = useState(true);
@@ -28,218 +22,7 @@ export default function MyBookingsScreen() {
     // Récupérer le thème actuel et les couleurs associées
     const { currentTheme } = useTheme();
 
-    const styles = StyleSheet.create({
-        container: {
-            flex: 1,
-            backgroundColor: currentTheme.background,
-        },
-        centered: {
-            justifyContent: "center",
-            alignItems: "center",
-        },
-        toggleContainer: {
-            flexDirection: "row",
-            backgroundColor: currentTheme.lightBackground,
-            marginHorizontal: 16,
-            marginTop: 16,
-            marginBottom: 8,
-            borderRadius: 8,
-            overflow: "hidden",
-            elevation: 2,
-            shadowColor: currentTheme.shadow,
-            shadowOffset: { width: 0, height: 1 },
-            shadowOpacity: 0.1,
-            shadowRadius: 2,
-        },
-        toggleButton: {
-            flex: 1,
-            paddingVertical: 12,
-            alignItems: "center",
-            justifyContent: "center",
-        },
-        toggleActive: {
-            backgroundColor: currentTheme.primary,
-        },
-        toggleText: {
-            fontSize: 14,
-            fontWeight: "600",
-            color: currentTheme.text,
-        },
-        toggleActiveText: {
-            color: currentTheme.white,
-        },
-        listContainer: {
-            paddingHorizontal: 16,
-            paddingBottom: 20,
-        },
-        bookingCard: {
-            backgroundColor: currentTheme.lightBackground,
-            borderRadius: 10,
-            marginVertical: 8,
-            padding: 16,
-            elevation: 2,
-            shadowColor: currentTheme.shadow,
-            shadowOffset: { width: 0, height: 1 },
-            shadowOpacity: 0.1,
-            shadowRadius: 2,
-        },
-        bookingHeader: {
-            flexDirection: "row",
-            justifyContent: "space-between",
-            marginBottom: 12,
-        },
-        dateContainer: {
-            flex: 1,
-        },
-        dateText: {
-            fontSize: 16,
-            fontWeight: "700",
-            color: currentTheme.text,
-            marginBottom: 4,
-        },
-        timeText: {
-            fontSize: 14,
-            color: currentTheme.secondaryText,
-        },
-        bookingDetails: {
-            marginTop: 8,
-        },
-        detailRow: {
-            flexDirection: "row",
-            alignItems: "center",
-            marginBottom: 8,
-        },
-        iconPrimary: {
-            color: currentTheme.icon,
-        },
-        icon: {
-            color: currentTheme.secondaryText,
-            marginRight: 8,
-        },
-        detailText: {
-            fontSize: 14,
-            color: currentTheme.text,
-            flex: 1,
-        },
-        emptyContainer: {
-            paddingVertical: 60,
-            alignItems: "center",
-            justifyContent: "center",
-        },
-        emptyText: {
-            marginTop: 16,
-            fontSize: 16,
-            color: currentTheme.secondaryText,
-            textAlign: "center",
-        },
-        priceContainer: {
-            alignItems: "flex-end",
-        },
-        priceText: {
-            fontSize: 16,
-            fontWeight: "600",
-            color: currentTheme.success,
-        },
-        actionsContainer: {
-            flexDirection: "row",
-            marginTop: 16,
-            paddingTop: 12,
-            borderTopWidth: 1,
-            borderTopColor: currentTheme.border,
-            gap: 12,
-        },
-        actionButton: {
-            flex: 1,
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "center",
-            paddingVertical: 8,
-            paddingHorizontal: 12,
-            borderRadius: 6,
-            borderWidth: 1,
-        },
-        modifyButton: {
-            backgroundColor: currentTheme.lightBackground,
-            borderColor: currentTheme.primary,
-        },
-        cancelButton: {
-            backgroundColor: currentTheme.lightBackground,
-            borderColor: currentTheme.danger,
-        },
-        actionIcon: {
-            color: currentTheme.primary,
-            marginRight: 6,
-        },
-        actionIconCancel: {
-            color: currentTheme.danger,
-            marginRight: 6,
-        },
-        actionText: {
-            fontSize: 14,
-            fontWeight: "500",
-            color: currentTheme.primary,
-        },
-        actionTextCancel: {
-            fontSize: 14,
-            fontWeight: "500",
-            color: currentTheme.danger,
-        },
-        // Styles pour les réservations annulées
-        cancelledBookingCard: {
-            backgroundColor: currentTheme.lightBackground,
-            borderWidth: 1,
-            borderColor: currentTheme.border,
-            opacity: 0.7,
-        },
-        cancelledBadge: {
-            position: "absolute",
-            top: -8,
-            right: -8,
-            backgroundColor: currentTheme.danger,
-            borderRadius: 12,
-            paddingHorizontal: 10,
-            paddingVertical: 4,
-            zIndex: 1,
-            elevation: 3,
-            shadowColor: currentTheme.shadow,
-            shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.25,
-            shadowRadius: 3,
-        },
-        cancelledBadgeText: {
-            color: currentTheme.white,
-            fontSize: 10,
-            fontWeight: "700",
-            textTransform: "uppercase",
-            letterSpacing: 0.5,
-        },
-        cancelledText: {
-            color: currentTheme.secondaryText,
-            textDecorationLine: "line-through",
-        },
-        cancelledIcon: {
-            color: currentTheme.secondaryText,
-            opacity: 0.6,
-        },
-        cancelledPriceText: {
-            color: currentTheme.secondaryText,
-        },
-        strikethrough: {
-            textDecorationLine: "line-through",
-            color: currentTheme.secondaryText,
-        },
-        refundText: {
-            color: currentTheme.success,
-            fontSize: 14,
-            fontWeight: "500",
-        },
-        cancelledDateText: {
-            fontSize: 12,
-            color: currentTheme.danger,
-            fontStyle: "italic",
-            flex: 1,
-        },
-    });
+    const styles = getStyles(currentTheme);
 
     // Filtrer les réservations (à venir ou passées)
     const filterBookings = useCallback((bookingsData: Booking[], upcoming: boolean) => {
@@ -455,7 +238,7 @@ export default function MyBookingsScreen() {
         const isCancelled = item.status === "cancelled";
 
         return (
-            <View style={[styles.bookingCard, isCancelled && styles.cancelledBookingCard]}>
+            <View style={{ position: "relative", marginVertical: 8, marginTop: isCancelled ? 12 : 8 }}>
                 {/* Badge "ANNULÉE" pour les réservations annulées */}
                 {isCancelled && (
                     <View style={styles.cancelledBadge}>
@@ -463,110 +246,109 @@ export default function MyBookingsScreen() {
                     </View>
                 )}
 
-                <View style={styles.bookingHeader}>
-                    <View style={styles.dateContainer}>
-                        <Text style={[styles.dateText, isCancelled && styles.cancelledText]}>
-                            {formatDate(item.dateStart).split(" à ")[0]}
-                        </Text>
-                        <Text style={[styles.timeText, isCancelled && styles.cancelledText]}>
-                            {formatTime(item.dateStart)} - {formatTime(item.dateEnd)}
-                        </Text>
+                <Card variant="booking" state={isCancelled ? "cancelled" : "normal"} margin="none">
+                    <View style={styles.bookingHeader}>
+                        <View style={styles.dateContainer}>
+                            <Text style={[styles.dateText, isCancelled && styles.cancelledText]}>
+                                {formatDate(item.dateStart).split(" à ")[0]}
+                            </Text>
+                            <Text style={[styles.timeText, isCancelled && styles.cancelledText]}>
+                                {formatTime(item.dateStart)} - {formatTime(item.dateEnd)}
+                            </Text>
+                        </View>
+
+                        {/* Prix de la réservation */}
+                        <View style={styles.priceContainer}>
+                            <Text style={[styles.priceText, isCancelled && styles.cancelledPriceText]}>
+                                {isCancelled ? (
+                                    <>
+                                        <Text style={styles.strikethrough}>{item.price} €</Text>
+                                        <Text style={styles.refundText}> • Remboursée</Text>
+                                    </>
+                                ) : (
+                                    `${item.price} €`
+                                )}
+                            </Text>
+                        </View>
                     </View>
 
-                    {/* Prix de la réservation */}
-                    <View style={styles.priceContainer}>
-                        <Text style={[styles.priceText, isCancelled && styles.cancelledPriceText]}>
-                            {isCancelled ? (
-                                <>
-                                    <Text style={styles.strikethrough}>{item.price} €</Text>
-                                    <Text style={styles.refundText}> • Remboursée</Text>
-                                </>
-                            ) : (
-                                `${item.price} €`
-                            )}
-                        </Text>
-                    </View>
-                </View>
-
-                <View style={styles.bookingDetails}>
-                    <View style={styles.detailRow}>
-                        <Ionicons
-                            name="location-outline"
-                            size={18}
-                            style={[styles.icon, isCancelled && styles.cancelledIcon]}
-                        />
-                        <Text style={[styles.detailText, isCancelled && styles.cancelledText]}>
-                            {item.placeEquipmentName || "Lieu non disponible"}
-                        </Text>
-                    </View>
-
-                    {/* Afficher le nom du coach pour les institutions */}
-                    {currentUser && currentUser.type === "ROLE_INSTITUTION" && item.coachFullName && (
+                    <View style={styles.bookingDetails}>
                         <View style={styles.detailRow}>
                             <Ionicons
-                                name="person-outline"
+                                name="location-outline"
                                 size={18}
                                 style={[styles.icon, isCancelled && styles.cancelledIcon]}
                             />
                             <Text style={[styles.detailText, isCancelled && styles.cancelledText]}>
-                                {item.coachFullName}
+                                {item.placeEquipmentName || "Lieu non disponible"}
                             </Text>
                         </View>
-                    )}
 
-                    {/* Afficher la date d'annulation si applicable */}
-                    {isCancelled && item.cancelledAt && (
-                        <View style={styles.detailRow}>
-                            <Ionicons name="close-circle-outline" size={18} style={styles.cancelledIcon} />
-                            <Text style={styles.cancelledDateText}>
-                                Annulée le {new Date(item.cancelledAt).toLocaleDateString("fr-FR")}
-                            </Text>
-                        </View>
-                    )}
-                </View>
+                        {/* Afficher le nom du coach pour les institutions */}
+                        {currentUser && currentUser.type === "ROLE_INSTITUTION" && item.coachFullName && (
+                            <View style={styles.detailRow}>
+                                <Ionicons
+                                    name="person-outline"
+                                    size={18}
+                                    style={[styles.icon, isCancelled && styles.cancelledIcon]}
+                                />
+                                <Text style={[styles.detailText, isCancelled && styles.cancelledText]}>
+                                    {item.coachFullName}
+                                </Text>
+                            </View>
+                        )}
 
-                {/* Boutons d'action pour les réservations à venir NON ANNULÉES */}
-                {isUpcoming && showUpcoming && !isCancelled && (
-                    <View style={styles.actionsContainer}>
-                        <TouchableOpacity
-                            style={[styles.actionButton, styles.modifyButton]}
-                            onPress={() => modifyBooking(item)}
-                            activeOpacity={0.7}
-                        >
-                            <Ionicons name="create-outline" size={18} style={styles.actionIcon} />
-                            <Text style={styles.actionText}>Modifier</Text>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity
-                            style={[styles.actionButton, styles.cancelButton]}
-                            onPress={() => cancelBooking(item)}
-                            activeOpacity={0.7}
-                        >
-                            <Ionicons name="trash-outline" size={18} style={styles.actionIconCancel} />
-                            <Text style={styles.actionTextCancel}>Annuler</Text>
-                        </TouchableOpacity>
+                        {/* Afficher la date d'annulation si applicable */}
+                        {isCancelled && item.cancelledAt && (
+                            <View style={styles.detailRow}>
+                                <Ionicons name="close-circle-outline" size={18} style={styles.cancelledIcon} />
+                                <Text style={styles.cancelledDateText}>
+                                    Annulée le {new Date(item.cancelledAt).toLocaleDateString("fr-FR")}
+                                </Text>
+                            </View>
+                        )}
                     </View>
-                )}
+
+                    {/* Boutons d'action pour les réservations à venir NON ANNULÉES */}
+                    {isUpcoming && showUpcoming && !isCancelled && (
+                        <View style={styles.actionsContainer}>
+                            <TouchableOpacity
+                                style={[styles.actionButton, styles.modifyButton]}
+                                onPress={() => modifyBooking(item)}
+                                activeOpacity={0.7}
+                            >
+                                <Ionicons name="create-outline" size={18} style={styles.actionIcon} />
+                                <Text style={styles.actionText}>Modifier</Text>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity
+                                style={[styles.actionButton, styles.cancelButton]}
+                                onPress={() => cancelBooking(item)}
+                                activeOpacity={0.7}
+                            >
+                                <Ionicons name="trash-outline" size={18} style={styles.actionIconCancel} />
+                                <Text style={styles.actionTextCancel}>Annuler</Text>
+                            </TouchableOpacity>
+                        </View>
+                    )}
+                </Card>
             </View>
         );
     };
 
     // Rendu de l'écran de chargement
     if (isLoading && !refreshing) {
-        return (
-            <View style={[styles.container, styles.centered]}>
-                <ActivityIndicator size="large" color={currentTheme.primary} />
-            </View>
-        );
+        return <LoadingView />;
     }
 
     // Si pas d'utilisateur connecté après le chargement
     if (!global.user) {
         return (
-            <View style={[styles.container, styles.centered]}>
-                <Ionicons name="person-outline" size={48} style={styles.iconPrimary} />
-                <Text style={styles.emptyText}>Vous devez être connecté pour voir vos réservations</Text>
-            </View>
+            <EmptyState
+                icon="person-outline"
+                title="Connexion requise"
+                subtitle="Vous devez être connecté pour voir vos réservations"
+            />
         );
     }
 
@@ -598,14 +380,194 @@ export default function MyBookingsScreen() {
                 contentContainerStyle={styles.listContainer}
                 refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
                 ListEmptyComponent={
-                    <View style={styles.emptyContainer}>
-                        <Ionicons name="calendar-outline" size={48} style={styles.iconPrimary} />
-                        <Text style={styles.emptyText}>
-                            {showUpcoming ? "Aucune réservation à venir" : "Aucune réservation passée"}
-                        </Text>
-                    </View>
+                    <EmptyState
+                        icon="calendar-outline"
+                        title={showUpcoming ? "Aucune réservation à venir" : "Aucune réservation passée"}
+                        subtitle={
+                            showUpcoming
+                                ? "Vous n'avez pas de réservations programmées"
+                                : "Aucune réservation dans votre historique"
+                        }
+                    />
                 }
             />
         </View>
     );
 }
+
+const getStyles = (currentTheme: any) => StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: currentTheme.background,
+    },
+    toggleContainer: {
+        flexDirection: "row",
+        backgroundColor: currentTheme.lightBackground,
+        marginHorizontal: 16,
+        marginTop: 16,
+        marginBottom: 8,
+        borderRadius: 8,
+        overflow: "hidden",
+        elevation: 2,
+        shadowColor: currentTheme.shadow,
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.1,
+        shadowRadius: 2,
+    },
+    toggleButton: {
+        flex: 1,
+        paddingVertical: 12,
+        alignItems: "center",
+        justifyContent: "center",
+    },
+    toggleActive: {
+        backgroundColor: currentTheme.primary,
+    },
+    toggleText: {
+        fontSize: 14,
+        fontWeight: "600",
+        color: currentTheme.text,
+    },
+    toggleActiveText: {
+        color: currentTheme.white,
+    },
+    listContainer: {
+        paddingHorizontal: 16,
+        paddingBottom: 20,
+    },
+    bookingHeader: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        marginBottom: 12,
+    },
+    dateContainer: {
+        flex: 1,
+    },
+    dateText: {
+        fontSize: 16,
+        fontWeight: "700",
+        color: currentTheme.text,
+        marginBottom: 4,
+    },
+    timeText: {
+        fontSize: 14,
+        color: currentTheme.secondaryText,
+    },
+    bookingDetails: {
+        marginTop: 8,
+    },
+    detailRow: {
+        flexDirection: "row",
+        alignItems: "center",
+        marginBottom: 8,
+    },
+    icon: {
+        color: currentTheme.secondaryText,
+        marginRight: 8,
+    },
+    detailText: {
+        fontSize: 14,
+        color: currentTheme.text,
+        flex: 1,
+    },
+    priceContainer: {
+        alignItems: "flex-end",
+    },
+    priceText: {
+        fontSize: 16,
+        fontWeight: "600",
+        color: currentTheme.success,
+    },
+    actionsContainer: {
+        flexDirection: "row",
+        marginTop: 16,
+        paddingTop: 12,
+        borderTopWidth: 1,
+        borderTopColor: currentTheme.border,
+        gap: 12,
+    },
+    actionButton: {
+        flex: 1,
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+        paddingVertical: 8,
+        paddingHorizontal: 12,
+        borderRadius: 6,
+        borderWidth: 1,
+    },
+    modifyButton: {
+        backgroundColor: currentTheme.lightBackground,
+        borderColor: currentTheme.primary,
+    },
+    cancelButton: {
+        backgroundColor: currentTheme.lightBackground,
+        borderColor: currentTheme.danger,
+    },
+    actionIcon: {
+        color: currentTheme.primary,
+        marginRight: 6,
+    },
+    actionIconCancel: {
+        color: currentTheme.danger,
+        marginRight: 6,
+    },
+    actionText: {
+        fontSize: 14,
+        fontWeight: "500",
+        color: currentTheme.primary,
+    },
+    actionTextCancel: {
+        fontSize: 14,
+        fontWeight: "500",
+        color: currentTheme.danger,
+    },
+    cancelledBadge: {
+        position: "absolute",
+        top: -8,
+        right: -8,
+        backgroundColor: currentTheme.danger,
+        borderRadius: 12,
+        paddingHorizontal: 10,
+        paddingVertical: 4,
+        zIndex: 1,
+        elevation: 3,
+        shadowColor: currentTheme.shadow,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 3,
+    },
+    cancelledBadgeText: {
+        color: currentTheme.white,
+        fontSize: 10,
+        fontWeight: "700",
+        textTransform: "uppercase",
+        letterSpacing: 0.5,
+    },
+    cancelledText: {
+        color: currentTheme.secondaryText,
+        textDecorationLine: "line-through",
+    },
+    cancelledIcon: {
+        color: currentTheme.secondaryText,
+        opacity: 0.6,
+    },
+    cancelledPriceText: {
+        color: currentTheme.secondaryText,
+    },
+    strikethrough: {
+        textDecorationLine: "line-through",
+        color: currentTheme.secondaryText,
+    },
+    refundText: {
+        color: currentTheme.success,
+        fontSize: 14,
+        fontWeight: "500",
+    },
+    cancelledDateText: {
+        fontSize: 12,
+        color: currentTheme.danger,
+        fontStyle: "italic",
+        flex: 1,
+    },
+});

@@ -197,6 +197,8 @@ export default function EmailChangeModal({ visible, onClose, currentEmail, onEma
             visible={visible}
             onClose={handleClose}
             title="Changer d'email"
+            size="large"
+            scrollable={true}
             primaryButton={
                 step === "request"
                     ? {

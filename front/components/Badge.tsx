@@ -6,20 +6,7 @@ import { StyleSheet, Text, View } from "react-native";
 const Badge: React.FC<BadgeProps> = ({ text }) => {
     // Récupérer le thème actuel et les couleurs associées
     const { currentTheme } = useTheme();
-
-    const styles = StyleSheet.create({
-        badge: {
-            backgroundColor: currentTheme.primary,
-            paddingHorizontal: 8,
-            paddingVertical: 4,
-            borderRadius: 4,
-        },
-        badgeText: {
-            color: currentTheme.white,
-            fontSize: 12,
-            fontWeight: "500",
-        },
-    });
+    const styles = getStyles(currentTheme);
 
     return (
         <View style={styles.badge}>
@@ -27,5 +14,19 @@ const Badge: React.FC<BadgeProps> = ({ text }) => {
         </View>
     );
 };
+
+const getStyles = (currentTheme: any) => StyleSheet.create({
+    badge: {
+        backgroundColor: currentTheme.primary,
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 4,
+    },
+    badgeText: {
+        color: currentTheme.white,
+        fontSize: 12,
+        fontWeight: "500",
+    },
+});
 
 export default Badge;

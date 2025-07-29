@@ -11,18 +11,7 @@ export const ThemeToggleButton: React.FC = () => {
     const [isModalVisible, setIsModalVisible] = useState(false);
     // Récupérer le thème actuel et les couleurs associées
     const { currentTheme } = useTheme();
-
-    const styles = StyleSheet.create({
-        container: {
-            marginRight: 16,
-        },
-        button: {
-            padding: 0,
-        },
-        iconPrimary: {
-            color: currentTheme.primary,
-        },
-    });
+    const styles = getStyles(currentTheme);
 
     const openModal = () => {
         setIsModalVisible(true);
@@ -49,6 +38,18 @@ export const ThemeToggleButton: React.FC = () => {
         </>
     );
 };
+
+const getStyles = (currentTheme: any) => StyleSheet.create({
+    container: {
+        marginRight: 16,
+    },
+    button: {
+        padding: 0,
+    },
+    iconPrimary: {
+        color: currentTheme.primary,
+    },
+});
 
 /**
  * Helper pour obtenir les options du header
